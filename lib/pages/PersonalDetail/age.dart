@@ -46,7 +46,7 @@ class _AgePageState extends State<AgePage> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_ageController.text.isNotEmpty) {
-                    Get.toNamed('/user_interest'); // Go to PersonalDetailsPage
+                    Get.toNamed('/feed'); // Go to PersonalDetailsPage
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Please enter your age!")),

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "611414949138",
+    "project_id": "ella-ffd84",
+    "storage_bucket": "ella-ffd84.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611414949138:android:2d78a4562989fdd00f07cb",
+        "android_client_info": {
+          "package_name": "com.example.gemini_chat_app_tutorial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "611414949138-sunvlhq088sf6etnlikdtoomd0srhki9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gemini_chat_app_tutorial",
+            "certificate_hash": "b02f7b8a7ef88ae2367fc3b5b37fdbad076ba76d"
+          }
+        },
+        {
+          "client_id": "611414949138-da5sm7ml63c9kku3v3fl14gd6ujnc0ot.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7ahvP031JTV6zouWCT4YdP724FMW2xBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "611414949138-da5sm7ml63c9kku3v3fl14gd6ujnc0ot.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "611414949138-eg960hpnf8uhmrnimu1b7sg1eju6k9e0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.geminiChatAppTutorial"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
