@@ -50,7 +50,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
     // Navigate to next page after delay
-    Future.delayed(const Duration(seconds: 1000), () {
+    Future.delayed(const Duration(seconds: 1), () {
       Get.offNamed('/login');
     });
   }
