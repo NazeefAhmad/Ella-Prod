@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
+import 'package:gemini_chat_app_tutorial/services/api_service.dart';
+
 
 
 class UsernamePage extends StatefulWidget {
@@ -48,23 +50,26 @@ class _UsernamePageState extends State<UsernamePage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to Age Page when clicked
-                  if (_usernameController.text.isNotEmpty) {
-                    Get.toNamed('/age'); // Replace with your next page route
-                  } else {
-                    // Show error if name is not entered
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Please enter your name!")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(20),
-                ),
-                child: const Icon(Icons.arrow_forward, size: 30),
-              ),
+  onPressed: () async {
+    if (_usernameController.text.isNotEmpty) {
+      // Submit the name when the button is pressed
+   ApiService().submitUserData(_usernameController.text);
+      
+      // Proceed to next page
+      Get.toNamed('/age');  // Replace with your next route
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter your name!")),
+      );
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    shape: CircleBorder(),
+    padding: EdgeInsets.all(20),
+  ),
+  child: const Icon(Icons.arrow_forward, size: 30),
+),
+
             ),
           ],
         ),

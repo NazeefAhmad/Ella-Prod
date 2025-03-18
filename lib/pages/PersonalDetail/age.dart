@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
+// import 'package:gemini_chat_app_tutorial/pages/UserInterestPage.dart';
+import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
+
 
 
 class AgePage extends StatefulWidget {
@@ -46,7 +49,7 @@ class _AgePageState extends State<AgePage> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_ageController.text.isNotEmpty) {
-                    Get.toNamed('/feed'); // Go to PersonalDetailsPage
+                    Get.toNamed('/userInterest'); // Go to PersonalDetailsPage
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Please enter your age!")),

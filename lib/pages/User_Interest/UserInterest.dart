@@ -1,5 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gemini_chat_app_tutorial/services/api_service.dart';  // Import your API service
+import 'package:gemini_chat_app_tutorial/consts.dart';
+
 
 class UserInterestPage extends StatelessWidget {
   const UserInterestPage({Key? key}) : super(key: key);
@@ -25,8 +29,10 @@ class UserInterestPage extends StatelessWidget {
             // Male button (Floating Action Button)
             FloatingActionButton.extended(
               onPressed: () {
-                // On selecting Male, navigate to HomePage
-                Get.toNamed('/feed');
+                // Save interest as 'Male' and make the API call
+                AppConstants.interest = 'Male';
+                ApiService().sendInterest(AppConstants.interest);  // Send to backend
+                Get.toNamed('/feed');  // Navigate to Feed page
               },
               label: const Text("Male"),
               icon: const Icon(Icons.male),
@@ -36,8 +42,10 @@ class UserInterestPage extends StatelessWidget {
             // Female button (Floating Action Button)
             FloatingActionButton.extended(
               onPressed: () {
-                // On selecting Female, navigate to HomePage
-                Get.toNamed('/feed');
+                // Save interest as 'Female' and make the API call
+                AppConstants.interest = 'Female';
+                ApiService().sendInterest(AppConstants.interest);  // Send to backend
+                Get.toNamed('/feed');  // Navigate to Feed page
               },
               label: const Text("Female"),
               icon: const Icon(Icons.female),
@@ -47,8 +55,10 @@ class UserInterestPage extends StatelessWidget {
             // Everyone button (Floating Action Button)
             FloatingActionButton.extended(
               onPressed: () {
-                // On selecting Everyone, navigate to HomePage
-                Get.toNamed('/feed');
+                // Save interest as 'Everyone' and make the API call
+                AppConstants.interest = 'Everyone';
+                ApiService().sendInterest(AppConstants.interest);  // Send to backend
+                Get.toNamed('/feed');  // Navigate to Feed page
               },
               label: const Text("Everyone"),
               icon: const Icon(Icons.group),
