@@ -46,43 +46,30 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              // Continue as Guest button
-              // ElevatedButton(
-              //   style: ElevatedButton.styleFrom(
-              //     minimumSize: const Size(double.infinity, 60),
-              //     backgroundColor: Colors.grey, // Guest button color
-              //   ),
-              //   onPressed: () {
-              //     // Navigate to the Username page as a guest
-              //     Get.toNamed('/username');
-              //   },
-              //   child: const Text(
-              //     'Continue as Guest',
-              //     style: TextStyle(fontSize: 18),
-              //   ),
-              // ),
+          
             
             ElevatedButton(
   style: ElevatedButton.styleFrom(
     minimumSize: const Size(double.infinity, 60),
     backgroundColor: Colors.grey, // Guest button color
   ),
-  onPressed: () async {
-    // Create an instance of ApiService using baseUrl from AppConstants
-    final apiService = ApiService();
+ // In the ElevatedButton onPressed handler, modify it to:
+onPressed: () async {
+  final apiService = ApiService();
 
-    try {
-      // Call continueAsGuest which handles the API logic
-       apiService.continueAsGuest();
-
-      // After the API call is successful, navigate to the username page
-      Get.toNamed('/username');
-    } catch (e) {
-      // Handle any error that occurs in the API call
-      print('Error: $e');
-      // You can also show an error message in the UI if needed (e.g., using a SnackBar)
-    }
-  },
+  try {
+    // Add await here to ensure the API call completes
+    await apiService.continueAsGuest();
+    
+    // Only navigate after successful API call
+    Get.toNamed('/username');
+  } catch (e) {
+    print('Error: $e');
+    // Add user feedback
+    Get.snackbar('Error', 'Failed to continue as guest: $e',
+      snackPosition: SnackPosition.BOTTOM);
+  }
+},
   child: const Text(
     'Continue as Guest',
     style: TextStyle(fontSize: 18),

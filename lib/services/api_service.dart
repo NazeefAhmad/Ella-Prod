@@ -33,18 +33,18 @@ class ApiService {
         }),
       );
 
-      if (response.statusCode == 200) {
-        // API success
-        print('Guest user API success: ${response.body}');
-      } else {
-        // API failure
-        throw 'Failed to continue as guest: ${response.body}';
-      }
-    } catch (e) {
-      print('Error in continueAsGuest: $e');
-      rethrow;  // Re-throw the error to handle it in the UI
-    }
+      // Modify this part in continueAsGuest()
+if (response.statusCode == 201) {  // Note: your backend returns 201 for creation
+  print('Guest user API success: ${response.body}');
+  return json.decode(response.body); // Return the response
+} else {
+  print('API error: Status ${response.statusCode}, Body: ${response.body}');
+  throw 'Failed to continue as guest: ${response.statusCode}';
+}
   }
+
+
+
 
   // Function to get the device fingerprint
   Future<String> _getDeviceFingerprint() async {

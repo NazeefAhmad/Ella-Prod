@@ -31,6 +31,7 @@ class AppRouter {
     GetPage(name: '/age', page: () => AgePage()),
     GetPage(name: '/login', page: () => LoginPage()),
     GetPage(name: '/feed', page: () => FeedScreen()),
+    
     GetPage(name: '/', page: () => SplashPage()), // SplashPage is the initial page
 
   ];

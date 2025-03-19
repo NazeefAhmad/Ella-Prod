@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
-import 'package:device_info_plus/device_info_plus.dart';  // Import the package
-import 'package:gemini_chat_app_tutorial/consts.dart';  // Import your consts file
-
+import 'package:device_info_plus/device_info_plus.dart';  // For device info
+import 'package:gemini_chat_app_tutorial/consts.dart';  // Your constants file
+import 'package:android_id/android_id.dart';  // For Android ID
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -14,70 +14,50 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   String deviceId = 'Fetching...';
+  String deviceFingerprint = 'Fetching...';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _getDeviceId();  // Get device ID when the dependencies change (after context is available)
-    // Navigate to OnboardingPage after a delay
+    _getDeviceInfo(); // Fetch device info when dependencies change
     Future.delayed(const Duration(seconds: 3), () {
       Get.offNamed('/onboarding');
     });
   }
 
-  // Function to get the device ID
-  // Future<void> _getDeviceId() async {
-  //   try {
-  //     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  //     String id = '';
-    
-  //     // Check platform and get device ID accordingly
-  //     if (Theme.of(context).platform == TargetPlatform.iOS) {
-  //       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-  //       id = iosInfo.identifierForVendor ?? 'Unknown Device ID';  // iOS specific device ID
-  //     } else if (Theme.of(context).platform == TargetPlatform.android) {
-  //       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-  //       id = androidInfo.fingerprint ?? 'Unknown Device ID';  // Android specific device ID
-  //     }
-
-  //     setState(() {
-  //       deviceId = id;
-  //     });
-
-  //     print("Device ID: $deviceId");  // Log the device ID for debugging
-  //   } catch (e) {
-  //     print("Error fetching device ID: $e");
-  //     setState(() {
-  //       deviceId = 'Failed to get device ID';
-  //     });
-  //   }
-  // }
-
-
-// Function to get the device ID
-  Future<void> _getDeviceId() async {
+  // Function to get the device ID and fingerprint
+  Future<void> _getDeviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    
-    // Variable to store the device ID
-    String deviceId = '';
-    
-    // Check for the platform and get device ID accordingly
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      deviceId = iosInfo.identifierForVendor ?? 'Unknown Device ID';  // iOS specific device ID
-    } else if (Theme.of(context).platform == TargetPlatform.android) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      deviceId = androidInfo.fingerprint ?? 'Unknown Device ID';  // Android specific device ID
+    const androidIdPlugin = AndroidId();
+
+    String id = 'Unknown';
+    String fingerprint = 'Unknown';
+
+    try {
+      if (Theme.of(context).platform == TargetPlatform.iOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        id = iosInfo.identifierForVendor ?? 'Unknown Device ID';  // iOS-specific device ID
+      } else if (Theme.of(context).platform == TargetPlatform.android) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        id = await androidIdPlugin.getId() ?? 'Unknown Device ID';  // Android ID as device ID
+        fingerprint = androidInfo.fingerprint ?? 'Unknown Fingerprint';  // Android fingerprint
+      }
+    } catch (e) {
+      print("Error fetching device info: $e");
     }
 
-    // Save the device ID to the AppConstants
-    AppConstants.deviceId = deviceId;
+    // Save the device ID and fingerprint in your constants
+    AppConstants.deviceId = id;
+    AppConstants.deviceFingerprint = fingerprint;
 
-    // You can also print or log the device ID for debugging
-    print("Device ID: ${AppConstants.deviceId}");
+    setState(() {
+      deviceId = id;
+      deviceFingerprint = fingerprint;
+    });
+
+    print("📱 Device ID: $deviceId");
+    print("🔍 Device Fingerprint: $deviceFingerprint");
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +90,12 @@ class _SplashPageState extends State<SplashPage> {
             const SizedBox(height: 20),
             if (deviceId != 'Fetching...') 
               Text(
-                'Device ID: $deviceId',  // Display device ID on splash page (optional for debugging)
+                'Device ID: $deviceId',  // Display device ID
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            if (deviceFingerprint != 'Fetching...')
+              Text(
+                'Fingerprint: $deviceFingerprint',  // Display device fingerprint
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
           ],
