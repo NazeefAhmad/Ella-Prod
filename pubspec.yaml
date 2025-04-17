@@ -55,6 +55,7 @@ dependencies:
 
   device_info_plus: ^11.3.0 #device_id
   android_id: ^0.4.0
+  shared_preferences: ^2.2.2
 
 
 
@@ -112,11 +113,20 @@ flutter:
         - asset: assets/Fonts/Comic_Neue/ComicNeue-Regular.ttf
         - asset: assets/Fonts/Comic_Neue/ComicNeue-Italic.ttf
           style: italic
+
     - family: Fira_Sans
       fonts:
         - asset: assets/Fonts/Fira_Sans/FiraSans-Black.ttf
         - asset: assets/Fonts/Fira_Sans/FiraSans-BlackItalic.ttf
           weight: 700
-  #
+
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat/static/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat/static/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Montserrat/static/Montserrat-Medium.ttf
+          weight: 500
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

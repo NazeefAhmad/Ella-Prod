@@ -1,327 +1,437 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
-// import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
-// import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
-
-
-// class OnboardingPage extends StatefulWidget {
-//   const OnboardingPage({Key? key}) : super(key: key);
-
-//   @override
-//   State<OnboardingPage> createState() => _OnboardingPageState();
-// }
-
-// class _OnboardingPageState extends State<OnboardingPage> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Navigate to HomePage after delay (3 seconds)
-//     Future.delayed(const Duration(seconds: 100), () {
-//       Get.offNamed('/login');  // Replace with your desired page (e.g. '/home')
-//     });
-//   }
-
-// @override
-// Widget build(BuildContext context) {
-//   return Scaffold(
-//     body: Center(
-//       child: Image.asset(
-//         'assets/images/onbordings.png',
-//         width: MediaQuery.of(context).size.width * 1, // Makes it responsive
-//         fit: BoxFit.contain, // Adjusts for different screen sizes
-//       ),
-//     ),
-//   );
-// }
-// }
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends StatelessWidget {
   const OnboardingPage({Key? key}) : super(key: key);
 
-  @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
-}
-
-class _OnboardingPageState extends State<OnboardingPage> {
-  @override
-  void initState() {
-    super.initState();
-    // Navigate to next page after delay
-    Future.delayed(const Duration(seconds: 1), () {
-      Get.offNamed('/login');
-    });
-  }
+  final List<String> profileImages = const [
+    'assets/girls/sofiya.jpg',
+    'assets/girls/shweta.jpg',
+    'assets/girls/isma.jpg',
+    'assets/girls/beach_girl.jpg',
+    'assets/girls/airhostess.jpg',
+    'assets/girls/Emma.jpg',
+    'assets/girls/Emma.jpg',
+    'assets/girls/beach_girl.jpg',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          // color: Color(E40F5D), // Light pink background
-          color: Color.fromRGBO(239, 203, 215, 1), // Light pink background using RGBO
+      backgroundColor: Colors.white,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              // Profile grid covering the entire screen
+              _buildProfileGrid(constraints),
+              
+              // App branding and button section positioned above the 4th row
+              _buildAppBranding(constraints),
+            ],
+          );
+        }
+      ),
+    );
+  }
+
+  Widget _buildAppBranding(BoxConstraints constraints) {
+    // Position the branding content between the 3rd and 4th rows
+    return Positioned(
+      left: 0,
+      right: 0,
+      // Position it at about 65% of the screen height (between rows 3 and 4)
+      top: constraints.maxHeight * 0.62,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, -3),
+            ),
+          ],
         ),
-        child: Stack(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Background circles
-            Positioned(
-              top: size.height * 0.05,
-              right: size.width * 0.05,
-              child: _buildCircle(size.width * 0.2, Colors.white.withOpacity(0.5)),
-            ),
-            Positioned(
-              bottom: size.height * 0.2,
-              left: size.width * 0.1,
-              child: _buildCircle(size.width * 0.25, Colors.white.withOpacity(0.7)),
-            ),
-            Positioned(
-              top: size.height * 0.7,
-              right: size.width * 0.15,
-              child: _buildCircle(size.width * 0.1, Color(0xFFFFADD4).withOpacity(0.6)),
-            ),
-            Positioned(
-              bottom: size.height * 0.3,
-              left: size.width * 0.5,
-              child: _buildCircle(size.width * 0.15, Color(0xFFFFADD4).withOpacity(0.4)),
-            ),
-            
-            // Hearts
-            // Positioned(
-            //   top: size.height * 0.1,
-            //   right: size.width * 0.2,
-            //   child: _buildHeart(size.width * 0.08, Color(0xFFFFADD4).withOpacity(0.7)),
-            // ),
-            Positioned(
-  top: size.height * 0.3,
-  right: size.width * 0.2,
-  child: Image.asset(
-    'assets/images/hearts/heart.png', // Make sure to use the correct path to your image
-    width: size.width * 0.08,
-    height: size.width * 0.08,
-    fit: BoxFit.cover, // This ensures the image is scaled properly
-  ),
-),
-
-Positioned(///to be done later///to be done later
-  top: size.height * 0.3,
-  right: size.width * 0.6,
-  child: Image.asset(
-    'assets/images/hearts/hearts.png', // Make sure to use the correct path to your image
-    width: size.width * 0.08,
-    height: size.width * 0.08,
-    fit: BoxFit.cover, // This ensures the image is scaled properly
-  ),
-),
-Positioned(//to be done later
-  top: size.height * 0.68,
-  right: size.width * 0.1,
-  child: Image.asset(
-    'assets/images/hearts/heart1.png', // Make sure to use the correct path to your image
-    width: size.width * 0.08,
-    height: size.width * 0.08,
-    fit: BoxFit.fill, // This ensures the image is scaled properly
-  ),
-),
-Positioned(//heart 2
-  top: size.height * 0.78,
-  right: size.width * 0.18,
-  child: Image.asset(
-    'assets/images/hearts/heart2.png', // done
-    width: size.width * 0.1,
-    height: size.width * 0.13,
-    fit: BoxFit.fill, 
-  ),
-),
-
-Positioned( //heart 3
-  top: size.height * 0.75,
-  right: size.width * .9,
-  child: Image.asset(
-    'assets/images/hearts/heart3.png', //done
-    width: size.width * 0.1,
-    height: size.width * 0.14,
-    fit: BoxFit.fill, 
-  ),
-),
-
-Positioned(//heart 4
-  top: size.height * 0.91,
-  right: size.width * 0.45,
-  child: Image.asset(
-    'assets/images/hearts/heart4.png', //done
-    width: size.width * .15,
-    height: size.width * .15,
-    fit: BoxFit.fill,
-  ),
-),
-Positioned( //heart 5
-  top: size.height * 0.15,
-  right: size.width * 0.45,
-  child: Image.asset(
-    'assets/images/hearts/heart5.png', // To be done later
-    width: size.width * 0.15,
-    height: size.width * 0.15,
-    fit: BoxFit.fill, 
-  ),
-),
-Positioned( //heart 6
-  top: size.height * 0.05,
-  right: size.width * 0,
-  child: Image.asset(
-    'assets/images/hearts/heart6.png', // Done
-    width: size.width * 0.1,
-    height: size.width * 0.2,
-    fit: BoxFit.fill, 
-  ),
-),
-            Positioned(
-              bottom: size.height * 0.15,
-              right: size.width * 0.1,
-              child: _buildHeart(size.width * 0.1, Color(0xFFFFADD4).withOpacity(0.7)),
-            ),
-            Positioned(
-              left: size.width * 0.05,
-              top: size.height * 0.6,
-              child: _buildHeart(size.width * 0.12, Color(0xFFFFADD4).withOpacity(0.7)),
-            ),
-            
-            // Photo circles
-            Positioned(
-              top: size.height * 0.08,
-              left: size.width * 0.15,
-              child: _buildProfileCircle('assets/girls/Emma.jpg', size.width * 0.3),
-            ),
-            Positioned(
-              top: size.height * 0.15,
-              right: size.width * 0.1,
-              child: _buildProfileCircle('assets/girls/airhostess.jpg', size.width * 0.28),
-            ),
-            Positioned(
-              top: size.height * 0.35,
-              left: size.width * 0.15,
-              child: _buildProfileCircle('assets/girls/shweta.jpg', size.width * 0.28),
-            ),
-            Positioned(
-              top: size.height * 0.45,
-              right: size.width * 0.25,
-              child: _buildProfileCircle('assets/girls/Emma.jpg', size.width * 0.25),
-            ),
-            
-            // App name and tagline
-            Positioned(
-              bottom: size.height * 0.15,
-              left: size.width * 0.1,
-              child: Container(
-                width: size.width * 0.6,
-                height: size.height * 0.15,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(size.width * 0.3),
-                ),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Ella AI',
-                      style: TextStyle(
-                        color: Color(0xFF1A237E),
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Serif',
-                      ),
-                    ),
-                    Text(
-                      'Your Dating Partner',
-                      style: TextStyle(
-                        color: Color(0xFF1A237E),
-                        fontSize: 20,
-                        fontFamily: 'Serif',
-                      ),
-                    ),
-                  ],
-                ),
+            Text(
+              'HOOCUP',
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFFF2E53),
+                letterSpacing: 1.5,
+                fontFamily: 'Montserrat',
               ),
             ),
-            
-            // Let's go button
-            Positioned(
-              bottom: size.height * 0.06,
-              right: size.width * 0.1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFF1A237E),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Row(
-                  children: [
-                    Text(
-                      "Let's go!",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
+            const SizedBox(height: 5),
+            Text(
+              'Swipe Less, Talk More.',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
               ),
             ),
+            const SizedBox(height: 20),
+            _buildGetStartedButton(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCircle(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
+  Widget _buildProfileGrid(BoxConstraints screenConstraints) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Define center area that's 55% of the width
+        final centerAreaWidth = constraints.maxWidth * 0.68;
+        final leftEdge = (constraints.maxWidth - centerAreaWidth) / 2;
+        final rightEdge = leftEdge + centerAreaWidth;
+        
+        // Standard tile size
+        final tileSize = constraints.maxWidth * 0.3;
+        final tileSpacing = constraints.maxWidth * 0.03;
+        
+        // Consistent small tilt angle
+        const tileDegree = 0.05;
+        
+        return Container(
+          color: Colors.white,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          // Use ClipRect to ensure cropping happens at screen edges
+          child: ClipRect(
+            child: Stack(
+              children: [
+                // ROW 1
+                // Left image (partially visible)
+                _buildProfileTile(
+                  0, 
+                  size: tileSize,
+                  left: leftEdge - tileSize * 1.1, 
+                  top: 40, 
+                  angle: 0.2,
+                  isFocused: true,
+                  isPartial: true,
+                ),
+                
+                // Middle-left image (focused)
+                _buildProfileTile(
+                  1, 
+                  size: tileSize,
+                  left: leftEdge + tileSpacing, 
+                  top: 15, 
+                  angle: 0.15,
+                  isFocused: false,
+                ),
+                
+                // Middle-right image (focused)
+                _buildProfileTile(
+                  2, 
+                  size: tileSize,
+                  left: rightEdge - tileSize - tileSpacing, 
+                  top: 45, 
+                  angle: 0.14,
+                  isFocused: false,
+                ),
+                //row 2
+                // Right image (partially visible)
+                _buildProfileTile(
+                  3, 
+                  size: tileSize,
+                  left: rightEdge + tileSpacing * 2.9, 
+                  top: 70, 
+                  angle: tileDegree,
+                  isFocused: true,
+                  isPartial: true,
+                ),
+                
+                // ROW 2
+                // Left image (partially visible)
+                _buildProfileTile(
+                  4, 
+                  size: tileSize,
+                  left: leftEdge - tileSize * 1.3, 
+                  top: constraints.maxHeight * 0.25, 
+                  angle: 0.3,
+                  isFocused: true,
+                  isPartial: true,
+                ),
+                
+                // Middle-left image (focused)
+                _buildProfileTile(
+                  5, 
+                  size: tileSize,
+                  left: leftEdge + tileSpacing* 0.35, 
+                  //  left: leftEdge + tileSpacing, 
+                  top: constraints.maxHeight * 0.22, 
+                  angle: 0.16,
+                  isFocused: false,
+                ),
+                
+                // Middle-right image (focused)
+                _buildProfileTile(
+                  6, 
+                  size: tileSize,
+                  left: rightEdge - tileSize - tileSpacing, 
+                  top: constraints.maxHeight * 0.26, 
+                  angle: 0.17,
+                  isFocused: false,
+                ),
+                
+                // Right image (partially visible)
+                _buildProfileTile(
+                  7, 
+                  size: tileSize,
+                  left: rightEdge + tileSpacing * 2, 
+                  top: constraints.maxHeight * 0.23, 
+                  angle: tileDegree,
+                  isFocused: false,
+                  isPartial: true,
+                ),
+                
+                // ROW 3
+                // Left image (partially visible)
+                // _buildProfileTile(
+                //   0, 
+                //   size: tileSize,
+                //   left: leftEdge - tileSize * 0.7, 
+                //   top: constraints.maxHeight * 0.45, 
+                //   angle: tileDegree,
+                //   isFocused: false,
+                //   isPartial: true,
+                // ),
+                
+                // Middle-left image (focused)
+                _buildProfileTile(
+                  1, 
+                  size: tileSize,
+                  left: leftEdge + tileSpacing * 0.05, 
+                  top: constraints.maxHeight * 0.44, 
+                  angle: 0.2,
+                  isFocused: false,
+                ),
+                
+                // Middle-right image (focused)
+                _buildProfileTile(
+                  2, 
+                  size: tileSize,
+                  left: rightEdge - tileSize - tileSpacing *0.46, 
+                  top: constraints.maxHeight * 0.485, 
+                  angle: 0.2,
+                  isFocused: false,
+                ),
+                
+                // Right image (partially visible)
+                _buildProfileTile(
+                  3, 
+                  size: tileSize,
+                  left: rightEdge + tileSpacing * 2, 
+                  top: constraints.maxHeight * 0.45, 
+                  angle: tileDegree,
+                  isFocused: false,
+                  isPartial: true,
+                ),
+                
+                // ROW 4 (Below branding section at bottom of screen)
+                // Left image (partially visible)
+                _buildProfileTile(
+                  4, 
+                  size: tileSize,
+                  left: leftEdge - tileSize * 0.6, 
+                  top: constraints.maxHeight * 0.78, 
+                  angle: tileDegree,
+                  isFocused: false,
+                  isPartial: true,
+                ),
+                
+                // Middle-left image (focused)
+                _buildProfileTile(
+                  5, 
+                  size: tileSize,
+                  left: leftEdge + tileSpacing, 
+                  top: constraints.maxHeight * 0.77, 
+                  angle: tileDegree,
+                  isFocused: true,
+                ),
+                
+                // Middle-right image (focused)
+                _buildProfileTile(
+                  6, 
+                  size: tileSize,
+                  left: rightEdge - tileSize - tileSpacing, 
+                  top: constraints.maxHeight * 0.77, 
+                  angle: tileDegree,
+                  isFocused: true,
+                ),
+                
+                // Right image (partially visible)
+                _buildProfileTile(
+                  7, 
+                  size: tileSize,
+                  left: rightEdge + tileSpacing * 2, 
+                  top: constraints.maxHeight * 0.78, 
+                  angle: tileDegree,
+                  isFocused: false,
+                  isPartial: true,
+                ),
+                
+                // Extra white overlay at screen edges to enhance cropping effect
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  width: leftEdge * 0.8,
+                  height: constraints.maxHeight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Colors.white,
+                          Colors.white.withOpacity(0.7),
+                          Colors.white.withOpacity(0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Right edge fade
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  width: leftEdge * 0.8,
+                  height: constraints.maxHeight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerRight,
+                        end: Alignment.centerLeft,
+                        colors: [
+                          Colors.white,
+                          Colors.white.withOpacity(0.7),
+                          Colors.white.withOpacity(0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProfileTile(
+    int index, {
+    required double size,
+    required double left, 
+    required double top, 
+    required double angle,
+    required bool isFocused,
+    bool isPartial = false,
+  }) {
+    return Positioned(
+      left: left,
+      top: top,
+      child: Transform.rotate(
+        angle: angle,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isFocused ? 0.1 : 0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // Image
+                Positioned.fill(
+                  child: Image.asset(
+                    profileImages[index % profileImages.length],
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: Icon(Icons.image_not_supported, color: Colors.grey[400]),
+                      );
+                    },
+                  ),
+                ),
+                
+                // White overlay for non-focused images
+                if (!isFocused)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(isPartial ? 0.8 : 0.65),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildHeart(double size, Color color) {
-    return Icon(
-      Icons.favorite,
-      size: size,
-      color: color,
-    );
-  }
-
-  Widget _buildProfileCircle(String imagePath, double size) {
+  Widget _buildGetStartedButton() {
     return Container(
-      width: size,
-      height: size,
+      width: 200,
+      height: 50,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 2,
+            color: Color(0xFFFF2E53).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
-        image: DecorationImage(
-          image: AssetImage(imagePath),
-          fit: BoxFit.cover,
+      ),
+      child: ElevatedButton(
+        onPressed: () => Get.toNamed('/login'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFFFF2E53),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Get Started',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            SizedBox(width: 8),
+            Icon(Icons.arrow_forward, size: 20),
+          ],
         ),
       ),
     );

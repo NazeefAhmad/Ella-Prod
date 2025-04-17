@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 import 'package:gemini_chat_app_tutorial/services/api_service.dart';
 
-
-
 class UsernamePage extends StatefulWidget {
   const UsernamePage({Key? key}) : super(key: key);
 
@@ -49,31 +47,33 @@ class _UsernamePageState extends State<UsernamePage> {
             // Circular button with Continue text
             SizedBox(
               width: double.infinity,
+              height: 50,
               child: ElevatedButton(
-  onPressed: () async {
-    if (_usernameController.text.isNotEmpty) {
-      // Submit the name when the button is pressed
-   ApiService().submitUserData(_usernameController.text);
-      
-      // Proceed to next page
-      Get.toNamed('/age');  // Replace with your next route
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter your name!")),
-      );
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    shape: CircleBorder(),
-    padding: EdgeInsets.all(20),
-  ),
-  child: const Icon(Icons.arrow_forward, size: 30),
-),
-
+                onPressed: () {
+                  if (_usernameController.text.isNotEmpty) {
+                    Get.to(() => const AgePage());
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: const Text(
+                  'Continue',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
   }
 }
