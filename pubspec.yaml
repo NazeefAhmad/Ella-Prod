@@ -90,6 +90,7 @@ flutter:
     - assets/images/bubbles.gif
     - assets/images/
     - assets/images/hearts/
+    - assets/icons/
     - assets/icons/gallery.png
     - assets/girls/
     - dev.env

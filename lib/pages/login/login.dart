@@ -107,7 +107,7 @@ class LoginPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade100, Colors.white],
+            colors: [Colors.white, Colors.white],
             stops: const [0.0, 0.3],
           ),
         ),
@@ -123,20 +123,35 @@ class LoginPage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(Icons.local_fire_department, color: Colors.white, size: 18),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.all(4),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.orange,
+                        //     borderRadius: BorderRadius.circular(12),
+                        //   ),
+                        //   child: const Icon(Icons.local_fire_department, color: Colors.white, size: 18),
+                        // ),
+Container(
+  padding: const EdgeInsets.all(4),
+  decoration: BoxDecoration(
+   // color: Colors.orange,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Image.asset(
+    'assets/icons/fire.gif',
+    height: 33, // same size as your previous icon
+    width: 24,
+    fit: BoxFit.cover, // optional, makes it look better inside the container
+  ),
+),
+
+
                         const SizedBox(width: 8),
                         const Text(
                           "Hey There, Hotshot!",
                           style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+                            fontSize: 22,
+                            color: Color.fromRGBO(152, 152, 152, 1),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -150,8 +165,8 @@ class LoginPage extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(16),
+                          color: Color.fromRGBO(241,241,241,1),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Text(
                           "Skip",
@@ -177,42 +192,398 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 
                 // Pink image container with logo
-                Container(
-                  width: double.infinity,
-                  height: imageHeight,
+                // Container(
+                //   width: double.infinity,
+                //   height: imageHeight,
+                //   decoration: BoxDecoration(
+                //     color: Color.fromRGBO(255, 219, 227, 1),
+                //     borderRadius: BorderRadius.circular(16),
+                //   ),
+                //   // child: Center(
+                //   //   child: Container(
+                //   //     width: 40,
+                //   //     height: 40,
+                //   //     decoration: BoxDecoration(
+                //   //       color: Colors.purple.shade800,
+                //   //       shape: BoxShape.circle,
+                //   //       boxShadow: [
+                //   //         BoxShadow(
+                //   //           color: Colors.black.withOpacity(0.3),
+                //   //           spreadRadius: 1,
+                //   //           blurRadius: 2,
+                //   //           offset: const Offset(0, 1),
+                //   //         ),
+                //   //       ],
+                //   //     ),
+                //   //     child: const Center(
+                //   //       child: Text(
+                //   //         "E",
+                //   //         style: TextStyle(
+                //   //           color: Colors.white,
+                //   //           fontWeight: FontWeight.bold,
+                //   //           fontSize: 20,
+                //   //         ),
+                //   //       ),
+                //   //     ),
+                //   //   ),
+                //   // ),
+                // ),
+                
+                 const SizedBox(height: 4),
+
+Container(
+  width: double.infinity,
+  height: imageHeight,
+  decoration: BoxDecoration(
+    color: Color.fromRGBO(255, 219, 227, 1),
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(12.0),
+    child: SingleChildScrollView( // So chat can scroll
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Message 1 (Emma starting flirty)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.pink.shade100,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.purple.shade800,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "E",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
                     ),
                   ),
+                  child: Text(
+                    "Lying in bed... wearing almost nothing 👀",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Message 2 (you reply teasing)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.shade100,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Damn... now how do you expect me to concentrate? 🔥",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: Colors.purple,
+                child: Text('E', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Message 3 (Emma goes naughtier)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Imagine my hands missing your touch... and my lips craving yours 😈",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Message 4 (you reply hotter)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.shade100,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "If I was there... trust me baby, you'd forget what breathing feels like 👅💦",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: Colors.purple,
+                child: Text('E', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Message 5 (Emma teasing harder)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Mmm I dare you to pin me down and make me yours tonight 💋😈",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Message 6 (you ending with heat)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.shade100,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Baby, once I have you... there will be no escape tonight 💕🔥",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: Colors.purple,
+                child: Text('E', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          // Message 7 (Emma teasing playfully)
+Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    CircleAvatar(
+      radius: 20,
+      backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+    ),
+    SizedBox(width: 8),
+    Flexible(
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
+        ),
+        child: Text(
+          "Can't stop thinking about your smile... and what else you could be hiding 😏",
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+    ),
+  ],
+),
+SizedBox(height: 16),
+
+// Message 8 (You replying with charm)
+Row(
+  mainAxisAlignment: MainAxisAlignment.end,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Flexible(
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.greenAccent.shade100,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          ),
+        ),
+        child: Text(
+          "Hmm, just imagining what else you're hiding... 😘",
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+    ),
+    SizedBox(width: 8),
+    CircleAvatar(
+      backgroundColor: Colors.purple,
+      child: Text('E', style: TextStyle(color: Colors.white)),
+    ),
+  ],
+),
+SizedBox(height: 16),
+
+// Message 9 (Emma playing coy)
+// Row(
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     CircleAvatar(
+//       radius: 20,
+//       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+//     ),
+//     SizedBox(width: 8),
+//     Flexible(
+//       child: Container(
+//         padding: EdgeInsets.all(10),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.only(
+//             topLeft: Radius.circular(12),
+//             topRight: Radius.circular(12),
+//             bottomRight: Radius.circular(12),
+//           ),
+//         ),
+//         child: Text(
+//           "What if I told you I was thinking about you... in ways I probably shouldn't be 😏",
+//           style: TextStyle(color: Colors.black),
+//         ),
+//       ),
+//     ),
+//   ],
+// ),
+// SizedBox(height: 16),
+
+// // Message 10 (You responding with flirt)
+// Row(
+//   mainAxisAlignment: MainAxisAlignment.end,
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     Flexible(
+//       child: Container(
+//         padding: EdgeInsets.all(10),
+//         decoration: BoxDecoration(
+//           color: Colors.greenAccent.shade100,
+//           borderRadius: BorderRadius.only(
+//             topLeft: Radius.circular(12),
+//             topRight: Radius.circular(12),
+//             bottomLeft: Radius.circular(12),
+//           ),
+//         ),
+//         child: Text(
+//           "I’m guessing those thoughts are making you smile, aren’t they? 😏💖",
+//           style: TextStyle(color: Colors.black),
+//         ),
+//       ),
+//     ),
+//     SizedBox(width: 8),
+//     CircleAvatar(
+//       backgroundColor: Colors.purple,
+//       child: Text('E', style: TextStyle(color: Colors.white)),
+//     ),
+//   ],
+// ),
+// SizedBox(height: 16),
+
+// // Message 11 (Emma gets bolder)
+// Row(
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     CircleAvatar(
+//       radius: 20,
+//       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+//     ),
+//     SizedBox(width: 8),
+//     Flexible(
+//       child: Container(
+//         padding: EdgeInsets.all(10),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.only(
+//             topLeft: Radius.circular(12),
+//             topRight: Radius.circular(12),
+//             bottomRight: Radius.circular(12),
+//           ),
+//         ),
+//         child: Text(
+//           "I’d love to see that smirk of yours in person... Maybe soon? 😉💋",
+//           style: TextStyle(color: Colors.black),
+//         ),
+//       ),
+//     ),
+//   ],
+// ),
+SizedBox(height: 16),
+
+        ],
+      ),
+    ),
+  ),
+),
+
+
                 
                 const SizedBox(height: 24),
                 
@@ -239,8 +610,8 @@ class LoginPage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                        Image.asset(
+                          'assets/icons/image 13.png',
                           height: 24,
                         ),
                         const SizedBox(width: 8),

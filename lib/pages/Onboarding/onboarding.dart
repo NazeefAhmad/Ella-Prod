@@ -22,7 +22,7 @@ class OnboardingPage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
-            children: [
+        children: [
               // Profile grid covering the entire screen
               _buildProfileGrid(constraints),
               
@@ -42,9 +42,9 @@ class OnboardingPage extends StatelessWidget {
       right: 0,
       // Position it at about 65% of the screen height (between rows 3 and 4)
       top: constraints.maxHeight * 0.62,
-      child: Container(
+            child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        decoration: BoxDecoration(
+              decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -54,33 +54,33 @@ class OnboardingPage extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
+              child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'HOOCUP',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
+                children: [
+                  Text(
+                    'HOOCUP',
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
                 color: Color(0xFFFF2E53),
-                letterSpacing: 1.5,
-                fontFamily: 'Montserrat',
-              ),
-            ),
+                      letterSpacing: 1.5,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
             const SizedBox(height: 5),
-            Text(
-              'Swipe Less, Talk More.',
-              style: TextStyle(
+                  Text(
+                    'Swipe Less, Talk More.',
+                    style: TextStyle(
                 fontSize: 18,
                 color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Montserrat',
-              ),
-            ),
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
             const SizedBox(height: 20),
-            _buildGetStartedButton(),
-          ],
-        ),
+                  _buildGetStartedButton(),
+                ],
+              ),
       ),
     );
   }
@@ -347,17 +347,17 @@ class OnboardingPage extends StatelessWidget {
         child: Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
+      decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
+        boxShadow: [
+          BoxShadow(
                 color: Colors.black.withOpacity(isFocused ? 0.1 : 0.05),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
-              ),
-            ],
           ),
-          child: ClipRRect(
+        ],
+      ),
+      child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
@@ -365,7 +365,7 @@ class OnboardingPage extends StatelessWidget {
                 Positioned.fill(
                   child: Image.asset(
                     profileImages[index % profileImages.length],
-                    fit: BoxFit.cover,
+              fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: Colors.grey[300],
@@ -378,8 +378,8 @@ class OnboardingPage extends StatelessWidget {
                 // White overlay for non-focused images
                 if (!isFocused)
                   Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
+          child: Container(
+            decoration: BoxDecoration(
                         color: Colors.white.withOpacity(isPartial ? 0.8 : 0.65),
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -418,18 +418,18 @@ class OnboardingPage extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Get Started',
-              style: TextStyle(
-                fontSize: 18,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Get Started',
+                  style: TextStyle(
+                    fontSize: 18,
                 fontWeight: FontWeight.w500,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            SizedBox(width: 8),
+                    fontFamily: 'Montserrat',
+                  ),
+                ),
+                SizedBox(width: 8),
             Icon(Icons.arrow_forward, size: 20),
           ],
         ),

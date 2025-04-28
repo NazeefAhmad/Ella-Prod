@@ -4,22 +4,16 @@ import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
 import 'package:gemini_chat_app_tutorial/pages/login/login.dart';
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart'; // UsernamePage
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart'; // AgePage
-import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart'; // FeedScreen
-import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart'; // SplashPage
-// import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterestPage.dart';
-// import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterestPage.dart';
+import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
+import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
+import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
+import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
 import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
+import 'pages/messages/messages_screen.dart';
+import 'pages/profile/profile_screen.dart';
 
-
-///Users/nazeef/Developer/Flutter-Projects/New Ella Chat APP/lib/pages/User Interest/UserInterest.dart
-
-
-// Define your app routes
 class AppRouter {
   static final List<GetPage> routes = [
-    // GetPage(name: '/userInterest', page: () => const UserInterestPage()),
     GetPage(name: '/userInterest', page: () => UserInterestPage()),
     GetPage(name: '/personal_details', page: () => PersonalDetailsPage()),
     GetPage(name: '/home', page: () => HomePage()),
@@ -29,8 +23,8 @@ class AppRouter {
     GetPage(name: '/age', page: () => AgePage()),
     GetPage(name: '/login', page: () => LoginPage()),
     GetPage(name: '/feed', page: () => FeedScreen()),
-    
-    GetPage(name: '/', page: () => SplashPage()), // SplashPage is the initial page
-
+    GetPage(name: '/messages', page: () => const MessagesScreen()),
+    GetPage(name: '/profile', page: () => const ProfileScreen()),
+    GetPage(name: '/', page: () => SplashPage()),
   ];
 }

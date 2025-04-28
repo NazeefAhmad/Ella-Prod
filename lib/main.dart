@@ -50,11 +50,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize controllers
     final themeController = Get.put(ThemeController());
     final languageController = Get.put(LanguageController());
 
-    return GetMaterialApp( // Use GetMaterialApp for GetX navigation
+    return GetMaterialApp(
       title: 'Ella A.I',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -62,8 +61,8 @@ class MyApp extends StatelessWidget {
       translations: LanguageConfig(),
       locale: languageController.getLocale(languageController.currentLanguage.value),
       fallbackLocale: const Locale('en', 'US'),
-      initialRoute: '/', // Start from SplashPage
-      getPages: AppRouter.routes, // Use AppRouter for all routes
+      initialRoute: '/',
+      getPages: AppRouter.routes,
       debugShowCheckedModeBanner: false,
     );
   }
