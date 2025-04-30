@@ -160,7 +160,7 @@ Container(
                     GestureDetector(
                       onTap: () {
                         // Navigate to next screen or perform skip action
-                        Get.toNamed('/username');
+                        Get.toNamed('/feed');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
