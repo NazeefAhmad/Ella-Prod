@@ -30,12 +30,6 @@ void main() async {
   // Load the environment variables from the dev.env file
   await dotenv.load(fileName: "dev.env");
 
-  // Get the API key from the environment variables
-  final String apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'default_api_key'; // Add a default or handle missing key
-
-  // Initialize Gemini with the API key
-  Gemini.init(apiKey: apiKey);
-  
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
