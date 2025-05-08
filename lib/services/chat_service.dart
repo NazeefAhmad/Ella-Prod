@@ -6,7 +6,9 @@ import 'package:gemini_chat_app_tutorial/consts.dart';
 
 class ChatService {
   // For physical Android device, use your computer's IP address
-  final String baseUrl = 'http://192.168.1.57:8000'; // TODO: Replace with your computer's IP
+  // final String baseUrl = 'https://hoocup.onrender.com'; // TODO: Replace with your computer's IP
+final String baseUrl = 'http://192.168.1.57:8000';
+
 
   // Check API health
   Future<bool> checkHealth() async {

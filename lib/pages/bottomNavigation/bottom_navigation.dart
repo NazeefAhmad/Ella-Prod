@@ -108,16 +108,24 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20, left: 30, right: 30),
+      padding: const EdgeInsets.only(bottom: 20, left: 120, right: 120),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(40),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: .5, sigmaY: .5),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
-            height: 58,
+            width: 60,
+            height: 70,
             decoration: BoxDecoration(
-              color: const Color(0xFF0C0C23).withOpacity(0.6),
+              color: const Color(0xFF0C0C23).withOpacity(0.8),
               borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF000000).withOpacity(0.06),
+                  blurRadius: 5,
+                  spreadRadius: 5,
+                ),
+              ],
             ),
             child: Stack(
               alignment: Alignment.center,
@@ -136,7 +144,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
                       decoration: BoxDecoration(
                         color: const Color.fromRGBO(255, 32, 78, 1),
                         borderRadius: BorderRadius.circular(10),
-                      ),
+                      ), 
                     ),
                   ),
                 ),
