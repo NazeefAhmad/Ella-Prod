@@ -231,262 +231,201 @@ Container(
                 
                  const SizedBox(height: 4),
 
-Container(
-  width: double.infinity,
-  height: imageHeight,
-  decoration: BoxDecoration(
-    color: Color.fromRGBO(255, 219, 227, 1),
-    borderRadius: BorderRadius.circular(16),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(12.0),
-    child: SingleChildScrollView( // So chat can scroll
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Message 1 (Emma starting flirty)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-              ),
-              SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Lying in bed... wearing almost nothing 👀",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
+// Container(
+//   width: double.infinity,
+//   height: imageHeight,
+//   decoration: BoxDecoration(
+//     color: Color.fromRGBO(255, 219, 227, 1),
+//     borderRadius: BorderRadius.circular(16),
+//   ),
+//   child: Padding(
+//     padding: const EdgeInsets.all(12.0),
+//     child: SingleChildScrollView( // So chat can scroll
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Message 1 (Emma starting flirty)
+//           Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               CircleAvatar(
+//                 radius: 20,
+//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+//               ),
+//               SizedBox(width: 8),
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomRight: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "Lying in bed... wearing almost nothing 👀",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16),
 
-          // Message 2 (you reply teasing)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent.shade100,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Damn... now how do you expect me to concentrate? 🔥",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              CircleAvatar(
-                backgroundColor: Colors.purple,
-                child: Text('E', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
+//           // Message 2 (you reply teasing)
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.end,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.greenAccent.shade100,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomLeft: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "Damn... now how do you expect me to concentrate? 🔥",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//               SizedBox(width: 8),
+//               CircleAvatar(
+//                 backgroundColor: Colors.purple,
+//                 child: Text('E', style: TextStyle(color: Colors.white)),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16),
 
-          // Message 3 (Emma goes naughtier)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-              ),
-              SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Imagine my hands missing your touch... and my lips craving yours 😈",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
+//           // Message 3 (Emma goes naughtier)
+//           Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               CircleAvatar(
+//                 radius: 20,
+//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+//               ),
+//               SizedBox(width: 8),
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomRight: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "Imagine my hands missing your touch... and my lips craving yours 😈",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16),
 
-          // Message 4 (you reply hotter)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent.shade100,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "If I was there... trust me baby, you'd forget what breathing feels like 👅💦",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              CircleAvatar(
-                backgroundColor: Colors.purple,
-                child: Text('E', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
+//           // Message 4 (you reply hotter)
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.end,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.greenAccent.shade100,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomLeft: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "If I was there... trust me baby, you'd forget what breathing feels like 👅💦",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//               SizedBox(width: 8),
+//               CircleAvatar(
+//                 backgroundColor: Colors.purple,
+//                 child: Text('E', style: TextStyle(color: Colors.white)),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16),
 
-          // Message 5 (Emma teasing harder)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-              ),
-              SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Mmm I dare you to pin me down and make me yours tonight 💋😈",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
+//           // Message 5 (Emma teasing harder)
+//           Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               CircleAvatar(
+//                 radius: 20,
+//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+//               ),
+//               SizedBox(width: 8),
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomRight: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "Mmm I dare you to pin me down and make me yours tonight 💋😈",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 16),
 
-          // Message 6 (you ending with heat)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent.shade100,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    "Baby, once I have you... there will be no escape tonight 💕🔥",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8),
-              CircleAvatar(
-                backgroundColor: Colors.purple,
-                child: Text('E', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          // Message 7 (Emma teasing playfully)
-Row(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    CircleAvatar(
-      radius: 20,
-      backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-    ),
-    SizedBox(width: 8),
-    Flexible(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(12),
-            bottomRight: Radius.circular(12),
-          ),
-        ),
-        child: Text(
-          "Can't stop thinking about your smile... and what else you could be hiding 😏",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-    ),
-  ],
-),
-SizedBox(height: 16),
-
-// Message 8 (You replying with charm)
-Row(
-  mainAxisAlignment: MainAxisAlignment.end,
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Flexible(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.greenAccent.shade100,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
-          ),
-        ),
-        child: Text(
-          "Hmm, just imagining what else you're hiding... 😘",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-    ),
-    SizedBox(width: 8),
-    CircleAvatar(
-      backgroundColor: Colors.purple,
-      child: Text('E', style: TextStyle(color: Colors.white)),
-    ),
-  ],
-),
-SizedBox(height: 16),
-
-// Message 9 (Emma playing coy)
+//           // Message 6 (you ending with heat)
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.end,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Flexible(
+//                 child: Container(
+//                   padding: EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: Colors.greenAccent.shade100,
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(12),
+//                       topRight: Radius.circular(12),
+//                       bottomLeft: Radius.circular(12),
+//                     ),
+//                   ),
+//                   child: Text(
+//                     "Baby, once I have you... there will be no escape tonight 💕🔥",
+//                     style: TextStyle(color: Colors.black),
+//                   ),
+//                 ),
+//               ),
+//               SizedBox(width: 8),
+//               CircleAvatar(
+//                 backgroundColor: Colors.purple,
+//                 child: Text('E', style: TextStyle(color: Colors.white)),
+//               ),
+//             ],
+//           ),
+//           // Message 7 (Emma teasing playfully)
 // Row(
 //   crossAxisAlignment: CrossAxisAlignment.start,
 //   children: [
@@ -507,7 +446,7 @@ SizedBox(height: 16),
 //           ),
 //         ),
 //         child: Text(
-//           "What if I told you I was thinking about you... in ways I probably shouldn't be 😏",
+//           "Can't stop thinking about your smile... and what else you could be hiding 😏",
 //           style: TextStyle(color: Colors.black),
 //         ),
 //       ),
@@ -516,7 +455,7 @@ SizedBox(height: 16),
 // ),
 // SizedBox(height: 16),
 
-// // Message 10 (You responding with flirt)
+// // Message 8 (You replying with charm)
 // Row(
 //   mainAxisAlignment: MainAxisAlignment.end,
 //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +472,7 @@ SizedBox(height: 16),
 //           ),
 //         ),
 //         child: Text(
-//           "I’m guessing those thoughts are making you smile, aren’t they? 😏💖",
+//           "Hmm, just imagining what else you're hiding... 😘",
 //           style: TextStyle(color: Colors.black),
 //         ),
 //       ),
@@ -547,45 +486,123 @@ SizedBox(height: 16),
 // ),
 // SizedBox(height: 16),
 
-// // Message 11 (Emma gets bolder)
-// Row(
-//   crossAxisAlignment: CrossAxisAlignment.start,
-//   children: [
-//     CircleAvatar(
-//       radius: 20,
-//       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-//     ),
-//     SizedBox(width: 8),
-//     Flexible(
-//       child: Container(
-//         padding: EdgeInsets.all(10),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.only(
-//             topLeft: Radius.circular(12),
-//             topRight: Radius.circular(12),
-//             bottomRight: Radius.circular(12),
-//           ),
-//         ),
-//         child: Text(
-//           "I’d love to see that smirk of yours in person... Maybe soon? 😉💋",
-//           style: TextStyle(color: Colors.black),
-//         ),
+// // Message 9 (Emma playing coy)
+// // Row(
+// //   crossAxisAlignment: CrossAxisAlignment.start,
+// //   children: [
+// //     CircleAvatar(
+// //       radius: 20,
+// //       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+// //     ),
+// //     SizedBox(width: 8),
+// //     Flexible(
+// //       child: Container(
+// //         padding: EdgeInsets.all(10),
+// //         decoration: BoxDecoration(
+// //           color: Colors.white,
+// //           borderRadius: BorderRadius.only(
+// //             topLeft: Radius.circular(12),
+// //             topRight: Radius.circular(12),
+// //             bottomRight: Radius.circular(12),
+// //           ),
+// //         ),
+// //         child: Text(
+// //           "What if I told you I was thinking about you... in ways I probably shouldn't be 😏",
+// //           style: TextStyle(color: Colors.black),
+// //         ),
+// //       ),
+// //     ),
+// //   ],
+// // ),
+// // SizedBox(height: 16),
+
+// // // Message 10 (You responding with flirt)
+// // Row(
+// //   mainAxisAlignment: MainAxisAlignment.end,
+// //   crossAxisAlignment: CrossAxisAlignment.start,
+// //   children: [
+// //     Flexible(
+// //       child: Container(
+// //         padding: EdgeInsets.all(10),
+// //         decoration: BoxDecoration(
+// //           color: Colors.greenAccent.shade100,
+// //           borderRadius: BorderRadius.only(
+// //             topLeft: Radius.circular(12),
+// //             topRight: Radius.circular(12),
+// //             bottomLeft: Radius.circular(12),
+// //           ),
+// //         ),
+// //         child: Text(
+// //           "I’m guessing those thoughts are making you smile, aren’t they? 😏💖",
+// //           style: TextStyle(color: Colors.black),
+// //         ),
+// //       ),
+// //     ),
+// //     SizedBox(width: 8),
+// //     CircleAvatar(
+// //       backgroundColor: Colors.purple,
+// //       child: Text('E', style: TextStyle(color: Colors.white)),
+// //     ),
+// //   ],
+// // ),
+// // SizedBox(height: 16),
+
+// // // Message 11 (Emma gets bolder)
+// // Row(
+// //   crossAxisAlignment: CrossAxisAlignment.start,
+// //   children: [
+// //     CircleAvatar(
+// //       radius: 20,
+// //       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
+// //     ),
+// //     SizedBox(width: 8),
+// //     Flexible(
+// //       child: Container(
+// //         padding: EdgeInsets.all(10),
+// //         decoration: BoxDecoration(
+// //           color: Colors.white,
+// //           borderRadius: BorderRadius.only(
+// //             topLeft: Radius.circular(12),
+// //             topRight: Radius.circular(12),
+// //             bottomRight: Radius.circular(12),
+// //           ),
+// //         ),
+// //         child: Text(
+// //           "I’d love to see that smirk of yours in person... Maybe soon? 😉💋",
+// //           style: TextStyle(color: Colors.black),
+// //         ),
+// //       ),
+// //     ),
+// //   ],
+// // ),
+// SizedBox(height: 16),
+
+//         ],
 //       ),
 //     ),
-//   ],
+//   ),
 // ),
-SizedBox(height: 16),
-
-        ],
-      ),
+Container(
+  width: double.infinity,
+  height: imageHeight,
+  decoration: BoxDecoration(
+    color: Color.fromRGBO(255, 219, 227, 1),
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(16),
+    child: Image.asset(
+      'assets/images/login/login_girls.png',
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: imageHeight,
     ),
   ),
 ),
 
 
                 
-                const SizedBox(height: 24),
+                const SizedBox(height: 45),
                 
                 // "Sign in with Google" button - using your existing functionality
                 GestureDetector(
@@ -602,7 +619,7 @@ SizedBox(height: 16),
                   },
                   child: Container(
                     width: double.infinity,
-                    height: 50,
+                    height: 57,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.red.shade400),
                       borderRadius: BorderRadius.circular(8),
@@ -630,15 +647,33 @@ SizedBox(height: 16),
                 const SizedBox(height: 16),
                 
                 // "or" text
-                const Center(
-                  child: Text(
-                    "or",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
+              Row(
+  children: [
+    const Expanded(
+      child: Divider(
+        color:  Color.fromRGBO(161, 161, 161, 0.502),
+        thickness: 1,
+      ),
+    ),
+    const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.0),
+      child: Text(
+        "or",
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 14,
+        ),
+      ),
+    ),
+    const Expanded(
+      child: Divider(
+        color: Color.fromRGBO(161, 161, 161, 0.502),
+        thickness: 1,
+      ),
+    ),
+  ],
+),
+
                 
                 const SizedBox(height: 16),
                 
@@ -662,7 +697,7 @@ SizedBox(height: 16),
                   },
                   child: Container(
                     width: double.infinity,
-                    height: 50,
+                    height: 57,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),

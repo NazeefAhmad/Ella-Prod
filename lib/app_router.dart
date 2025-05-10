@@ -25,6 +25,6 @@ class AppRouter {
     GetPage(name: '/feed', page: () => FeedScreen()),
     GetPage(name: '/messages', page: () => const MessagesScreen()),
     GetPage(name: '/profile', page: () => const ProfileScreen()),
-    GetPage(name: '/', page: () => SplashPage()),
+    GetPage(name: '/', page: () => const SplashPage()),
   ];
 }

@@ -19,23 +19,29 @@ import 'config/theme_config.dart';
 import 'config/language_config.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  // Ensure widget binding is initialized before running the app
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // Initialize SharedPreferences
-  await SharedPreferences.getInstance();
+  try {
+    // Initialize SharedPreferences
+    await SharedPreferences.getInstance();
 
-  // Load the environment variables from the dev.env file
-  await dotenv.load(fileName: "dev.env");
+    // Load the environment variables from the dev.env file
+    await dotenv.load(fileName: "dev.env");
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Initialization error: $e');
+  } finally {
+    FlutterNativeSplash.remove();
+  }
 
-  // Run the app
   runApp(const MyApp());
 }
 
@@ -58,6 +64,12 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       getPages: AppRouter.routes,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: child!,
+        );
+      },
     );
   }
 }

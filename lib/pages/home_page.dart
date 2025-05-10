@@ -38,11 +38,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   );
 
   final List<String> templates = [
-    'Why is the sky blue?',
-    'Will AI ever bond emotionally?',
-    'Write a poem about a lonely robot.',
-    'Who wrote the Harry Potter series?',
-    'Can you suggest a personalized workout plan using AI',
+    // 'Why is the sky blue?',
+    // 'Will AI ever bond emotionally?',
+    // 'Write a poem about a lonely robot.',
+    // 'Who wrote the Harry Potter series?',
+    // 'Can you suggest a personalized workout plan using AI',
   ];
 
   @override
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Column(
       children: [
         Container(
-          color: const Color.fromRGBO(251, 252, 254, .6),
+         color: const Color.fromRGBO(251, 252, 254, .6),
           child: ListTile(
             leading: const Icon(Icons.edit, color: Colors.black),
             title: Text(title, style: const TextStyle(color: Colors.black)),
