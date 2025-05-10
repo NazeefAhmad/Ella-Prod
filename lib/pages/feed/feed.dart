@@ -1,30 +1,17 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:flutter/services.dart'; // For HapticFeedback
+import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../bottomNavigation/bottom_navigation.dart';
-import '../profile/profile_screen.dart';
-import '../chat/chat_screen.dart';
-import '../matches/matches_screen.dart';
-import '../notifications/notification.dart';
+import 'package:gemini_chat_app_tutorial/pages/bottomNavigation/bottom_navigation.dart';
 
 class FeedScreen extends StatefulWidget {
-  const FeedScreen({Key? key}) : super(key: key);
-
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
+  _FeedScreenState createState() => _FeedScreenState();
 }
 
 class _FeedScreenState extends State<FeedScreen> {
   final ScrollController _scrollController = ScrollController();
   int _selectedTab = 0;
-  String? _defaultNetworkImage;
-  final List<String> _defaultImages = [
-    'https://picsum.photos/200',
-    'https://picsum.photos/201',
-    'https://picsum.photos/202',
-    'https://picsum.photos/203',
-    'https://picsum.photos/204',
-  ];
 
   final List<Map<String, dynamic>> profiles = [
     {"name": "Jasleen", "age": 26, "image": "assets/girls/Emma.jpg", "bio": "Loves chai and late-night convos 🌙"},
@@ -39,17 +26,6 @@ class _FeedScreenState extends State<FeedScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _setRandomDefaultImage();
-  }
-
-  void _setRandomDefaultImage() {
-    final random = Random();
-    _defaultNetworkImage = _defaultImages[random.nextInt(_defaultImages.length)];
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -57,7 +33,16 @@ class _FeedScreenState extends State<FeedScreen> {
         children: [
           _buildTabBar(),
           Expanded(
-            child: _buildProfileGrid(),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              child: _buildProfileGrid(),
+            ),
           ),
         ],
       ),
@@ -67,47 +52,19 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Widget _buildTabBar() {
     return Container(
-      padding: const EdgeInsets.only(top: 36, bottom: 2),
+      padding: const EdgeInsets.only(top: 50, bottom: 10),
       decoration: const BoxDecoration(
         color: Colors.white,
       ),
       child: Row(
         children: [
-          const SizedBox(width: 26),
+          const SizedBox(width: 16),
           GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileScreen(),
-                ),
-              );
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey[200],
-                image: _defaultNetworkImage != null
-                    ? DecorationImage(
-                        image: NetworkImage(_defaultNetworkImage!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: _defaultNetworkImage == null
-                  ? const Center(
-                      child: Text(
-                        'AB',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  : null,
+            onTap: () => Get.toNamed('/profile'),
+            child: CircleAvatar(
+              backgroundColor: Colors.grey[200],
+              radius: 18,
+              child: Icon(Icons.person_outline, color: Colors.grey[600]),
             ),
           ),
           Expanded(
@@ -123,12 +80,7 @@ class _FeedScreenState extends State<FeedScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationScreen(),
-                ),
-              );
+              Get.toNamed('/notifications');
             },
             color: Colors.black,
           ),
@@ -141,6 +93,7 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget _buildTab(String title, int index) {
     return GestureDetector(
       onTap: () {
+        HapticFeedback.lightImpact(); // Add haptic feedback
         setState(() {
           _selectedTab = index;
         });
@@ -155,7 +108,9 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
             height: 2,
             width: 40,
             color: _selectedTab == index ? Colors.pink : Colors.transparent,
@@ -166,7 +121,9 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   Widget _buildProfileGrid() {
+    // Use a unique key to force AnimatedSwitcher to rebuild the grid
     return Padding(
+      key: ValueKey<int>(_selectedTab),
       padding: const EdgeInsets.all(4.0),
       child: MasonryGridView.builder(
         controller: _scrollController,
@@ -215,7 +172,8 @@ class PersonaCard extends StatefulWidget {
   _PersonaCardState createState() => _PersonaCardState();
 }
 
-class _PersonaCardState extends State<PersonaCard> with SingleTickerProviderStateMixin {
+class _PersonaCardState extends State<PersonaCard>
+    with SingleTickerProviderStateMixin {
   bool _isLiked = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -254,7 +212,7 @@ class _PersonaCardState extends State<PersonaCard> with SingleTickerProviderStat
 
     return GestureDetector(
       onTap: () {
-        // Navigate to home or profile detail
+        Get.toNamed('/home');
       },
       child: Container(
         decoration: BoxDecoration(
@@ -345,22 +303,22 @@ class _PersonaCardState extends State<PersonaCard> with SingleTickerProviderStat
                         color: Colors.white,
                       ),
                     ),
-                ],
-              ),
-              Text(
-                widget.bio,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Colors.white70,
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                Text(
+                  widget.bio,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.white70,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
   }
 
   Widget _buildLikeButton() {

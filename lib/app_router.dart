@@ -11,6 +11,7 @@ import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
 import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
 import 'pages/messages/messages_screen.dart';
 import 'pages/profile/profile_screen.dart';
+import 'pages/notifications/notification.dart';
 
 class AppRouter {
   static final List<GetPage> routes = [
@@ -25,6 +26,7 @@ class AppRouter {
     GetPage(name: '/feed', page: () => FeedScreen()),
     GetPage(name: '/messages', page: () => const MessagesScreen()),
     GetPage(name: '/profile', page: () => const ProfileScreen()),
+    GetPage(name: '/notifications', page: () => const NotificationScreen()),
     GetPage(name: '/', page: () => const SplashPage()),
   ];
 }

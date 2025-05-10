@@ -228,7 +228,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       backgroundColor: const Color.fromARGB(250, 4, 1, 55),
       // Replace AppBar with custom ChatAppBar
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(110),
+        preferredSize: const Size.fromHeight(65),
         child: ChatAppBar(
           userName: chatUserName,
           profilePicUrl: chatUserProfilePic,
@@ -259,7 +259,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               Container(
                                 decoration: const BoxDecoration(
                                   image: DecorationImage(
-                                    image: AssetImage('assets/images/chat_bg.png'),
+                                    image: AssetImage('assets/images/chat_bg2.png'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -613,7 +613,7 @@ class ChatAppBar extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               IconButton(
@@ -623,7 +623,7 @@ class ChatAppBar extends StatelessWidget {
               GestureDetector(
                 onTap: onProfileTap,
                 child: CircleAvatar(
-                  radius: 28,
+                  radius: 24,
                   backgroundImage: AssetImage(profilePicUrl),
                 ),
               ),
@@ -651,7 +651,7 @@ class ChatAppBar extends StatelessWidget {
                               child: Icon(Icons.circle, size: 10, color: Colors.grey[400]),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          // const SizedBox(width: 8),
                           const Text(
                             'Jasleen is typing...',
                             style: TextStyle(
