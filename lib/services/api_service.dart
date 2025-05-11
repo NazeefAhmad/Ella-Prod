@@ -101,6 +101,10 @@ class ApiService {
       print('Base URL being used: $_baseUrl');
       print('Request body: {"token": "${idToken.substring(0, 20)}..."}'); // Log first 20 chars of token
 
+      // Get device fingerprint
+      String deviceFingerprint = await _getDeviceFingerprint();
+      String deviceId = AppConstants.deviceId;
+
       // Test connection first
       try {
         final testResponse = await http.get(Uri.parse('$_baseUrl/health'))
@@ -120,6 +124,8 @@ class ApiService {
           'token': idToken,
           'uid': uid,
           'email': email,
+          'deviceId': deviceId,
+          'deviceFingerprint': deviceFingerprint,
         }),
       ).timeout(const Duration(seconds: 10));
 
@@ -174,30 +180,47 @@ class ApiService {
     try {
       String deviceId = AppConstants.deviceId;
       String deviceFingerprint = await _getDeviceFingerprint();
+      String platform = Platform.isIOS ? 'ios' : 'android';
 
       if (deviceId.isEmpty) {
         throw 'Device ID is empty';
       }
 
-      final url = Uri.parse('$_baseUrl/guestUser');
+      final url = Uri.parse('$_baseUrl/auth/guestUser');
       print('Making request to: $url'); // Debug log
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'deviceId': deviceId,
-          'deviceFingerprint': deviceFingerprint,
+          'device_info': {
+            'device_id': deviceId,
+            'fingerprint': deviceFingerprint,
+            'platform': platform,
+          }
         }),
       );
 
-      if (response.statusCode == 201) {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-        // Convert minutes to seconds for consistency
-        final expiresIn = (data['expires_in'] ?? 30) * 60; // Default to 30 minutes if not provided
+        if (data == null) {
+          throw 'Invalid response from server';
+        }
+
+        final accessToken = data['access_token'] as String?;
+        final refreshToken = data['refresh_token'] as String?;
+        final expiresIn = (data['expires_in'] as num?)?.toInt() ?? 1800;
+
+        if (accessToken == null || refreshToken == null) {
+          throw 'Missing required tokens in response';
+        }
+
         await _tokenStorage.saveTokens(
-          accessToken: data['accessToken'],
-          refreshToken: data['refreshToken'],
+          accessToken: accessToken,
+          refreshToken: refreshToken,
           expiresIn: expiresIn,
         );
         return data;
@@ -251,6 +274,72 @@ class ApiService {
     }
 
     return fingerprint;
+  }
+
+  // Function to logout device
+  Future<void> logout(String deviceId) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/logout'),
+        headers: headers,
+        body: json.encode({
+          'device_id': deviceId,
+        }),
+      );
+
+      print('Logout response status: ${response.statusCode}');
+      print('Logout response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw 'Failed to logout: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in logout: $e');
+      rethrow;
+    }
+  }
+
+  // Function to deactivate account
+  Future<void> deactivateAccount() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/deactivate'),
+        headers: headers,
+      );
+
+      print('Deactivate account response status: ${response.statusCode}');
+      print('Deactivate account response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw 'Failed to deactivate account: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in deactivateAccount: $e');
+      rethrow;
+    }
+  }
+
+  // Function to delete account
+  Future<void> deleteAccount() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/auth/account'),
+        headers: headers,
+      );
+
+      print('Delete account response status: ${response.statusCode}');
+      print('Delete account response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw 'Failed to delete account: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in deleteAccount: $e');
+      rethrow;
+    }
   }
 }
 

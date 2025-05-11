@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import '../login/login.dart';
+import '../../services/auth_service.dart';
+import '../../widgets/loading_dialog.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({Key? key}) : super(key: key);
+  static final AuthService authService = AuthService();
+
+  void _showLoadingDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LoadingDialog(message: message),
+    );
+  }
+
+  void _hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
 
   Widget _buildOptionItem(BuildContext context, String title, {Color? textColor}) {
     return ListTile(
@@ -28,13 +43,17 @@ class AccountSettingsScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context); // Close dialog
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (route) => false,
-                    );
+                    _showLoadingDialog(context, 'Signing out...');
+                    try {
+                      await authService.signOut();
+                    } catch (e) {
+                      _hideLoadingDialog(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to sign out: $e')),
+                      );
+                    }
                   },
                   child: const Text('Log Out', style: TextStyle(color: Colors.red)),
                 ),
@@ -58,9 +77,17 @@ class AccountSettingsScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // TODO: Implement deactivate account logic
+                  onPressed: () async {
                     Navigator.pop(context);
+                    _showLoadingDialog(context, 'Deactivating account...');
+                    try {
+                      await authService.deactivateAccount();
+                    } catch (e) {
+                      _hideLoadingDialog(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to deactivate account: $e')),
+                      );
+                    }
                   },
                   child: const Text('Deactivate', style: TextStyle(color: Colors.orange)),
                 ),
@@ -84,9 +111,17 @@ class AccountSettingsScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // TODO: Implement delete account logic
+                  onPressed: () async {
                     Navigator.pop(context);
+                    _showLoadingDialog(context, 'Deleting account...');
+                    try {
+                      await authService.deleteAccount();
+                    } catch (e) {
+                      _hideLoadingDialog(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to delete account: $e')),
+                      );
+                    }
                   },
                   child: const Text('Delete', style: TextStyle(color: Colors.red)),
                 ),

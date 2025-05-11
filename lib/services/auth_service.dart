@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
 import 'package:gemini_chat_app_tutorial/services/api_service.dart';
 import 'package:get/get.dart';
+import 'package:gemini_chat_app_tutorial/consts.dart';
 
 class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -91,8 +92,12 @@ class AuthService {
       final response = await _apiService.continueAsGuest();
       
       // Validate JWT tokens before storing
-      final accessToken = response['accessToken'] as String;
-      final refreshToken = response['refreshToken'] as String;
+      final accessToken = response['access_token'] as String?;
+      final refreshToken = response['refresh_token'] as String?;
+
+      if (accessToken == null || refreshToken == null) {
+        throw 'Invalid token format received from server';
+      }
 
       if (!_isValidJwtFormat(accessToken)) {
         throw 'Invalid access token format received from server';
@@ -115,26 +120,94 @@ class AuthService {
   // Sign Out
   Future<void> signOut() async {
     try {
-      print("Signing out from Google...");
-      await GoogleSignIn().signOut();
-      print("Google Sign-Out successful.");
+      print("Starting sign out process...");
+      
+      // Get device ID
+      String deviceId = AppConstants.deviceId;
+      
+      // Logout from backend
+      try {
+        await _apiService.logout(deviceId);
+        print("Backend logout successful");
+      } catch (e) {
+        print("Backend logout failed: $e");
+        // Continue with local logout even if backend logout fails
+      }
 
-      await FirebaseAuth.instance.signOut();
-      print("Firebase Sign-Out successful.");
+      // Sign out from Google
+      try {
+        print("Signing out from Google...");
+        await GoogleSignIn().signOut();
+        print("Google Sign-Out successful.");
+      } catch (e) {
+        print("Google Sign-Out failed: $e");
+        // Continue with other logout steps
+      }
+
+      // Sign out from Firebase
+      try {
+        await FirebaseAuth.instance.signOut();
+        print("Firebase Sign-Out successful.");
+      } catch (e) {
+        print("Firebase Sign-Out failed: $e");
+        // Continue with other logout steps
+      }
 
       // Remove JWT tokens
-      await _tokenStorage.deleteTokens();
-      print("JWT tokens removed.");
+      try {
+        await _tokenStorage.deleteTokens();
+        print("JWT tokens removed.");
+      } catch (e) {
+        print("Token removal failed: $e");
+        // Continue with navigation
+      }
 
       // Navigate to login screen
       Get.offAllNamed('/login');
+      print("Sign out process completed");
     } catch (e) {
       print("Sign-Out Error: $e");
+      // Still try to navigate to login screen even if there's an error
+      Get.offAllNamed('/login');
     }
   }
 
   // Check if user is authenticated
   Future<bool> isAuthenticated() async {
     return await _tokenStorage.hasValidTokens();
+  }
+
+  // Deactivate Account
+  Future<void> deactivateAccount() async {
+    try {
+      print("Starting account deactivation...");
+      
+      // Call backend to deactivate account
+      await _apiService.deactivateAccount();
+      print("Account deactivation successful");
+
+      // Sign out from all services
+      await signOut();
+    } catch (e) {
+      print("Account Deactivation Error: $e");
+      rethrow;
+    }
+  }
+
+  // Delete Account
+  Future<void> deleteAccount() async {
+    try {
+      print("Starting account deletion...");
+      
+      // Call backend to delete account
+      await _apiService.deleteAccount();
+      print("Account deletion successful");
+
+      // Sign out from all services
+      await signOut();
+    } catch (e) {
+      print("Account Deletion Error: $e");
+      rethrow;
+    }
   }
 }

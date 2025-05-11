@@ -1,100 +1,61 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
-// import 'package:gemini_chat_app_tutorial/services/api_service.dart';  // Adjust the path as needed
-
-
-
-// class LoginPage extends StatelessWidget {
-//    LoginPage({Key? key}) : super(key: key);
-
-//   final AuthService _authService = AuthService();  // Instantiate AuthService
-
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Center(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             crossAxisAlignment: CrossAxisAlignment.stretch,
-//             children: [
-//               // Sign up with Google button
-//               ElevatedButton(
-//                 style: ElevatedButton.styleFrom(
-//                   minimumSize: const Size(double.infinity, 60),
-//                   backgroundColor: Colors.blue, // Google sign-in button color
-//                 ),
-//                 onPressed: () async {
-//                   // Call signInWithGoogle() from AuthService
-//                   User? user = await _authService.signInWithGoogle();
-//                   if (user != null) {
-//                     // Navigate to the Username page
-//                     Get.toNamed('/username');
-//                   } else {
-//                     // Show error message if sign-in fails
-//                     Get.snackbar("Error", "Google Sign-In failed. Please try again.");
-//                   }
-//                 },
-//                 child: const Text(
-//                   'Sign Up with Google',
-//                   style: TextStyle(fontSize: 18),
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-          
-            
-//             ElevatedButton(
-//   style: ElevatedButton.styleFrom(
-//     minimumSize: const Size(double.infinity, 60),
-//     backgroundColor: Colors.grey, // Guest button color
-//   ),
-//  // In the ElevatedButton onPressed handler, modify it to:
-// onPressed: () async {
-//   final apiService = ApiService();
-
-//   try {
-//     // Add await here to ensure the API call completes
-//     await apiService.continueAsGuest();
-    
-//     // Only navigate after successful API call
-//     Get.toNamed('/username');
-//   } catch (e) {
-//     print('Error: $e');
-//     // Add user feedback
-//     Get.snackbar('Error', 'Failed to continue as guest: $e',
-//       snackPosition: SnackPosition.BOTTOM);
-//   }
-// },
-//   child: const Text(
-//     'Continue as Guest',
-//     style: TextStyle(fontSize: 18),
-//   ),
-// ),
-
-
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
 import 'package:gemini_chat_app_tutorial/services/api_service.dart';  // Adjust the path as needed
+import '../../widgets/loading_dialog.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
 
   final AuthService _authService = AuthService();  // Instantiate AuthService
+
+  void _showLoadingDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LoadingDialog(message: message),
+    );
+  }
+
+  void _hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    _showLoadingDialog(context, 'Signing in with Google...');
+    try {
+      final user = await _authService.signInWithGoogle();
+      _hideLoadingDialog(context);
+      if (user != null) {
+        Get.toNamed('/username');
+      } else {
+        Get.snackbar("Error", "Google Sign-In failed. Please try again.");
+      }
+    } catch (e) {
+      _hideLoadingDialog(context);
+      Get.snackbar("Error", "Failed to sign in: $e");
+    }
+  }
+
+  Future<void> _handleGuestSignIn(BuildContext context) async {
+    _showLoadingDialog(context, 'Continuing as guest...');
+    try {
+      final success = await _authService.signInAsGuest();
+      _hideLoadingDialog(context);
+      if (success) {
+        Get.toNamed('/username');
+      } else {
+        Get.snackbar('Error', 'Failed to continue as guest',
+          snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      _hideLoadingDialog(context);
+      Get.snackbar('Error', 'Failed to continue as guest: $e',
+        snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,29 +84,18 @@ class LoginPage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        // Container(
-                        //   padding: const EdgeInsets.all(4),
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.orange,
-                        //     borderRadius: BorderRadius.circular(12),
-                        //   ),
-                        //   child: const Icon(Icons.local_fire_department, color: Colors.white, size: 18),
-                        // ),
-Container(
-  padding: const EdgeInsets.all(4),
-  decoration: BoxDecoration(
-   // color: Colors.orange,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Image.asset(
-    'assets/icons/fire.gif',
-    height: 33, // same size as your previous icon
-    width: 24,
-    fit: BoxFit.cover, // optional, makes it look better inside the container
-  ),
-),
-
-
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset(
+                            'assets/icons/fire.gif',
+                            height: 33, // same size as your previous icon
+                            width: 24,
+                            fit: BoxFit.cover, // optional, makes it look better inside the container
+                          ),
+                        ),
                         const SizedBox(width: 8),
                         const Text(
                           "Hey There, Hotshot!",
@@ -192,431 +142,29 @@ Container(
                 const SizedBox(height: 16),
                 
                 // Pink image container with logo
-                // Container(
-                //   width: double.infinity,
-                //   height: imageHeight,
-                //   decoration: BoxDecoration(
-                //     color: Color.fromRGBO(255, 219, 227, 1),
-                //     borderRadius: BorderRadius.circular(16),
-                //   ),
-                //   // child: Center(
-                //   //   child: Container(
-                //   //     width: 40,
-                //   //     height: 40,
-                //   //     decoration: BoxDecoration(
-                //   //       color: Colors.purple.shade800,
-                //   //       shape: BoxShape.circle,
-                //   //       boxShadow: [
-                //   //         BoxShadow(
-                //   //           color: Colors.black.withOpacity(0.3),
-                //   //           spreadRadius: 1,
-                //   //           blurRadius: 2,
-                //   //           offset: const Offset(0, 1),
-                //   //         ),
-                //   //       ],
-                //   //     ),
-                //   //     child: const Center(
-                //   //       child: Text(
-                //   //         "E",
-                //   //         style: TextStyle(
-                //   //           color: Colors.white,
-                //   //           fontWeight: FontWeight.bold,
-                //   //           fontSize: 20,
-                //   //         ),
-                //   //       ),
-                //   //     ),
-                //   //   ),
-                //   // ),
-                // ),
-                
-                 const SizedBox(height: 4),
-
-// Container(
-//   width: double.infinity,
-//   height: imageHeight,
-//   decoration: BoxDecoration(
-//     color: Color.fromRGBO(255, 219, 227, 1),
-//     borderRadius: BorderRadius.circular(16),
-//   ),
-//   child: Padding(
-//     padding: const EdgeInsets.all(12.0),
-//     child: SingleChildScrollView( // So chat can scroll
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // Message 1 (Emma starting flirty)
-//           Row(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               CircleAvatar(
-//                 radius: 20,
-//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-//               ),
-//               SizedBox(width: 8),
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomRight: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "Lying in bed... wearing almost nothing 👀",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 16),
-
-//           // Message 2 (you reply teasing)
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.greenAccent.shade100,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomLeft: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "Damn... now how do you expect me to concentrate? 🔥",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//               SizedBox(width: 8),
-//               CircleAvatar(
-//                 backgroundColor: Colors.purple,
-//                 child: Text('E', style: TextStyle(color: Colors.white)),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 16),
-
-//           // Message 3 (Emma goes naughtier)
-//           Row(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               CircleAvatar(
-//                 radius: 20,
-//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-//               ),
-//               SizedBox(width: 8),
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomRight: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "Imagine my hands missing your touch... and my lips craving yours 😈",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 16),
-
-//           // Message 4 (you reply hotter)
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.greenAccent.shade100,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomLeft: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "If I was there... trust me baby, you'd forget what breathing feels like 👅💦",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//               SizedBox(width: 8),
-//               CircleAvatar(
-//                 backgroundColor: Colors.purple,
-//                 child: Text('E', style: TextStyle(color: Colors.white)),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 16),
-
-//           // Message 5 (Emma teasing harder)
-//           Row(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               CircleAvatar(
-//                 radius: 20,
-//                 backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-//               ),
-//               SizedBox(width: 8),
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomRight: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "Mmm I dare you to pin me down and make me yours tonight 💋😈",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 16),
-
-//           // Message 6 (you ending with heat)
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Flexible(
-//                 child: Container(
-//                   padding: EdgeInsets.all(10),
-//                   decoration: BoxDecoration(
-//                     color: Colors.greenAccent.shade100,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(12),
-//                       topRight: Radius.circular(12),
-//                       bottomLeft: Radius.circular(12),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     "Baby, once I have you... there will be no escape tonight 💕🔥",
-//                     style: TextStyle(color: Colors.black),
-//                   ),
-//                 ),
-//               ),
-//               SizedBox(width: 8),
-//               CircleAvatar(
-//                 backgroundColor: Colors.purple,
-//                 child: Text('E', style: TextStyle(color: Colors.white)),
-//               ),
-//             ],
-//           ),
-//           // Message 7 (Emma teasing playfully)
-// Row(
-//   crossAxisAlignment: CrossAxisAlignment.start,
-//   children: [
-//     CircleAvatar(
-//       radius: 20,
-//       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-//     ),
-//     SizedBox(width: 8),
-//     Flexible(
-//       child: Container(
-//         padding: EdgeInsets.all(10),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.only(
-//             topLeft: Radius.circular(12),
-//             topRight: Radius.circular(12),
-//             bottomRight: Radius.circular(12),
-//           ),
-//         ),
-//         child: Text(
-//           "Can't stop thinking about your smile... and what else you could be hiding 😏",
-//           style: TextStyle(color: Colors.black),
-//         ),
-//       ),
-//     ),
-//   ],
-// ),
-// SizedBox(height: 16),
-
-// // Message 8 (You replying with charm)
-// Row(
-//   mainAxisAlignment: MainAxisAlignment.end,
-//   crossAxisAlignment: CrossAxisAlignment.start,
-//   children: [
-//     Flexible(
-//       child: Container(
-//         padding: EdgeInsets.all(10),
-//         decoration: BoxDecoration(
-//           color: Colors.greenAccent.shade100,
-//           borderRadius: BorderRadius.only(
-//             topLeft: Radius.circular(12),
-//             topRight: Radius.circular(12),
-//             bottomLeft: Radius.circular(12),
-//           ),
-//         ),
-//         child: Text(
-//           "Hmm, just imagining what else you're hiding... 😘",
-//           style: TextStyle(color: Colors.black),
-//         ),
-//       ),
-//     ),
-//     SizedBox(width: 8),
-//     CircleAvatar(
-//       backgroundColor: Colors.purple,
-//       child: Text('E', style: TextStyle(color: Colors.white)),
-//     ),
-//   ],
-// ),
-// SizedBox(height: 16),
-
-// // Message 9 (Emma playing coy)
-// // Row(
-// //   crossAxisAlignment: CrossAxisAlignment.start,
-// //   children: [
-// //     CircleAvatar(
-// //       radius: 20,
-// //       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-// //     ),
-// //     SizedBox(width: 8),
-// //     Flexible(
-// //       child: Container(
-// //         padding: EdgeInsets.all(10),
-// //         decoration: BoxDecoration(
-// //           color: Colors.white,
-// //           borderRadius: BorderRadius.only(
-// //             topLeft: Radius.circular(12),
-// //             topRight: Radius.circular(12),
-// //             bottomRight: Radius.circular(12),
-// //           ),
-// //         ),
-// //         child: Text(
-// //           "What if I told you I was thinking about you... in ways I probably shouldn't be 😏",
-// //           style: TextStyle(color: Colors.black),
-// //         ),
-// //       ),
-// //     ),
-// //   ],
-// // ),
-// // SizedBox(height: 16),
-
-// // // Message 10 (You responding with flirt)
-// // Row(
-// //   mainAxisAlignment: MainAxisAlignment.end,
-// //   crossAxisAlignment: CrossAxisAlignment.start,
-// //   children: [
-// //     Flexible(
-// //       child: Container(
-// //         padding: EdgeInsets.all(10),
-// //         decoration: BoxDecoration(
-// //           color: Colors.greenAccent.shade100,
-// //           borderRadius: BorderRadius.only(
-// //             topLeft: Radius.circular(12),
-// //             topRight: Radius.circular(12),
-// //             bottomLeft: Radius.circular(12),
-// //           ),
-// //         ),
-// //         child: Text(
-// //           "I'm guessing those thoughts are making you smile, aren't they? 😏💖",
-// //           style: TextStyle(color: Colors.black),
-// //         ),
-// //       ),
-// //     ),
-// //     SizedBox(width: 8),
-// //     CircleAvatar(
-// //       backgroundColor: Colors.purple,
-// //       child: Text('E', style: TextStyle(color: Colors.white)),
-// //     ),
-// //   ],
-// // ),
-// // SizedBox(height: 16),
-
-// // // Message 11 (Emma gets bolder)
-// // Row(
-// //   crossAxisAlignment: CrossAxisAlignment.start,
-// //   children: [
-// //     CircleAvatar(
-// //       radius: 20,
-// //       backgroundImage: AssetImage('assets/girls/Emma.jpg'),
-// //     ),
-// //     SizedBox(width: 8),
-// //     Flexible(
-// //       child: Container(
-// //         padding: EdgeInsets.all(10),
-// //         decoration: BoxDecoration(
-// //           color: Colors.white,
-// //           borderRadius: BorderRadius.only(
-// //             topLeft: Radius.circular(12),
-// //             topRight: Radius.circular(12),
-// //             bottomRight: Radius.circular(12),
-// //           ),
-// //         ),
-// //         child: Text(
-// //           "I'd love to see that smirk of yours in person... Maybe soon? 😉💋",
-// //           style: TextStyle(color: Colors.black),
-// //         ),
-// //       ),
-// //     ),
-// //   ],
-// // ),
-// SizedBox(height: 16),
-
-//         ],
-//       ),
-//     ),
-//   ),
-// ),
-Container(
-  width: double.infinity,
-  height: imageHeight,
-  decoration: BoxDecoration(
-    color: Color.fromRGBO(255, 219, 227, 1),
-    borderRadius: BorderRadius.circular(16),
-  ),
-  child: ClipRRect(
-    borderRadius: BorderRadius.circular(16),
-    child: Image.asset(
-      'assets/images/login/login_girls.png',
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: imageHeight,
-    ),
-  ),
-),
-
-
+                Container(
+                  width: double.infinity,
+                  height: imageHeight,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(255, 219, 227, 1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      'assets/images/login/login_girls.png',
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: imageHeight,
+                    ),
+                  ),
+                ),
                 
                 const SizedBox(height: 45),
                 
                 // "Sign in with Google" button - using your existing functionality
                 GestureDetector(
-                  onTap: () async {
-                    // Call signInWithGoogle() from AuthService
-                    User? user = await _authService.signInWithGoogle();
-                    if (user != null) {
-                      // Navigate to the Username page
-                      Get.toNamed('/username');
-                    } else {
-                      // Show error message if sign-in fails
-                      Get.snackbar("Error", "Google Sign-In failed. Please try again.");
-                    }
-                  },
+                  onTap: () => _handleGoogleSignIn(context),
                   child: Container(
                     width: double.infinity,
                     height: 57,
@@ -678,21 +226,7 @@ Container(
                 
                 // "Continue as Guest" button
                 GestureDetector(
-                  onTap: () async {
-                    try {
-                      final success = await _authService.signInAsGuest();
-                      if (success) {
-                        Get.toNamed('/username');
-                      } else {
-                        Get.snackbar('Error', 'Failed to continue as guest',
-                          snackPosition: SnackPosition.BOTTOM);
-                      }
-                    } catch (e) {
-                      print('Error: $e');
-                      Get.snackbar('Error', 'Failed to continue as guest: $e',
-                        snackPosition: SnackPosition.BOTTOM);
-                    }
-                  },
+                  onTap: () => _handleGuestSignIn(context),
                   child: Container(
                     width: double.infinity,
                     height: 57,
