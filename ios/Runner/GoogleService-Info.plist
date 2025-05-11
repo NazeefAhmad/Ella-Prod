@@ -3,23 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>611414949138-eg960hpnf8uhmrnimu1b7sg1eju6k9e0.apps.googleusercontent.com</string>
+	<string>683567834719-gj6qpo31mki3p8u9i55mdjs84dsueh35.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.611414949138-eg960hpnf8uhmrnimu1b7sg1eju6k9e0</string>
+	<string>com.googleusercontent.apps.683567834719-gj6qpo31mki3p8u9i55mdjs84dsueh35</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>611414949138-sunvlhq088sf6etnlikdtoomd0srhki9.apps.googleusercontent.com</string>
+	<string>683567834719-mhgll3rhtgh4v9st3qjnj0jg0euc555o.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDI712gWqlFZXftiLlpbKcIVp2yvgSQ-BM</string>
+	<string>AIzaSyBCw67vFGmNk_sNt-giurY2KXBwrH9qzhs</string>
 	<key>GCM_SENDER_ID</key>
-	<string>611414949138</string>
+	<string>683567834719</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.geminiChatAppTutorial</string>
+	<string>com.Hoocup.hoocup</string>
 	<key>PROJECT_ID</key>
-	<string>ella-ffd84</string>
+	<string>ellaai-7c108</string>
 	<key>STORAGE_BUCKET</key>
-	<string>ella-ffd84.firebasestorage.app</string>
+	<string>ellaai-7c108.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:611414949138:ios:a05cffca01ced52c0f07cb</string>
+	<string>1:683567834719:ios:a8f0ff6e6c102775251dea</string>
 </dict>
 </plist>

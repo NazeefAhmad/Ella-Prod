@@ -533,7 +533,7 @@ Container(
 // //           ),
 // //         ),
 // //         child: Text(
-// //           "I’m guessing those thoughts are making you smile, aren’t they? 😏💖",
+// //           "I'm guessing those thoughts are making you smile, aren't they? 😏💖",
 // //           style: TextStyle(color: Colors.black),
 // //         ),
 // //       ),
@@ -568,7 +568,7 @@ Container(
 // //           ),
 // //         ),
 // //         child: Text(
-// //           "I’d love to see that smirk of yours in person... Maybe soon? 😉💋",
+// //           "I'd love to see that smirk of yours in person... Maybe soon? 😉💋",
 // //           style: TextStyle(color: Colors.black),
 // //         ),
 // //       ),
@@ -647,50 +647,48 @@ Container(
                 const SizedBox(height: 16),
                 
                 // "or" text
-              Row(
-  children: [
-    const Expanded(
-      child: Divider(
-        color:  Color.fromRGBO(161, 161, 161, 0.502),
-        thickness: 1,
-      ),
-    ),
-    const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      child: Text(
-        "or",
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-        ),
-      ),
-    ),
-    const Expanded(
-      child: Divider(
-        color: Color.fromRGBO(161, 161, 161, 0.502),
-        thickness: 1,
-      ),
-    ),
-  ],
-),
-
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Divider(
+                        color: Color.fromRGBO(161, 161, 161, 0.502),
+                        thickness: 1,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        "or",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Divider(
+                        color: Color.fromRGBO(161, 161, 161, 0.502),
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
                 
                 const SizedBox(height: 16),
                 
-                // "Continue as Guest" button - using your existing functionality
+                // "Continue as Guest" button
                 GestureDetector(
                   onTap: () async {
-                    final apiService = ApiService();
-
                     try {
-                      // Add await here to ensure the API call completes
-                      await apiService.continueAsGuest();
-                      
-                      // Only navigate after successful API call
-                      Get.toNamed('/username');
+                      final success = await _authService.signInAsGuest();
+                      if (success) {
+                        Get.toNamed('/username');
+                      } else {
+                        Get.snackbar('Error', 'Failed to continue as guest',
+                          snackPosition: SnackPosition.BOTTOM);
+                      }
                     } catch (e) {
                       print('Error: $e');
-                      // Add user feedback
                       Get.snackbar('Error', 'Failed to continue as guest: $e',
                         snackPosition: SnackPosition.BOTTOM);
                     }

@@ -1,11 +1,239 @@
 import 'dart:convert';
 import 'dart:io';  
+import 'dart:async';  // Add this import for TimeoutException
 import 'package:http/http.dart' as http;
 import 'package:device_info_plus/device_info_plus.dart';  
 import 'package:gemini_chat_app_tutorial/consts.dart';  
+import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
+import 'package:get/get.dart';
 
 class ApiService {
-  // Function to get the device fingerprint
+  final TokenStorageService _tokenStorage = TokenStorageService();
+  final _baseUrl = AppConstants.baseUrl.trim(); // Trim any whitespace
+
+  // Function to get auth headers with JWT token
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await _tokenStorage.getAccessToken();
+    return {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  // Function to refresh access token
+  Future<void> _refreshAccessToken() async {
+    try {
+      final refreshToken = await _tokenStorage.getRefreshToken();
+      if (refreshToken == null) throw 'No refresh token available';
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'refresh_token': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data == null) {
+          throw 'Invalid response from server';
+        }
+
+        final accessToken = data['access_token'] as String?;
+        final newRefreshToken = data['refresh_token'] as String?;
+        // Convert minutes to seconds for consistency
+        final expiresIn = (data['expires_in'] ?? 30) * 60; // Default to 30 minutes if not provided
+
+        if (accessToken == null || newRefreshToken == null) {
+          throw 'Missing required tokens in response';
+        }
+
+        await _tokenStorage.saveTokens(
+          accessToken: accessToken,
+          refreshToken: newRefreshToken,
+          expiresIn: expiresIn,
+        );
+      } else {
+        print('API error: Status ${response.statusCode}, Body: ${response.body}');
+        throw 'Failed to refresh token';
+      }
+    } catch (e) {
+      print('Error refreshing token: $e');
+      // If refresh fails, clear tokens and redirect to login
+      await _tokenStorage.deleteTokens();
+      Get.offAllNamed('/login');
+      rethrow;
+    }
+  }
+
+  // Function to make authenticated requests with automatic token refresh
+  Future<http.Response> _makeAuthenticatedRequest(
+    Future<http.Response> Function(Map<String, String> headers) requestFn,
+  ) async {
+    try {
+      // Check if access token is expired
+      if (await _tokenStorage.isAccessTokenExpired()) {
+        await _refreshAccessToken();
+      }
+
+      final headers = await _getAuthHeaders();
+      final response = await requestFn(headers);
+
+      // If token is invalid or expired, try refreshing once
+      if (response.statusCode == 401) {
+        await _refreshAccessToken();
+        final newHeaders = await _getAuthHeaders();
+        return await requestFn(newHeaders);
+      }
+
+      return response;
+    } catch (e) {
+      print('Error in authenticated request: $e');
+      rethrow;
+    }
+  }
+
+  // Function to get JWT token for Google authentication
+  Future<Map<String, dynamic>?> getGoogleAuthToken(String idToken, String uid, String email) async {
+    try {
+      final url = Uri.parse('$_baseUrl/auth/firebase');
+      print('Making request to: $url');
+      print('Device platform: ${Platform.operatingSystem}');
+      print('Base URL being used: $_baseUrl');
+      print('Request body: {"token": "${idToken.substring(0, 20)}..."}'); // Log first 20 chars of token
+
+      // Test connection first
+      try {
+        final testResponse = await http.get(Uri.parse('$_baseUrl/health'))
+            .timeout(const Duration(seconds: 5));
+        print('Health check response: ${testResponse.statusCode} - ${testResponse.body}');
+      } catch (e) {
+        print('Health check failed: $e');
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'token': idToken,
+          'uid': uid,
+          'email': email,
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      print('Response status: ${response.statusCode}');
+      print('Response headers: ${response.headers}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data == null) {
+          throw 'Invalid response from server';
+        }
+
+        final accessToken = data['access_token'] as String?;
+        final refreshToken = data['refresh_token'] as String?;
+        // Convert minutes to seconds for consistency
+        final expiresIn = (data['expires_in'] ?? 30) * 60; // Default to 30 minutes if not provided
+
+        if (accessToken == null || refreshToken == null) {
+          throw 'Missing required tokens in response';
+        }
+
+        // Save the tokens with expiration
+        await _tokenStorage.saveTokens(
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          expiresIn: expiresIn,
+        );
+        return data;
+      } else {
+        print('API error: Status ${response.statusCode}, Body: ${response.body}');
+        throw 'Failed to authenticate with Google: ${response.statusCode}';
+      }
+    } on SocketException catch (e) {
+      print('Socket Exception: $e');
+      print('Troubleshooting steps:');
+      print('1. Verify server is running at $_baseUrl');
+      print('2. Check if device and computer are on same network');
+      print('3. Try pinging the server IP from your device');
+      rethrow;
+    } on TimeoutException catch (e) {
+      print('Request timed out: $e');
+      rethrow;
+    } catch (e) {
+      print('Error in getGoogleAuthToken: $e');
+      rethrow;
+    }
+  }
+
+  // Function to continue as guest
+  Future<Map<String, dynamic>> continueAsGuest() async {
+    try {
+      String deviceId = AppConstants.deviceId;
+      String deviceFingerprint = await _getDeviceFingerprint();
+
+      if (deviceId.isEmpty) {
+        throw 'Device ID is empty';
+      }
+
+      final url = Uri.parse('$_baseUrl/guestUser');
+      print('Making request to: $url'); // Debug log
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'deviceId': deviceId,
+          'deviceFingerprint': deviceFingerprint,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        // Convert minutes to seconds for consistency
+        final expiresIn = (data['expires_in'] ?? 30) * 60; // Default to 30 minutes if not provided
+        await _tokenStorage.saveTokens(
+          accessToken: data['accessToken'],
+          refreshToken: data['refreshToken'],
+          expiresIn: expiresIn,
+        );
+        return data;
+      } else {
+        print('API error: Status ${response.statusCode}, Body: ${response.body}');
+        throw 'Failed to continue as guest: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in continueAsGuest: $e');
+      rethrow;
+    }
+  }
+
+  // Function to submit user data (example of authenticated request)
+  Future<void> submitUserData(String name) async {
+    await _makeAuthenticatedRequest((headers) async {
+      return await http.post(
+        Uri.parse('$_baseUrl/userDetails'),
+        headers: headers,
+        body: json.encode({'name': name}),
+      );
+    });
+  }
+
+  // Function to send user interest (example of authenticated request)
+  Future<void> sendInterest(String interest) async {
+    await _makeAuthenticatedRequest((headers) async {
+      return await http.post(
+        Uri.parse('$_baseUrl/interest'),
+        headers: headers,
+        body: json.encode({'interest': interest}),
+      );
+    });
+  }
+
+  // Helper function to get device fingerprint
   Future<String> _getDeviceFingerprint() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String fingerprint = '';
@@ -24,78 +252,5 @@ class ApiService {
 
     return fingerprint;
   }
-
-  // Function to fetch device ID and fingerprint and send it to the API
-  Future<void> continueAsGuest() async {
-    try {
-      String deviceId = AppConstants.deviceId;
-      String deviceFingerprint = await _getDeviceFingerprint();
-
-      if (deviceId.isEmpty) {
-        throw 'Device ID is empty';
-      }
-
-      final url = Uri.parse('${AppConstants.baseUrl}/guestUser');
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'deviceId': deviceId,
-          'deviceFingerprint': deviceFingerprint,
-        }),
-      );
-
-      if (response.statusCode == 201) { 
-        print('Guest user API success: ${response.body}');
-      } else {
-        print('API error: Status ${response.statusCode}, Body: ${response.body}');
-        throw 'Failed to continue as guest: ${response.statusCode}';
-      }
-    } catch (e) {
-      print('Error in continueAsGuest: $e');
-    }
-  }
-
-  // Function to submit user name
-  Future<void> submitUserData(String name) async {
-    final url = Uri.parse('${AppConstants.baseUrl}/userDetails'); 
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'name': name}),
-      );
-
-      if (response.statusCode == 200) {
-        print('User data submitted successfully: ${response.body}');
-      } else {
-        print('Failed to submit user data: ${response.body}');
-      }
-    } catch (e) {
-      print('Error making API call: $e');
-    }
-  }
-
-  // Function to send user interest
-  Future<void> sendInterest(String interest) async {
-    final url = Uri.parse('${AppConstants.baseUrl}/interest'); 
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'interest': interest}),
-      );
-
-      if (response.statusCode == 200) {
-        print('Interest sent successfully: ${response.body}');
-      } else {
-        print('Failed to send interest: ${response.body}');
-      }
-    } catch (e) {
-      print('Error making API call: $e');
-    }
-  }
 }
+

@@ -47,29 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDqjfYDAxXaqlxmVcPNrYdCMgLcHRXoSfg',
-    appId: '1:611414949138:web:fc42da9e75e3dc4a0f07cb',
-    messagingSenderId: '611414949138',
-    projectId: 'ella-ffd84',
-    authDomain: 'ella-ffd84.firebaseapp.com',
-    storageBucket: 'ella-ffd84.firebasestorage.app',
-    measurementId: 'G-QWH92CZ0CP',
+    apiKey: 'AIzaSyDNM6KWWvov1SRpKoNEOYZvjs7aaiBfwxw',
+    appId: '1:683567834719:web:e3f197bffe11b243251dea',
+    messagingSenderId: '683567834719',
+    projectId: 'ellaai-7c108',
+    authDomain: 'ellaai-7c108.firebaseapp.com',
+    storageBucket: 'ellaai-7c108.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7ahvP031JTV6zouWCT4YdP724FMW2xBc',
-    appId: '1:611414949138:android:2d78a4562989fdd00f07cb',
-    messagingSenderId: '611414949138',
-    projectId: 'ella-ffd84',
-    storageBucket: 'ella-ffd84.firebasestorage.app',
+    apiKey: 'AIzaSyDNM6KWWvov1SRpKoNEOYZvjs7aaiBfwxw',
+    appId: '1:683567834719:android:e3f197bffe11b243251dea',
+    messagingSenderId: '683567834719',
+    projectId: 'ellaai-7c108',
+    storageBucket: 'ellaai-7c108.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDI712gWqlFZXftiLlpbKcIVp2yvgSQ-BM',
-    appId: '1:611414949138:ios:a05cffca01ced52c0f07cb',
-    messagingSenderId: '611414949138',
-    projectId: 'ella-ffd84',
-    storageBucket: 'ella-ffd84.firebasestorage.app',
-    iosBundleId: 'com.example.geminiChatAppTutorial',
+    apiKey: 'AIzaSyBCw67vFGmNk_sNt-giurY2KXBwrH9qzhs',
+    appId: '1:683567834719:ios:a8f0ff6e6c102775251dea',
+    messagingSenderId: '683567834719',
+    projectId: 'ellaai-7c108',
+    storageBucket: 'ellaai-7c108.firebasestorage.app',
+    iosBundleId: 'com.Hoocup.hoocup',
   );
 }
+
+

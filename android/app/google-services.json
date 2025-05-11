@@ -1,45 +1,45 @@
 {
   "project_info": {
-    "project_number": "611414949138",
-    "project_id": "ella-ffd84",
-    "storage_bucket": "ella-ffd84.firebasestorage.app"
+    "project_number": "683567834719",
+    "project_id": "ellaai-7c108",
+    "storage_bucket": "ellaai-7c108.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:611414949138:android:2d78a4562989fdd00f07cb",
+        "mobilesdk_app_id": "1:683567834719:android:e3f197bffe11b243251dea",
         "android_client_info": {
-          "package_name": "com.example.gemini_chat_app_tutorial"
+          "package_name": "com.Hoocup.hoocup"
         }
       },
       "oauth_client": [
         {
-          "client_id": "611414949138-sunvlhq088sf6etnlikdtoomd0srhki9.apps.googleusercontent.com",
+          "client_id": "683567834719-mhgll3rhtgh4v9st3qjnj0jg0euc555o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.gemini_chat_app_tutorial",
+            "package_name": "com.Hoocup.hoocup",
             "certificate_hash": "b02f7b8a7ef88ae2367fc3b5b37fdbad076ba76d"
           }
         },
         {
-          "client_id": "611414949138-da5sm7ml63c9kku3v3fl14gd6ujnc0ot.apps.googleusercontent.com",
+          "client_id": "683567834719-ubol9j6hpnr86rouff57k3o9uegrcpd9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC7ahvP031JTV6zouWCT4YdP724FMW2xBc"
+          "current_key": "AIzaSyDNM6KWWvov1SRpKoNEOYZvjs7aaiBfwxw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "611414949138-da5sm7ml63c9kku3v3fl14gd6ujnc0ot.apps.googleusercontent.com",
+              "client_id": "683567834719-ubol9j6hpnr86rouff57k3o9uegrcpd9.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "611414949138-eg960hpnf8uhmrnimu1b7sg1eju6k9e0.apps.googleusercontent.com",
+              "client_id": "683567834719-thta9p0dtu88ehi5po179h4iva97lvuh.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.geminiChatAppTutorial"

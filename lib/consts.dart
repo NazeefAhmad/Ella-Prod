@@ -1,5 +1,7 @@
 class AppConstants {
-  static String baseUrl = ' https://ella-backend-cnm88zh5r-nazeefs-projects.vercel.app';
+  // static String baseUrl = 'https://hoocup.onrender.com';
+    static String baseUrl = 'http://192.168.1.57:8000';
+
   static String deviceId = 'deviceId';
   static String accessToken = 'accessToken';
   static String fcmtoken = 'fcmtoken';
