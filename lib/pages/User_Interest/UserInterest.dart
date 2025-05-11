@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gemini_chat_app_tutorial/services/api_service.dart';
-import 'package:gemini_chat_app_tutorial/consts.dart';
+import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
+import 'package:gemini_chat_app_tutorial/widgets/loading_dialog.dart';
 
 class UserInterestPage extends StatefulWidget {
   const UserInterestPage({Key? key}) : super(key: key);
@@ -13,11 +12,54 @@ class UserInterestPage extends StatefulWidget {
 
 class _UserInterestPageState extends State<UserInterestPage> {
   String? selectedPreference;
+  final ProfileService _profileService = ProfileService();
+  bool _isLoading = false;
 
   // Preference types
   static const String MEN = 'Male';
   static const String WOMEN = 'Female';
   static const String ALL = 'Everyone';
+
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LoadingDialog(message: message),
+    );
+  }
+
+  void _hideLoadingDialog() {
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _handlePreferenceSelection() async {
+    if (selectedPreference == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a preference',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    _showLoadingDialog('Updating preference...');
+    try {
+      await _profileService.updateGenderPreference(selectedPreference!);
+      _hideLoadingDialog();
+      Get.toNamed('/feed');
+    } catch (e) {
+      _hideLoadingDialog();
+      Get.snackbar(
+        'Error',
+        'Failed to update preference: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +73,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // App Bar with Back Button and Progress Indicators (Updated for third screen)
+            // App Bar with Back Button and Progress Indicators
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -146,12 +188,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                     
                     // Bottom "Select your Preference" button
                     ElevatedButton(
-                      onPressed: selectedPreference != null ? () {
-                        // Save interest and make the API call
-                        AppConstants.interest = selectedPreference!;
-                        ApiService().sendInterest(AppConstants.interest); // Send to backend
-                        Get.toNamed('/feed'); // Navigate to Feed page
-                      } : null,
+                      onPressed: _isLoading ? null : _handlePreferenceSelection,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: selectedPreference != null ? activeColor : inactiveColor,
                         foregroundColor: selectedPreference != null ? activeTextColor : inactiveTextColor,
@@ -163,13 +200,15 @@ class _UserInterestPageState extends State<UserInterestPage> {
                         disabledBackgroundColor: inactiveColor,
                         disabledForegroundColor: inactiveTextColor,
                       ),
-                      child: const Text(
-                        'Select your Preference',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Select your Preference',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                     ),
                     const SizedBox(height: 36),
                   ],

@@ -1,89 +1,10 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
-// import 'package:gemini_chat_app_tutorial/services/api_service.dart';
-
-// class UsernamePage extends StatefulWidget {
-//   const UsernamePage({Key? key}) : super(key: key);
-
-//   @override
-//   _UsernamePageState createState() => _UsernamePageState();
-// }
-
-// class _UsernamePageState extends State<UsernamePage> {
-//   final TextEditingController _usernameController = TextEditingController();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("What's your name?"),
-//         centerTitle: true,
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             // Heading Text
-//             const Text(
-//               'What would you like to be called?',
-//               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 30),
-
-//             // Text Field for Name Input
-//             TextField(
-//               controller: _usernameController,
-//               decoration: const InputDecoration(
-//                 labelText: 'Enter your name',
-//                 border: OutlineInputBorder(),
-//                 contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-//               ),
-//               style: const TextStyle(fontSize: 18),
-//             ),
-//             const SizedBox(height: 50),
-
-//             // Circular button with Continue text
-//             SizedBox(
-//               width: double.infinity,
-//               height: 50,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   if (_usernameController.text.isNotEmpty) {
-//                     Get.to(() => const AgePage());
-//                   }
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(25),
-//                   ),
-//                 ),
-//                 child: const Text(
-//                   'Continue',
-//                   style: TextStyle(fontSize: 18),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   void dispose() {
-//     _usernameController.dispose();
-//     super.dispose();
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
-import 'package:gemini_chat_app_tutorial/services/api_service.dart';
+import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
+import 'package:gemini_chat_app_tutorial/widgets/loading_dialog.dart';
 
 class UsernamePage extends StatefulWidget {
-  // Keep the default constructor without changing it
   const UsernamePage({super.key});
 
   @override
@@ -92,6 +13,51 @@ class UsernamePage extends StatefulWidget {
 
 class _UsernamePageState extends State<UsernamePage> {
   final TextEditingController _usernameController = TextEditingController();
+  final ProfileService _profileService = ProfileService();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LoadingDialog(message: message),
+    );
+  }
+
+  void _hideLoadingDialog() {
+    Navigator.of(context).pop();
+  }
+
+  void _clearError() {
+    if (_errorMessage != null) {
+      setState(() {
+        _errorMessage = null;
+      });
+    }
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_usernameController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter a username';
+      });
+      return;
+    }
+
+    _clearError();
+    _showLoadingDialog('Updating username...');
+    try {
+      await _profileService.updateUsername(_usernameController.text);
+      _hideLoadingDialog();
+      Get.to(() => const AgePage());
+    } catch (e) {
+      _hideLoadingDialog();
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +138,7 @@ class _UsernamePageState extends State<UsernamePage> {
               const SizedBox(height: 40),
               TextField(
                 controller: _usernameController,
+                onChanged: (_) => _clearError(),
                 decoration: InputDecoration(
                   hintText: "John Doe",
                   hintStyle: const TextStyle(color: Colors.grey),
@@ -187,6 +154,8 @@ class _UsernamePageState extends State<UsernamePage> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey.shade400),
                   ),
+                  errorText: _errorMessage,
+                  errorStyle: const TextStyle(color: Colors.red),
                   contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 ),
               ),
@@ -196,11 +165,7 @@ class _UsernamePageState extends State<UsernamePage> {
                 height: 56,
                 margin: const EdgeInsets.only(bottom: 24),
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_usernameController.text.isNotEmpty) {
-                      Get.to(() => const AgePage());
-                    }
-                  },
+                  onPressed: _isLoading ? null : _handleSubmit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(255, 32, 78, 1),
                     foregroundColor: Colors.white,
@@ -208,13 +173,15 @@ class _UsernamePageState extends State<UsernamePage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    "Submit",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Submit",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),

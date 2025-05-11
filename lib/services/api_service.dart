@@ -189,6 +189,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/auth/guestUser');
       print('Making request to: $url'); // Debug log
 
+      // Test connection first
+      try {
+        final testResponse = await http.get(Uri.parse('$_baseUrl/health'))
+            .timeout(const Duration(seconds: 5));
+        print('Health check response: ${testResponse.statusCode} - ${testResponse.body}');
+      } catch (e) {
+        print('Health check failed: $e');
+        throw 'Cannot connect to server. Please check your internet connection and try again.';
+      }
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -199,7 +209,7 @@ class ApiService {
             'platform': platform,
           }
         }),
-      );
+      ).timeout(const Duration(seconds: 10));
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -228,6 +238,16 @@ class ApiService {
         print('API error: Status ${response.statusCode}, Body: ${response.body}');
         throw 'Failed to continue as guest: ${response.statusCode}';
       }
+    } on SocketException catch (e) {
+      print('Socket Exception: $e');
+      print('Troubleshooting steps:');
+      print('1. Verify server is running at $_baseUrl');
+      print('2. Check if device and computer are on same network');
+      print('3. Try pinging the server IP from your device');
+      throw 'Network error: Cannot connect to server. Please check your internet connection and try again.';
+    } on TimeoutException catch (e) {
+      print('Request timed out: $e');
+      throw 'Connection timed out. Please check your internet connection and try again.';
     } catch (e) {
       print('Error in continueAsGuest: $e');
       rethrow;
@@ -338,6 +358,30 @@ class ApiService {
       }
     } catch (e) {
       print('Error in deleteAccount: $e');
+      rethrow;
+    }
+  }
+
+  // Function to update username
+  Future<void> updateUsername(String newUsername) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.put(
+        Uri.parse('$_baseUrl/profile/username'),
+        headers: headers,
+        body: json.encode({
+          'username': newUsername,
+        }),
+      );
+
+      print('Update username response status: ${response.statusCode}');
+      print('Update username response body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        throw 'Failed to update username: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in updateUsername: $e');
       rethrow;
     }
   }

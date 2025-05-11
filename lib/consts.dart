@@ -1,6 +1,10 @@
 class AppConstants {
-  // static String baseUrl = 'https://hoocup.onrender.com';
-    static String baseUrl = 'http://192.168.1.57:8000';
+  // For local development, use your computer's IP address
+  // Make sure your mobile device is on the same network
+  static String baseUrl = 'http://192.168.1.57:8000';
+  
+  // For production, use your deployed server URL
+  // static String baseUrl = 'https://your-production-server.com';
 
   static String deviceId = 'deviceId';
   static String accessToken = 'accessToken';
