@@ -43,6 +43,33 @@ class ProfileService {
     }
   }
 
+  // GET /profile/username - Get username (read-only for guest users)
+  Future<String> getUsername() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('$_baseUrl/profile/username'),
+        headers: headers,
+      );
+
+      print('Get username response status: ${response.statusCode}');
+      print('Get username response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data == null || data['username'] == null) {
+          throw 'Invalid response from server';
+        }
+        return data['username'] as String;
+      } else {
+        throw 'Failed to get username: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error in getUsername: $e');
+      rethrow;
+    }
+  }
+
   // PUT /profile/username - Update username
   Future<void> updateUsername(String newUsername) async {
     try {
