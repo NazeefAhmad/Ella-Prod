@@ -87,7 +87,7 @@ class _BottomNavigationState extends State<BottomNavigation> with SingleTickerPr
     super.initState();
     _currentIndex = widget.selectedIndex;
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
