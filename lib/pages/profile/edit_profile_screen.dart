@@ -42,27 +42,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _setRandomDefaultImage();
     _loadUserProfile();
   }
 
   Future<void> _loadUserProfile() async {
     try {
       setState(() => _isLoading = true);
-      final profile = await _profileService.getUserProfile();
+
+      // Fetch profile and profile picture in parallel
+      final results = await Future.wait([
+        _profileService.getUserProfile(),
+        _profileService.getProfilePicture(),
+      ]);
+
+      // Extract results
+      final profile = results[0] as Map<String, dynamic>; 
+      final profilePicture = results[1] as String?;
+      
       if (!mounted) return;
       
-      final isGuest = profile['firebase_uid']?.toString().startsWith('guest_') ?? false;
+      final isGuest = profile['is_guest'] ?? false;
       
       setState(() {
         _isGuestUser = isGuest;
-        _nameController.text = profile['full_name'] ?? '';
-        _initialUsername = profile['full_name'];
+        _nameController.text = profile['username'] ?? '';
+        _initialUsername = profile['username'];
         _emailController.text = profile['email'] ?? '';
         _bioController.text = profile['bio'] ?? '';
         _selectedGender = profile['gender'];
         if (profile['date_of_birth'] != null) {
           _selectedDate = DateTime.parse(profile['date_of_birth']);
+        }
+        
+        if (_profileImagePath == null) {
+          _defaultNetworkImage = profilePicture;
         }
         _isLoading = false;
       });
@@ -77,9 +90,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _setRandomDefaultImage() {
+  String _getRandomDefaultImage() {
     final random = Random();
-    _defaultNetworkImage = _defaultImages[random.nextInt(_defaultImages.length)];
+    return _defaultImages[random.nextInt(_defaultImages.length)];
+  }
+
+  bool _isHttpUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
+
+  ImageProvider? _getImageProvider(String? localPath, String? networkUrl) {
+    if (localPath != null && localPath.isNotEmpty) {
+      final file = File(localPath);
+      if (file.existsSync()) {
+        return FileImage(file);
+      }
+    }
+    if (networkUrl != null && networkUrl.isNotEmpty) {
+      if (_isHttpUrl(networkUrl)) {
+        return NetworkImage(networkUrl);
+      } else {
+        final file = File(networkUrl);
+        if (file.existsSync()) {
+          return FileImage(file);
+        }
+      }
+    }
+    return null;
   }
 
   Future<void> _pickImage() async {
@@ -88,14 +126,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    
-    if (image != null) {
-      setState(() {
-        _profileImagePath = image.path;
-        _defaultNetworkImage = null;
-      });
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1024, // Limit width to reduce file size
+        maxHeight: 1024, // Limit height to reduce file size
+      );
+      
+      if (image != null) {
+        setState(() {
+          _profileImagePath = image.path;
+        });
+
+        try {
+          // Check file size (5MB limit)
+          final file = File(image.path);
+          final fileSize = await file.length();
+          if (fileSize > 5 * 1024 * 1024) { // 5MB in bytes
+            throw 'Image size must be less than 5MB';
+          }
+
+          // Check file extension
+          final extension = image.path.split('.').last.toLowerCase();
+          if (!['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+            throw 'Invalid image format. Please use JPG, JPEG, PNG, or GIF';
+          }
+
+          await _profileService.updateProfilePicture(image.path);
+          await _loadUserProfile(); // Reload profile to get updated image URL
+          
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated successfully')),
+          );
+        } catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Colors.red,
+            ),
+          );
+          // Reset the image if upload failed
+          setState(() {
+            _profileImagePath = null;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -154,41 +243,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       setState(() => _isSaving = true);
       
-      // Update username if changed
+      // Get current profile data
+      final currentProfile = await _profileService.getUserProfile();
+      bool hasChanges = false;
+      Map<String, dynamic> updates = {};
+
+      // Check username changes
       if (_nameController.text != _initialUsername) {
-        await _profileEditService.updateUsername(_nameController.text);
+        updates['username'] = _nameController.text;
+        hasChanges = true;
       }
 
-      // Update bio if not empty
-      if (_bioController.text.isNotEmpty) {
-        await _profileEditService.updateBio(_bioController.text);
+      // Check bio changes
+      if (_bioController.text != (currentProfile['bio'] ?? '')) {
+        updates['bio'] = _bioController.text;
+        hasChanges = true;
       }
 
-      // Update email if changed
-      if (_emailController.text.isNotEmpty) {
-        await _profileEditService.updateEmail(_emailController.text);
+      // Check email changes
+      if (_emailController.text != (currentProfile['email'] ?? '')) {
+        updates['email'] = _emailController.text;
+        hasChanges = true;
       }
 
-      // Update gender if selected
-      if (_selectedGender != null) {
-        await _profileEditService.updateGender(_selectedGender!);
+      // Check gender changes
+      if (_selectedGender != (currentProfile['gender'] ?? '')) {
+        updates['gender'] = _selectedGender;
+        hasChanges = true;
       }
 
-      // Update date of birth if selected
-      if (_selectedDate != null) {
-        await _profileEditService.updateDateOfBirth(_selectedDate!);
+      // Check date of birth changes
+      final currentDob = currentProfile['date_of_birth'];
+      if (_selectedDate != null && 
+          (currentDob == null || DateTime.parse(currentDob).toString() != _selectedDate.toString())) {
+        updates['date_of_birth'] = _selectedDate.toString();
+        hasChanges = true;
       }
 
-      // Update profile picture if selected
-      if (_profileImagePath != null) {
-        await _profileEditService.updateProfilePicture(_profileImagePath!);
+      // Only make API calls if there are actual changes
+      if (hasChanges) {
+        await _profileService.updateProfile(updates);
+        
+        if (!mounted) return;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully')),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No changes to save')),
+        );
       }
       
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
       Navigator.pop(context);
     } catch (e) {
       print('Error saving profile: $e');
@@ -246,6 +353,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider? currentImageProvider = _getImageProvider(_profileImagePath, _defaultNetworkImage);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -285,20 +394,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.grey[200],
-                                image: _profileImagePath != null
-                                    ? DecorationImage(
-                                        image: FileImage(File(_profileImagePath!)),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : _defaultNetworkImage != null
-                                        ? DecorationImage(
-                                            image: NetworkImage(_defaultNetworkImage!),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
                               ),
-                              child: (_profileImagePath == null && _defaultNetworkImage == null)
-                                  ? const Center(
+                              child: currentImageProvider != null
+                                ? CircleAvatar(
+                                    backgroundImage: currentImageProvider,
+                                    onBackgroundImageError: (exception, stackTrace) {
+                                      print('Error loading background image: $exception');
+                                      if (mounted) {
+                                        setState(() {
+                                           if (_profileImagePath == _defaultNetworkImage) _profileImagePath = null;
+                                          _defaultNetworkImage = null; 
+                                        });
+                                      }
+                                    },
+                                    radius: 60,
+                                  )
+                                : const Center(
                                       child: Text(
                                         'AB',
                                         style: TextStyle(
@@ -308,7 +419,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         ),
                                       ),
                                     )
-                                  : null,
                             ),
                             if (!_isGuestUser)
                               Positioned(

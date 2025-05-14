@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File;
 import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shimmer/shimmer.dart';
 import '../bottomNavigation/bottom_navigation.dart';
 import 'account_settings_screen.dart';
 import 'additional_resources_screen.dart';
@@ -10,6 +12,69 @@ import 'edit_profile_screen.dart';
 import 'notifications_screen.dart';
 import '../../services/profile_service.dart';
 import '../../services/auth_service.dart';
+
+// Shimmer Placeholder Widget
+class ProfileShimmerPlaceholder extends StatelessWidget {
+  const ProfileShimmerPlaceholder({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(), // Disable scrolling for placeholder
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            const CircleAvatar(radius: 50), // Profile picture placeholder
+            const SizedBox(height: 16),
+            Container(width: 150, height: 24, color: Colors.white), // Username placeholder
+            const SizedBox(height: 8),
+            Container(width: 200, height: 16, color: Colors.white), // Bio placeholder
+            const SizedBox(height: 30),
+            Container( 
+              width: double.infinity, 
+              height: 50, 
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              )
+            ), // Edit Profile button placeholder
+            const SizedBox(height: 20),
+            _buildShimmerListItem(),
+            _buildShimmerListItem(),
+            _buildShimmerListItem(),
+            _buildShimmerListItem(),
+            _buildShimmerListItem(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerListItem() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(10)
+      ),
+      child: Row(
+        children: [
+          Container(width: 24, height: 24, color: Colors.grey[300]), // Icon placeholder
+          const SizedBox(width: 16),
+          Expanded(child: Container(height: 16, color: Colors.grey[300])), // Text placeholder
+          const SizedBox(width: 16),
+          Container(width: 16, height: 16, color: Colors.grey[300]), // Chevron placeholder
+        ],
+      ),
+    );
+  }
+}
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -20,6 +85,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String? _defaultNetworkImage;
+  String? _profileImagePath;
   final List<String> _defaultImages = [
     'https://picsum.photos/200',
     'https://picsum.photos/201',
@@ -36,33 +102,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   final ProfileService _profileService = ProfileService();
   final AuthService _authService = AuthService();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _setRandomDefaultImage();
     _loadUserProfile();
   }
 
-  Future<void> _loadUserProfile() async {
+  Future<void> _loadUserProfile({bool forceRefresh = false}) async {
     try {
       setState(() => _isLoading = true);
-      final profile = await _profileService.getUserProfile();
+      
+      final results = await Future.wait([
+        _profileService.getUserProfile(forceRefresh: forceRefresh),
+        _profileService.getProfilePicture(forceRefresh: forceRefresh),
+      ]);
+
+      final profile = results[0] as Map<String, dynamic>;
+      final profilePicture = results[1] as String?;
+      
+      print('Fetched profile data: $profile');
+      print('Fetched profile picture: $profilePicture');
+      
       if (!mounted) return;
       
-      final isGuest = profile['firebase_uid']?.toString().startsWith('guest_') ?? false;
+      final isGuest = profile['is_guest'] ?? false;
       
       setState(() {
         _isGuestUser = isGuest;
-        if (isGuest) {
-          _guestUsername = profile['full_name'];
-        } else {
-          _guestUsername = profile['full_name'];
-          _userBio = profile['bio'];
-          _userEmail = profile['email'];
-          _userGender = profile['gender'];
-          _userDob = profile['date_of_birth'];
+        _guestUsername = profile['username'] ?? '';
+        _userBio = profile['bio'] ?? '';
+        _userEmail = profile['email'] ?? '';
+        _userGender = profile['gender'] ?? '';
+        _userDob = profile['date_of_birth'] != null 
+            ? DateTime.parse(profile['date_of_birth']).toString().split(' ')[0] 
+            : '';
+        
+        if (_profileImagePath == null) {
+          _defaultNetworkImage = profilePicture;
         }
+        
+        print('Profile data after setState:');
+        print('Username: $_guestUsername');
+        print('Bio: $_userBio');
+        print('Email: $_userEmail');
+        print('Gender: $_userGender');
+        print('DOB: $_userDob');
+        print('Profile Picture: $_defaultNetworkImage');
+        
         _isLoading = false;
       });
     } catch (e) {
@@ -76,9 +164,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _setRandomDefaultImage() {
+  String _getRandomDefaultImage() {
     final random = Random();
-    _defaultNetworkImage = _defaultImages[random.nextInt(_defaultImages.length)];
+    return _defaultImages[random.nextInt(_defaultImages.length)];
+  }
+
+  bool _isHttpUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
+
+  ImageProvider? _getImageProvider(String? localPath, String? networkUrl) {
+    if (localPath != null && localPath.isNotEmpty) {
+      final file = File(localPath);
+      if (file.existsSync()) {
+        return FileImage(file);
+      }
+    }
+    if (networkUrl != null && networkUrl.isNotEmpty) {
+      if (_isHttpUrl(networkUrl)) {
+        return NetworkImage(networkUrl);
+      } else {
+        final file = File(networkUrl);
+        if (file.existsSync()) {
+          return FileImage(file);
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<void> _pickAndUpdateImage() async {
+    if (_isGuestUser) {
+      _showSignInDialog();
+      return;
+    }
+
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      
+      if (image != null) {
+        setState(() {
+          _profileImagePath = image.path;
+        });
+
+        try {
+          await _profileService.updateProfilePicture(image.path);
+          await _loadUserProfile(forceRefresh: true);
+          
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated successfully')),
+          );
+        } catch (e) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() {
+            _profileImagePath = null;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _launchStore() async {
@@ -114,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 try {
                   await _authService.signInWithGoogle();
                   if (mounted) {
-                    await _loadUserProfile();
+                    await _loadUserProfile(forceRefresh: true);
                   }
                 } catch (e) {
                   if (mounted) {
@@ -159,6 +325,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider? currentImageProvider = _getImageProvider(_profileImagePath, _defaultNetworkImage);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -172,59 +340,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.black54),
+            onPressed: () => _loadUserProfile(forceRefresh: true),
+            tooltip: 'Refresh Profile',
+          )
+        ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const ProfileShimmerPlaceholder()
           : Column(
               children: [
                 const SizedBox(height: 20),
                 Center(
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[200],
-                          image: _defaultNetworkImage != null
-                              ? DecorationImage(
-                                  image: NetworkImage(_defaultNetworkImage!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
-                        child: _defaultNetworkImage == null
-                            ? const Center(
-                                child: Text(
-                                  'AB',
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                  child: GestureDetector(
+                    onTap: _pickAndUpdateImage,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey[200],
+                          ),
+                          child: currentImageProvider != null
+                            ? CircleAvatar(
+                                backgroundImage: currentImageProvider,
+                                onBackgroundImageError: (exception, stackTrace) {
+                                  print('Error loading background image: $exception');
+                                  if (mounted) {
+                                     setState(() {
+                                       if (_profileImagePath == _defaultNetworkImage) _profileImagePath = null;
+                                       _defaultNetworkImage = null;
+                                     });
+                                  }
+                                },
+                                radius: 50,
                               )
-                            : null,
-                      ),
-                      if (!_isGuestUser)
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Color.fromRGBO(255, 32, 78, 1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 20,
+                            : const Center(
+                                  child: Text(
+                                    'AB',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                        ),
+                        if (!_isGuestUser)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Color.fromRGBO(255, 32, 78, 1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -237,36 +421,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  _isGuestUser ? 'Guest Account' : (_userBio ?? 'No bio yet'),
+                  _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 16,
                   ),
                 ),
-                if (!_isGuestUser) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    _userEmail ?? '',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                  if (_userGender != null || _userDob != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        [
-                          if (_userGender != null) _userGender,
-                          if (_userDob != null) _userDob,
-                        ].join(' • '),
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                ],
                 const SizedBox(height: 16),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -276,7 +436,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Column(
                     children: [
-                      // Edit Profile Button
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -289,7 +448,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => const EditProfileScreen(),
                                     ),
-                                  );
+                                  ).then((_) => _loadUserProfile(forceRefresh: true));
                                 },
                           icon: Icon(_isGuestUser ? Icons.login : Icons.edit_outlined),
                           label: Text(_isGuestUser ? 'Sign in to Edit Profile' : 'Edit Profile'),

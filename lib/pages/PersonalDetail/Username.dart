@@ -51,7 +51,11 @@ class _UsernamePageState extends State<UsernamePage> {
       
       setState(() {
         _isGuestUser = isGuest;
-        if (isGuest) {
+        // Set username from profile if it exists
+        final username = profile['username'];
+        if (username != null && username.isNotEmpty) {
+          _usernameController.text = username;
+        } else if (isGuest) {
           _guestUsername = profile['full_name'];
           _usernameController.text = _guestUsername ?? '';
         }
@@ -102,7 +106,12 @@ class _UsernamePageState extends State<UsernamePage> {
     });
 
     try {
-      await _profileService.updateUsername(_usernameController.text);
+      // Only update username if it has changed
+      final currentUsername = await _profileService.getUserProfile().then((profile) => profile['username']);
+      if (currentUsername != _usernameController.text) {
+        await _profileService.updateUsername(_usernameController.text);
+      }
+      
       if (!mounted) return;
       Get.to(() => const AgePage());
     } catch (e) {
