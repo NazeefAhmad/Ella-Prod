@@ -19,11 +19,9 @@ import 'config/theme_config.dart';
 import 'config/language_config.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   try {
     // Initialize SharedPreferences
@@ -38,8 +36,6 @@ void main() async {
     );
   } catch (e) {
     print('Initialization error: $e');
-  } finally {
-    FlutterNativeSplash.remove();
   }
 
   runApp(const MyApp());
