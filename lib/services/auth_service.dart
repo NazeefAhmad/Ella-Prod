@@ -4,10 +4,12 @@ import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
 import 'package:gemini_chat_app_tutorial/services/api_service.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/consts.dart';
+import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
 
 class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
   final ApiService _apiService = ApiService();
+  final ProfileService _profileService = ProfileService();
 
   // Validate JWT token format
   bool _isValidJwtFormat(String token) {
@@ -114,6 +116,16 @@ class AuthService {
     } catch (e) {
       print("Guest Sign-In Error: $e");
       return false;
+    }
+  }
+
+  // Get user profile
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
+      return await _profileService.getUserProfile();
+    } catch (e) {
+      print('Error getting user profile: $e');
+      return null;
     }
   }
 

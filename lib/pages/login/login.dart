@@ -29,7 +29,15 @@ class LoginPage extends StatelessWidget {
       final user = await _authService.signInWithGoogle();
       _hideLoadingDialog(context);
       if (user != null) {
-        Get.toNamed('/username');
+        // Check if user has a username
+        final userProfile = await _authService.getUserProfile();
+        if (userProfile != null && userProfile['username'] != null && userProfile['username'].toString().isNotEmpty) {
+          // User has a username, navigate to feed
+          Get.offAllNamed('/feed');
+        } else {
+          // No username, navigate to username setup
+          Get.toNamed('/username');
+        }
       } else {
         Get.snackbar("Error", "Google Sign-In failed. Please try again.");
       }

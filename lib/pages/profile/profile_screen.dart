@@ -390,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 )
                         ),
-                        if (!_isGuestUser)
+                        if (_userEmail?.contains('guest') != true)
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -440,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: double.infinity,
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ElevatedButton.icon(
-                          onPressed: _isGuestUser
+                          onPressed: _userEmail?.contains('guest') == true
                               ? _showSignInDialog
                               : () {
                                   Navigator.push(
@@ -450,11 +450,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ).then((_) => _loadUserProfile(forceRefresh: true));
                                 },
-                          icon: Icon(_isGuestUser ? Icons.login : Icons.edit_outlined),
-                          label: Text(_isGuestUser ? 'Sign in to Edit Profile' : 'Edit Profile'),
+                          icon: Icon(_userEmail?.contains('guest') == true ? Icons.login : Icons.edit_outlined),
+                          label: Text(_userEmail?.contains('guest') == true ? 'Sign in to edit profile' : 'Edit Profile'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isGuestUser ? const Color.fromRGBO(255, 32, 78, 1) : Colors.grey[200],
-                            foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
+                            backgroundColor: _userEmail?.contains('guest') == true ? const Color.fromRGBO(255, 32, 78, 1) : Colors.grey[200],
+                            foregroundColor: _userEmail?.contains('guest') == true ? Colors.white : Colors.black87,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
