@@ -129,7 +129,7 @@ class ProfileService {
   Future<void> updateProfile(Map<String, dynamic> profileData) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.patch(
+      final response = await http.put(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode(profileData),

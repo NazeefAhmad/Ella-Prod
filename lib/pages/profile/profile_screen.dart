@@ -42,7 +42,10 @@ class ProfileShimmerPlaceholder extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               )
-            ), // Edit Profile button placeholder
+            ), 
+            
+                 SizedBox(height: 20,),
+                      Divider(height: 1,),
             const SizedBox(height: 20),
             _buildShimmerListItem(),
             _buildShimmerListItem(),
@@ -328,10 +331,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ImageProvider? currentImageProvider = _getImageProvider(_profileImagePath, _defaultNetworkImage);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromRGBO(248, 248, 248, 1),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        toolbarHeight: 101,
+        centerTitle: true,
         title: const Text(
           'Profile',
           style: TextStyle(
@@ -340,192 +345,209 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: Colors.black54),
-            onPressed: () => _loadUserProfile(forceRefresh: true),
-            tooltip: 'Refresh Profile',
-          )
-        ],
+       
       ),
       body: _isLoading
           ? const ProfileShimmerPlaceholder()
-          : Column(
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: GestureDetector(
-                    onTap: _pickAndUpdateImage,
-                    child: Stack(
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickAndUpdateImage,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 144,
+                            height: 151,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[200],
+                            ),
+                            child: currentImageProvider != null
+                              ? CircleAvatar(
+                                  backgroundImage: currentImageProvider,
+                                  onBackgroundImageError: (exception, stackTrace) {
+                                    print('Error loading background image: $exception');
+                                    if (mounted) {
+                                       setState(() {
+                                         if (_profileImagePath == _defaultNetworkImage) _profileImagePath = null;
+                                         _defaultNetworkImage = null;
+                                       });
+                                    }
+                                  },
+                                  radius: 72,
+                                )
+                              : const Center(
+                                    child: Text(
+                                      'AB',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                          ),
+                          if (_userEmail?.contains('guest') != true)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Color.fromRGBO(255, 32, 78, 1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: 125,
+                    height: 29,
+                    child: Text(
+                      _guestUsername ?? 'Guest User',
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Container(
+                    width: 231,
+                    height: 20,
+                    child: Text(
+                      _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(248, 248, 248, 1),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
                       children: [
                         Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey[200],
-                          ),
-                          child: currentImageProvider != null
-                            ? CircleAvatar(
-                                backgroundImage: currentImageProvider,
-                                onBackgroundImageError: (exception, stackTrace) {
-                                  print('Error loading background image: $exception');
-                                  if (mounted) {
-                                     setState(() {
-                                       if (_profileImagePath == _defaultNetworkImage) _profileImagePath = null;
-                                       _defaultNetworkImage = null;
-                                     });
-                                  }
-                                },
-                                radius: 50,
-                              )
-                            : const Center(
-                                  child: Text(
-                                    'AB',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                )
-                        ),
-                        if (_userEmail?.contains('guest') != true)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color.fromRGBO(255, 32, 78, 1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                                size: 20,
+                          height: 48,
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: ElevatedButton.icon(
+                            onPressed: _userEmail?.contains('guest') == true
+                                ? _showSignInDialog
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const EditProfileScreen(),
+                                      ),
+                                    ).then((_) => _loadUserProfile(forceRefresh: true));
+                                  },
+                            icon: Icon(_userEmail?.contains('guest') == true ? Icons.login : Icons.edit_outlined),
+                            label: Text(_userEmail?.contains('guest') == true ? 'Sign in to edit profile' : 'Edit Profile'),
+                            
+                            style: ElevatedButton.styleFrom(
+                            
+                              backgroundColor: _userEmail?.contains('guest') == true ? const Color.fromRGBO(255, 32, 78, 1) : Colors.grey[200],
+                              foregroundColor: _userEmail?.contains('guest') == true ? Colors.white : Colors.black87,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              
+                              shape: RoundedRectangleBorder(
+                                
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _guestUsername ?? 'Guest User',
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ElevatedButton.icon(
-                          onPressed: _userEmail?.contains('guest') == true
+                        ),
+                         const SizedBox(height: 30),
+                        const Divider(height: 1),
+                        const SizedBox(height: 30),
+                        _buildSettingsItem(
+                          'Account Settings',
+                          icon: Icons.person_outline,
+                          onTap: _isGuestUser
                               ? _showSignInDialog
                               : () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const EditProfileScreen(),
+                                      builder: (context) => const AccountSettingsScreen(),
                                     ),
-                                  ).then((_) => _loadUserProfile(forceRefresh: true));
+                                  );
                                 },
-                          icon: Icon(_userEmail?.contains('guest') == true ? Icons.login : Icons.edit_outlined),
-                          label: Text(_userEmail?.contains('guest') == true ? 'Sign in to edit profile' : 'Edit Profile'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _userEmail?.contains('guest') == true ? const Color.fromRGBO(255, 32, 78, 1) : Colors.grey[200],
-                            foregroundColor: _userEmail?.contains('guest') == true ? Colors.white : Colors.black87,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildSettingsItem(
-                        'Account Settings',
-                        icon: Icons.person_outline,
-                        onTap: _isGuestUser
-                            ? _showSignInDialog
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AccountSettingsScreen(),
-                                  ),
-                                );
-                              },
-                      ),
-                      _buildSettingsItem(
-                        'Change Preference',
-                        iconPath: 'assets/icons/gender_pref.png',
-                        onTap: _isGuestUser
-                            ? _showSignInDialog
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const UserInterestPage(),
-                                  ),
-                                );
-                              },
-                      ),
-                      _buildSettingsItem(
-                        'Notifications',
-                        icon: Icons.notifications_none,
-                        onTap: _isGuestUser
-                            ? _showSignInDialog
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const NotificationsScreen(),
-                                  ),
-                                );
-                              },
-                      ),
-                      _buildSettingsItem(
-                        'Rate our App',
-                        icon: Icons.star_border,
-                        onTap: _launchStore,
-                      ),
-                      _buildSettingsItem(
-                        'Additional Resources',
-                        icon: Icons.info_outline,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AdditionalResourcesScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                        _buildSettingsItem(
+                          'Change Preference',
+                          iconPath: 'assets/icons/gender_pref.png',
+                          onTap: _isGuestUser
+                              ? _showSignInDialog
+                              : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const UserInterestPage(),
+                                    ),
+                                  );
+                                },
+                        ),
+                        _buildSettingsItem(
+                          'Notifications',
+                          icon: Icons.notifications_none,
+                          onTap: _isGuestUser
+                              ? _showSignInDialog
+                              : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const NotificationsScreen(),
+                                    ),
+                                  );
+                                },
+                        ),
+                        _buildSettingsItem(
+                          'Rate our App',
+                          icon: Icons.star_border,
+                          onTap: _launchStore,
+                        ),
+                        _buildSettingsItem(
+                          'Additional Resources',
+                          icon: Icons.info_outline,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AdditionalResourcesScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 10,),
+                        Divider(height: 1,)
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
       bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
     );

@@ -229,7 +229,21 @@ class AdditionalResourcesScreen extends StatelessWidget {
               url: 'https://hoocup.fun/terms-and-conditions',
             ),
             const Divider(height: 1),
+           
+    
             _buildOptionItem(
+              context,
+              'Contact Us',
+              url: 'https://www.exampl.com',
+            ),
+            const Divider(height: 1),
+            _buildOptionItem(
+              context,
+              'About Team Hoocup',
+              url: 'https://www.exampl.com',
+            ),
+             const Divider(height: 1),
+             _buildOptionItem(
               context,
               'Report a Problem',
               textColor: Colors.red,

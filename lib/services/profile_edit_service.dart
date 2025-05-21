@@ -20,7 +20,7 @@ class ProfileEditService {
   Future<void> updateUsername(String newUsername) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode({
@@ -50,7 +50,7 @@ class ProfileEditService {
   Future<void> updateBio(String bio) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode({
@@ -74,7 +74,7 @@ class ProfileEditService {
   Future<void> updateEmail(String email) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode({
@@ -98,7 +98,7 @@ class ProfileEditService {
   Future<void> updateGender(String gender) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode({
@@ -125,7 +125,7 @@ class ProfileEditService {
       // Format date as YYYY-MM-DD
       final formattedDate = '${dateOfBirth.year}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
       
-      final response = await http.put(
+      final response = await http.patch(
         Uri.parse('$_baseUrl/profile/profile'),
         headers: headers,
         body: json.encode({
@@ -153,7 +153,7 @@ class ProfileEditService {
       headers.remove('Content-Type');
 
       final request = http.MultipartRequest(
-        'PUT',
+        'PATCH',
         Uri.parse('$_baseUrl/profile/profile'),
       );
 
@@ -170,13 +170,21 @@ class ProfileEditService {
         ),
       );
 
+      // Add the token to the request headers
+      final token = await _tokenStorage.getAccessToken();
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       print('Update profile picture response status: ${response.statusCode}');
       print('Update profile picture response body: ${response.body}');
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 401) {
+        throw 'Authentication failed. Please sign in again.';
+      } else if (response.statusCode != 200) {
         throw 'Failed to update profile picture: ${response.statusCode}';
       }
     } catch (e) {
