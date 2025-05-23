@@ -104,6 +104,11 @@ class ApiService {
       // Get device fingerprint
       String deviceFingerprint = await _getDeviceFingerprint();
       String deviceId = AppConstants.deviceId;
+      
+      print('📱 Device Info before API call:');
+      print('Device ID: $deviceId');
+      print('Device Fingerprint: $deviceFingerprint');
+      print('Platform: ${Platform.isIOS ? "ios" : "android"}');
 
       // Test connection first
       try {
@@ -114,19 +119,24 @@ class ApiService {
         print('Health check failed: $e');
       }
 
+      final requestBody = {
+        'token': idToken,
+        'uid': uid,
+        'email': email,
+        'device_id': deviceId,
+        'fingerprint': deviceFingerprint,
+        'platform': Platform.isIOS ? 'ios' : 'android'
+      };
+      
+      print('📱 Request body with device info: ${json.encode(requestBody)}');
+
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: json.encode({
-          'token': idToken,
-          'uid': uid,
-          'email': email,
-          'deviceId': deviceId,
-          'deviceFingerprint': deviceFingerprint,
-        }),
+        body: json.encode(requestBody),
       ).timeout(const Duration(seconds: 10));
 
       print('Response status: ${response.statusCode}');
@@ -199,16 +209,18 @@ class ApiService {
         throw 'Cannot connect to server. Please check your internet connection and try again.';
       }
 
+      final requestBody = {
+        'device_id': deviceId,
+        'fingerprint': deviceFingerprint,
+        'platform': platform
+      };
+
+      print('📱 Guest login request body: ${json.encode(requestBody)}');
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'device_info': {
-            'device_id': deviceId,
-            'fingerprint': deviceFingerprint,
-            'platform': platform,
-          }
-        }),
+        body: json.encode(requestBody),
       ).timeout(const Duration(seconds: 10));
 
       print('Response status: ${response.statusCode}');
@@ -282,15 +294,18 @@ class ApiService {
     String fingerprint = '';
 
     try {
+      print('📱 Getting device fingerprint...');
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         fingerprint = androidInfo.fingerprint ?? 'Unknown Fingerprint';
+        print('📱 Android fingerprint: $fingerprint');
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
         fingerprint = iosInfo.identifierForVendor ?? 'Unknown Fingerprint';
+        print('📱 iOS fingerprint: $fingerprint');
       }
     } catch (e) {
-      print('Error fetching device fingerprint: $e');
+      print('❌ Error fetching device fingerprint: $e');
     }
 
     return fingerprint;
