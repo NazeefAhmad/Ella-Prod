@@ -8,7 +8,7 @@ class AppConstants {
 
   static String deviceId = '';  // Initialize as empty string
   static String accessToken = 'accessToken';
-  static String fcmtoken = 'fcmtoken';
+  static String fcmtoken = '';
   static String username = 'username';  // Store the username
   static String genderPreference = 'genderPreference';  // Store the gender preference
   static String interest = ''; // Or you can initialize it to a default value

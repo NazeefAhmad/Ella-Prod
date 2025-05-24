@@ -6,6 +6,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:android_id/android_id.dart';
 import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -25,6 +26,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     const androidIdPlugin = AndroidId();
     String fetchedDeviceId = '';
     String fetchedDeviceFingerprint = '';
+    String fcmToken = '';
     final prefs = await SharedPreferences.getInstance();
 
     try {
@@ -56,21 +58,51 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
           await prefs.setString('device_id', fetchedDeviceId);
           await prefs.setString('device_fingerprint', fetchedDeviceFingerprint);
           print("📱 Stored new values in SharedPreferences");
-        } else {
-          print("❌ Failed to get valid device info");
         }
       }
-    } catch (e) {
-      print("❌ Error fetching device info: $e");
-      fetchedDeviceId = '';
-      fetchedDeviceFingerprint = '';
-    }
 
-    // Set the values in AppConstants
-    AppConstants.deviceId = fetchedDeviceId;
-    AppConstants.deviceFingerprint = fetchedDeviceFingerprint;
-    print("📱 Final values set in AppConstants - Device ID: ${AppConstants.deviceId}");
-    print("🔍 Final values set in AppConstants - Device Fingerprint: ${AppConstants.deviceFingerprint}");
+      // Fetch FCM token
+      try {
+        print("📱 Starting FCM token fetch...");
+        
+        // Get the FCM token directly since Firebase is already initialized
+        fcmToken = await FirebaseMessaging.instance.getToken() ?? '';
+        print("📱 Raw FCM Token received: $fcmToken");
+        
+        // Store FCM token
+        if (fcmToken.isNotEmpty) {
+          await prefs.setString(AppConstants.fcmtoken, fcmToken);
+          // Verify the token was stored correctly
+          String? storedToken = prefs.getString(AppConstants.fcmtoken);
+          print("📱 Stored FCM token in SharedPreferences: $storedToken");
+          print("📱 Verification - Retrieved token matches: ${storedToken == fcmToken}");
+        } else {
+          print("📱 Warning: Empty FCM token received");
+        }
+
+        // Set up token refresh listener
+        FirebaseMessaging.instance.onTokenRefresh.listen((String token) {
+          print("📱 FCM Token Refreshed in Splash: $token");
+          prefs.setString(AppConstants.fcmtoken, token);
+        });
+        
+      } catch (e) {
+        print("📱 Error getting FCM token: $e");
+        print("📱 Error stack trace: ${StackTrace.current}");
+      }
+
+      // Set the device info in AppConstants
+      AppConstants.deviceId = fetchedDeviceId;
+      AppConstants.deviceFingerprint = fetchedDeviceFingerprint;
+      
+      print("📱 Final device info set in AppConstants:");
+      print("Device ID: ${AppConstants.deviceId}");
+      print("Device Fingerprint: ${AppConstants.deviceFingerprint}");
+      print("FCM Token: $fcmToken");
+
+    } catch (e) {
+      print("📱 Error in _fetchAndSetDeviceInfo: $e");
+    }
   }
 
   Future<void> _initAppAndNavigate() async {

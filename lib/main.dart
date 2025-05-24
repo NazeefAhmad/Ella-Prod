@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart'; // Firebase core import
+import 'package:firebase_messaging/firebase_messaging.dart'; // Add this import
 import 'firebase_options.dart'; // Make sure this file is generated from Firebase setup
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
@@ -20,6 +21,12 @@ import 'config/language_config.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
 
+// Add this function to handle background messages
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("Handling a background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
@@ -34,6 +41,45 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Initialize Firebase Messaging
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      
+      // Set background message handler
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      // Request permission for iOS
+      if (Platform.isIOS) {
+        await messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+
+      // Get FCM token
+      String? token = await messaging.getToken();
+      print("📱 Initial FCM Token: $token");
+
+      // Store the token in SharedPreferences
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('fcmtoken', token);
+        print("📱 Stored initial FCM token in SharedPreferences");
+      }
+
+      // Listen to token refresh
+      messaging.onTokenRefresh.listen((String token) async {
+        print("📱 FCM Token Refreshed: $token");
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('fcmtoken', token);
+        print("📱 Updated FCM token in SharedPreferences");
+      });
+    } catch (e) {
+      print('Firebase Messaging initialization error: $e');
+    }
+
   } catch (e) {
     print('Initialization error: $e');
   }

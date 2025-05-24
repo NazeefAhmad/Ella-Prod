@@ -6,6 +6,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:gemini_chat_app_tutorial/consts.dart';  
 import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -105,10 +106,18 @@ class ApiService {
       String deviceFingerprint = await _getDeviceFingerprint();
       String deviceId = AppConstants.deviceId;
       
+      // Get FCM token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String fcmToken = prefs.getString(AppConstants.fcmtoken) ?? '';
+      print("📱 API Service - Google Auth - Retrieved FCM token from SharedPreferences: $fcmToken");
+      print("📱 API Service - Google Auth - FCM token length: ${fcmToken.length}");
+      print("📱 API Service - Google Auth - FCM token is empty: ${fcmToken.isEmpty}");
+      
       print('📱 Device Info before API call:');
       print('Device ID: $deviceId');
       print('Device Fingerprint: $deviceFingerprint');
       print('Platform: ${Platform.isIOS ? "ios" : "android"}');
+      print('FCM Token: $fcmToken');
 
       // Test connection first
       try {
@@ -125,10 +134,13 @@ class ApiService {
         'email': email,
         'device_id': deviceId,
         'fingerprint': deviceFingerprint,
-        'platform': Platform.isIOS ? 'ios' : 'android'
+        'platform': Platform.isIOS ? 'ios' : 'android',
+        'fcm_token': fcmToken
       };
       
       print('📱 Request body with device info: ${json.encode(requestBody)}');
+      print('📱 Request body FCM token: ${requestBody['fcm_token']}');
+      print('📱 Request body FCM token length: ${requestBody['fcm_token']?.length}');
 
       final response = await http.post(
         url,
@@ -191,6 +203,13 @@ class ApiService {
       String deviceId = AppConstants.deviceId;
       String deviceFingerprint = await _getDeviceFingerprint();
       String platform = Platform.isIOS ? 'ios' : 'android';
+      
+      // Get FCM token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String fcmToken = prefs.getString(AppConstants.fcmtoken) ?? '';
+      print("📱 API Service - Retrieved FCM token from SharedPreferences: $fcmToken");
+      print("📱 API Service - FCM token length: ${fcmToken.length}");
+      print("📱 API Service - FCM token is empty: ${fcmToken.isEmpty}");
 
       if (deviceId.isEmpty) {
         throw 'Device ID is empty';
@@ -212,10 +231,13 @@ class ApiService {
       final requestBody = {
         'device_id': deviceId,
         'fingerprint': deviceFingerprint,
-        'platform': platform
+        'platform': platform,
+        'fcm_token': fcmToken
       };
 
       print('📱 Guest login request body: ${json.encode(requestBody)}');
+      print('📱 Guest login request body FCM token: ${requestBody['fcm_token']}');
+      print('📱 Guest login request body FCM token length: ${requestBody['fcm_token']?.length}');
 
       final response = await http.post(
         url,
