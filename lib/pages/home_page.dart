@@ -13,6 +13,7 @@ import '../models/chat_media.dart' as model;
 import '../models/chat_message.dart' as model;
 import '../consts.dart';
 import '../services/profile_service.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -83,51 +84,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() => isLoadingMore = true);
     try {
       final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
-      print('📱 Loading more messages for chat ID: $chatId, offset: ${currentOffset + messagesPerPage}');
+      print('📱 Loading more messages for chat ID: $chatId, offset: $currentOffset');
 
-      // Try to load from cache first
-      final cachedMessages = await _chatCacheService.getMessages(chatId);
-      final cachedOffset = currentOffset + messagesPerPage;
-      
-      if (cachedMessages.length > cachedOffset) {
-        // We have more messages in cache
-        final newMessages = cachedMessages.skip(cachedOffset).take(messagesPerPage).toList();
+      // Need to fetch from server
+      final response = await _chatService.getChatHistory(
+        chatId,
+        limit: messagesPerPage,
+        offset: currentOffset,
+      );
+
+      if (response.messages.isNotEmpty) {
+        final newMessages = response.messages.map((msg) => model.ChatMessage(
+          user: msg.isUser ? currentUser : botUser,
+          createdAt: DateTime.parse(msg.timestamp ?? DateTime.now().toIso8601String()),
+          text: msg.content,
+        )).toList();
+
         setState(() {
-          messages.addAll(newMessages);
-          currentOffset += messagesPerPage;
+          // Add new messages to the end of the list
+          messages = [...messages, ...newMessages];
+          currentOffset += newMessages.length;
           hasMoreMessages = newMessages.length == messagesPerPage;
         });
-        print('📱 Loaded ${newMessages.length} more messages from cache');
+
+        // Update cache in background
+        _chatCacheService.saveMessages(chatId, messages).then((_) {
+          print('📱 Successfully cached ${messages.length} messages');
+        });
+        print('📱 Successfully loaded ${newMessages.length} more messages from server');
       } else {
-        // Need to fetch from server
-        final response = await _chatService.getChatHistory(
-          chatId,
-          limit: messagesPerPage,
-          offset: currentOffset + messagesPerPage,
-        );
-
-        if (response.messages.isNotEmpty) {
-          final newMessages = response.messages.map((msg) => model.ChatMessage(
-            user: msg.isUser ? currentUser : botUser,
-            createdAt: DateTime.parse(msg.timestamp ?? DateTime.now().toIso8601String()),
-            text: msg.content,
-          )).toList();
-
-          setState(() {
-            messages.addAll(newMessages);
-            currentOffset += messagesPerPage;
-            hasMoreMessages = newMessages.length == messagesPerPage;
-          });
-
-          // Update cache in background
-          _chatCacheService.saveMessages(chatId, messages).then((_) {
-            print('📱 Successfully cached ${messages.length} messages');
-          });
-          print('📱 Successfully loaded ${newMessages.length} more messages from server');
-        } else {
-          setState(() => hasMoreMessages = false);
-          print('📱 No more messages to load');
-        }
+        setState(() => hasMoreMessages = false);
+        print('📱 No more messages to load');
       }
     } catch (e) {
       print('📱 Error loading more messages: $e');
@@ -143,7 +130,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
       print('📱 Loading chat history for chat ID: $chatId');
 
-      // First load from cache
+      // Check if this is a refresh operation
+      final isRefresh = currentOffset == 0;
+
+      if (isRefresh && isApiHealthy) {
+        // Always fetch from server on refresh
+        print('📱 Refreshing messages from server...');
+        await _refreshFromServer(chatId);
+        return;
+      }
+
+      // For normal loading, try cache first
       print('📱 Loading from cache...');
       final cachedMessages = await _chatCacheService.getMessages(chatId);
       
@@ -220,25 +217,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           text: msg.content,
         )).toList();
 
-        // Only update if server data is different from current messages
-        if (messages.isEmpty || 
-            newMessages.length != messages.length || 
-            newMessages.first.text != messages.first.text) {
-          setState(() {
-            messages = newMessages;
-            hasChatStarted = messages.isNotEmpty;
-            currentOffset = messages.length;
-            hasMoreMessages = messages.length >= messagesPerPage;
-          });
+        setState(() {
+          messages = newMessages;
+          hasChatStarted = messages.isNotEmpty;
+          currentOffset = messages.length;
+          hasMoreMessages = messages.length >= messagesPerPage;
+        });
 
-          // Update cache in background
-          _chatCacheService.saveMessages(chatId, newMessages).then((_) {
-            print('📱 Successfully updated cache with ${newMessages.length} messages');
-          });
-          print('📱 Successfully updated with ${messages.length} messages from server');
-        } else {
-          print('📱 Server data matches cache, no update needed');
-        }
+        // Update cache in background
+        _chatCacheService.saveMessages(chatId, newMessages).then((_) {
+          print('📱 Successfully updated cache with ${newMessages.length} messages');
+        });
+        print('📱 Successfully updated with ${messages.length} messages from server');
       } else {
         print('📱 No messages found from server');
         if (messages.isEmpty) {
@@ -252,7 +242,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
     } catch (e) {
       print('📱 Error fetching from server: $e');
-      // Keep using cached data if server fetch fails
+      Get.snackbar('Error', 'Failed to refresh messages.',
+          snackPosition: SnackPosition.BOTTOM);
     } finally {
       setState(() => isLoading = false);
     }
@@ -357,25 +348,95 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
 
-    // Update UI immediately
+    // Create a message with sending status
+    final sendingMessage = model.ChatMessage(
+      user: chatMessage.user,
+      createdAt: chatMessage.createdAt,
+      text: chatMessage.text,
+      medias: chatMessage.medias,
+      status: model.MessageStatus.sending,
+    );
+
+    // Update UI immediately with sending status
     setState(() {
-      messages.insert(0, chatMessage);
+      messages.insert(0, sendingMessage);
       hasChatStarted = true;
-      isBotTyping = true;
+    });
+
+    // Start status progression timers
+    Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        setState(() {
+          messages[0] = model.ChatMessage(
+            user: chatMessage.user,
+            createdAt: chatMessage.createdAt,
+            text: chatMessage.text,
+            medias: chatMessage.medias,
+            status: model.MessageStatus.sent,
+          );
+        });
+      }
+    });
+
+    Timer(const Duration(milliseconds: 3000), () {
+      if (mounted) {
+        setState(() {
+          messages[0] = model.ChatMessage(
+            user: chatMessage.user,
+            createdAt: chatMessage.createdAt,
+            text: chatMessage.text,
+            medias: chatMessage.medias,
+            status: model.MessageStatus.delivered,
+          );
+          // Show typing indicator after message is delivered
+          isBotTyping = true;
+        });
+      }
+    });
+
+    // Set a timeout for failed status
+    Timer(const Duration(seconds: 15), () {
+      if (mounted && messages.isNotEmpty && messages[0].status != model.MessageStatus.sent) {
+        setState(() {
+          messages[0] = model.ChatMessage(
+            user: chatMessage.user,
+            createdAt: chatMessage.createdAt,
+            text: chatMessage.text,
+            medias: chatMessage.medias,
+            status: model.MessageStatus.failed,
+          );
+          isBotTyping = false;
+        });
+        Get.snackbar('Error', 'Message delivery failed.',
+            snackPosition: SnackPosition.BOTTOM);
+      }
     });
 
     try {
       // Send message and wait for response
       final response = await _chatService.sendMessage(chatMessage.text);
 
+      // Update the message with sent status
+      final sentMessage = model.ChatMessage(
+        user: chatMessage.user,
+        createdAt: chatMessage.createdAt,
+        text: chatMessage.text,
+        medias: chatMessage.medias,
+        status: model.MessageStatus.sent,
+        deliveredAt: DateTime.now(),
+      );
+
       final botMessage = model.ChatMessage(
         user: botUser,
         createdAt: DateTime.now(),
         text: response.response,
+        status: model.MessageStatus.sent,
+        deliveredAt: DateTime.now(),
       );
 
-      // Update UI with bot response
+      // Update UI with sent status and bot response
       setState(() {
+        messages[0] = sentMessage; // Update the sending message to sent
         messages.insert(0, botMessage);
         isBotTyping = false;
       });
@@ -386,7 +447,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       });
     } catch (e) {
       print('📱 Error sending message: $e');
+      // Update the message with failed status
+      final failedMessage = model.ChatMessage(
+        user: chatMessage.user,
+        createdAt: chatMessage.createdAt,
+        text: chatMessage.text,
+        medias: chatMessage.medias,
+        status: model.MessageStatus.failed,
+      );
       setState(() {
+        messages[0] = failedMessage;
         isBotTyping = false;
       });
       Get.snackbar('Error', 'Failed to send message.',
@@ -550,6 +620,195 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  Widget _buildMessageList() {
+    return ListView.builder(
+      reverse: true,
+      controller: _scrollController,
+      itemCount: messages.length + (isBotTyping ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (isBotTyping && index == 0) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                CircleAvatar(
+                  backgroundImage: botUser.profileImage != null
+                      ? AssetImage(botUser.profileImage!)
+                      : null,
+                  child: botUser.profileImage == null
+                      ? Text(botUser.firstName[0].toUpperCase())
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                _buildTypingBubble(),
+              ],
+            ),
+          );
+        }
+
+        // Calculate the actual message index
+        final messageIndex = isBotTyping ? index - 1 : index;
+        final msg = messages[messageIndex];
+        final isCurrentUser = msg.user.id == currentUser.id;
+        
+        String statusIcon = '';
+        Color statusColor = Colors.grey;
+        
+        if (isCurrentUser) {
+          switch (msg.status) {
+            case model.MessageStatus.sending:
+              statusIcon = '⌛';
+              statusColor = Colors.grey;
+              break;
+            case model.MessageStatus.sent:
+              statusIcon = '✓';
+              statusColor = Colors.grey;
+              break;
+            case model.MessageStatus.delivered:
+              statusIcon = '✓✓';
+              statusColor = Colors.grey;
+              break;
+            case model.MessageStatus.read:
+              statusIcon = '✓✓';
+              statusColor = Colors.blue;
+              break;
+            case model.MessageStatus.failed:
+              statusIcon = '⚠';
+              statusColor = Colors.red;
+              break;
+          }
+        }
+
+        // Add date separator if needed
+        bool showDateSeparator = false;
+        if (messageIndex < messages.length - 1) {
+          final currentDate = msg.createdAt;
+          final nextDate = messages[messageIndex + 1].createdAt;
+          showDateSeparator = !_isSameDay(currentDate, nextDate);
+        }
+
+        return Column(
+          children: [
+            if (showDateSeparator)
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  _formatDate(msg.createdAt),
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (!isCurrentUser) ...[
+                    CircleAvatar(
+                      backgroundImage: msg.user.profileImage != null
+                          ? AssetImage(msg.user.profileImage!)
+                          : null,
+                      child: msg.user.profileImage == null
+                          ? Text(msg.user.firstName[0].toUpperCase())
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isCurrentUser ? const Color(0xFFFF204E) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            msg.text,
+                            style: TextStyle(
+                              color: isCurrentUser ? Colors.white : const Color(0xFF989898),
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                DateFormat('HH:mm').format(msg.createdAt),
+                                style: TextStyle(
+                                  color: isCurrentUser ? Colors.white70 : Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              if (isCurrentUser) ...[
+                                const SizedBox(width: 4),
+                                Text(
+                                  statusIcon,
+                                  style: TextStyle(
+                                    color: statusColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (isCurrentUser) ...[
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundImage: msg.user.profileImage != null
+                          ? AssetImage(msg.user.profileImage!)
+                          : null,
+                      child: msg.user.profileImage == null
+                          ? Text(msg.user.firstName[0].toUpperCase())
+                          : null,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final messageDate = DateTime(date.year, date.month, date.day);
+
+    if (messageDate == today) {
+      return 'Today';
+    } else if (messageDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMMM d, y').format(date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Get character information from arguments
@@ -605,73 +864,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 fit: BoxFit.cover,
                               ),
                             ),
-                          ),
-                          // DashChat handles message display internally based on the messages list
-                          DashChat(
-                            currentUser: toDashChatUser(currentUser),
-                            messages: messages.map(toDashChatMessage).toList(),
-                            onSend: (msg) => _sendMessage(fromDashChatMessage(msg)),
-                            inputOptions: InputOptions(
-                              textController: _textEditingController,
-                              focusNode: _focusNode,
-                              inputTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                              ),
-                              inputDecoration: InputDecoration(
-                                hintText: 'Type a message...',
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFF989898),
-                                  fontSize: 16,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: const Color(0xFFF3F4F6),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 18,
-                                ),
-                              ),
-                              inputToolbarPadding: const EdgeInsets.fromLTRB(0, 12, 16, 36),
-                              inputToolbarStyle: const BoxDecoration(
-                                color: Colors.white,
-                                border: Border(top: BorderSide(color: Color(0xFFF3F4F6), width: 0)),
-                              ),
-                              leading: [
-                                IconButton(
-                                  onPressed: _sendMediaMessage,
-                                  icon: Image.asset(
-                                    'assets/images/camera.png',
-                                    width: 28,
-                                    height: 28,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ],
-                              sendButtonBuilder: (onSend) {
-                                return IconButton(
-                                  icon: Image.asset(
-                                    'assets/images/send.png',
-                                    width: 32,
-                                    height: 32,
-                                  ),
-                                  onPressed: onSend,
-                                );
-                              },
-                              alwaysShowSend: true,
-                            ),
-                            messageOptions: MessageOptions(
-                              currentUserContainerColor: const Color(0xFFFF204E),
-                              containerColor: const Color(0xFFFFFFFF),
-                              currentUserTextColor: Colors.white,
-                              textColor: const Color(0xFF989898),
-                              borderRadius: 12,
-                              showOtherUsersName: false,
-                            ),
-                            typingUsers: isBotTyping ? [toDashChatUser(botUser)] : [],
+                            child: _buildMessageList(),
                           ),
                           if (isLoadingMore)
                             Positioned(
@@ -719,6 +912,71 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         ],
                       ),
                     ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        border: Border(top: BorderSide(color: Color(0xFFF3F4F6), width: 0)),
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: _sendMediaMessage,
+                            icon: Image.asset(
+                              'assets/images/camera.png',
+                              width: 28,
+                              height: 28,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _textEditingController,
+                              focusNode: _focusNode,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Type a message...',
+                                hintStyle: const TextStyle(
+                                  color: Color(0xFF989898),
+                                  fontSize: 16,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: const Color(0xFFF3F4F6),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Image.asset(
+                              'assets/images/send.png',
+                              width: 32,
+                              height: 32,
+                            ),
+                            onPressed: () {
+                              if (_textEditingController.text.trim().isNotEmpty) {
+                                final message = model.ChatMessage(
+                                  user: currentUser,
+                                  createdAt: DateTime.now(),
+                                  text: _textEditingController.text.trim(),
+                                );
+                                _textEditingController.clear();
+                                _sendMessage(message);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -741,16 +999,39 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     profileImage: user.profileImage,
   );
 
-  ChatMessage toDashChatMessage(model.ChatMessage msg) => ChatMessage(
-    user: toDashChatUser(msg.user),
-    createdAt: msg.createdAt,
-    text: msg.text,
-    medias: msg.medias?.map((m) => ChatMedia(
-      url: m.url,
-      fileName: m.fileName,
-      type: MediaType.image,
-    )).toList(),
-  );
+  ChatMessage toDashChatMessage(model.ChatMessage msg) {
+    String statusIcon = '';
+    if (msg.user.id == currentUser.id) {
+      switch (msg.status) {
+        case model.MessageStatus.sending:
+          statusIcon = ' ⌛'; // Hourglass for sending
+          break;
+        case model.MessageStatus.sent:
+          statusIcon = ' ✓'; // Single tick for sent
+          break;
+        case model.MessageStatus.delivered:
+          statusIcon = ' ✓✓'; // Double tick for delivered
+          break;
+        case model.MessageStatus.read:
+          statusIcon = ' ✓✓'; // Double tick in blue for read
+          break;
+        case model.MessageStatus.failed:
+          statusIcon = ' ⚠'; // Warning for failed
+          break;
+      }
+    }
+
+    return ChatMessage(
+      user: toDashChatUser(msg.user),
+      createdAt: msg.createdAt,
+      text: msg.text + statusIcon,
+      medias: msg.medias?.map((m) => ChatMedia(
+        url: m.url,
+        fileName: m.fileName,
+        type: MediaType.image,
+      )).toList(),
+    );
+  }
 
   model.ChatMessage fromDashChatMessage(ChatMessage msg) => model.ChatMessage(
     user: fromDashChatUser(msg.user),

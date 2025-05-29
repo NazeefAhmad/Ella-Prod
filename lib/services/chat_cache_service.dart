@@ -22,6 +22,9 @@ class ChatCacheService {
         'fileName': m.fileName,
         'type': m.type.toString(),
       }).toList(),
+      'status': msg.status.toString(),
+      'deliveredAt': msg.deliveredAt?.toIso8601String(),
+      'readAt': msg.readAt?.toIso8601String(),
     }).toList();
     
     await prefs.setString(_messagesPrefix + chatId, jsonEncode(messagesJson));
@@ -51,6 +54,12 @@ class ChatCacheService {
             orElse: () => MediaType.image,
           ),
         )).toList(),
+        status: MessageStatus.values.firstWhere(
+          (e) => e.toString() == msg['status'],
+          orElse: () => MessageStatus.sent,
+        ),
+        deliveredAt: msg['deliveredAt'] != null ? DateTime.parse(msg['deliveredAt']) : null,
+        readAt: msg['readAt'] != null ? DateTime.parse(msg['readAt']) : null,
       )).toList();
     } catch (e) {
       print('Error parsing cached messages: $e');
