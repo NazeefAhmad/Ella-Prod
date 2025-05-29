@@ -108,6 +108,12 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   Future<void> _initAppAndNavigate() async {
     await _fetchAndSetDeviceInfo(); // Fetch device info first
 
+    // Load user ID and username from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    AppConstants.userId = prefs.getString('user_id') ?? '';
+    AppConstants.userName = prefs.getString('username') ?? '';
+    print("Loaded from SharedPreferences - User ID: ${AppConstants.userId}, Username: ${AppConstants.userName}");
+
     bool isAuthenticated = false;
     try {
       isAuthenticated = await _authService.isAuthenticated();

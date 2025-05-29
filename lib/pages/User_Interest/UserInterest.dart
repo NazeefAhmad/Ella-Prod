@@ -16,9 +16,9 @@ class _UserInterestPageState extends State<UserInterestPage> {
   bool _isLoading = false;
 
   // Preference types
-  static const String MEN = 'Male';
-  static const String WOMEN = 'Female';
-  static const String ALL = 'Everyone';
+  static const String MEN = 'male';
+  static const String WOMEN = 'female';
+  static const String ALL = 'both';
 
   void _showLoadingDialog(String message) {
     showDialog(
@@ -152,7 +152,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                     
                     // Preference buttons
                     _buildPreferenceButton(
-                      text: 'I want to See men',
+                      text: 'I want to See Men',
                       emoji: '👨',
                       preference: MEN,
                       isActive: selectedPreference == MEN,
@@ -174,7 +174,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                     ),
                     const SizedBox(height: 16),
                     _buildPreferenceButton(
-                      text: 'I am open to all',
+                      text: 'I am open to Everyone',
                       emoji: '🌈',
                       preference: ALL,
                       isActive: selectedPreference == ALL,

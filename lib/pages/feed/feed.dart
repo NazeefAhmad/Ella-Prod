@@ -212,7 +212,11 @@ class _PersonaCardState extends State<PersonaCard>
 
     return GestureDetector(
       onTap: () {
-        Get.toNamed('/home');
+        Get.toNamed('/home', arguments: {
+          'characterName': widget.name,
+          'characterImage': widget.imagePath,
+          'characterBio': widget.bio,
+        });
       },
       child: Container(
         decoration: BoxDecoration(

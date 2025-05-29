@@ -17,7 +17,7 @@ class AppRouter {
   static final List<GetPage> routes = [
     GetPage(name: '/userInterest', page: () => UserInterestPage()),
     GetPage(name: '/personal_details', page: () => PersonalDetailsPage()),
-    GetPage(name: '/home', page: () => HomePage()),
+    GetPage(name: '/home', page: () => const HomePage()),
     GetPage(name: '/settings', page: () => SettingsPage()),
     GetPage(name: '/onboarding', page: () => OnboardingPage()),
     GetPage(name: '/username', page: () => const UsernamePage()),

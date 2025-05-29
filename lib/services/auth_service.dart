@@ -5,6 +5,7 @@ import 'package:gemini_chat_app_tutorial/services/api_service.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/consts.dart';
 import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -78,6 +79,25 @@ class AuthService {
         throw 'Access token not found in response';
       }
 
+      // Set user ID and username in AppConstants
+      if (response['user'] != null) {
+        final userData = response['user'] as Map<String, dynamic>;
+        AppConstants.userId = userData['_id'] as String? ?? '';
+        
+        // Extract username from email (everything before @)
+        final email = userData['email'] as String? ?? '';
+        final defaultUsername = email.isNotEmpty ? email.split('@')[0] : 'User';
+        AppConstants.userName = userData['username'] as String? ?? defaultUsername;
+        
+        // Store in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_id', AppConstants.userId);
+        await prefs.setString('username', AppConstants.userName);
+        
+        print("Set user ID: ${AppConstants.userId}");
+        print("Set username: ${AppConstants.userName}");
+      }
+
       print("Sign-in successful. User: ${userCredential.user?.email}");
       print("Access Token: ${accessToken.substring(0, 20)}..."); // Log first 20 chars for debugging
 
@@ -106,6 +126,21 @@ class AuthService {
       }
       if (!_isValidJwtFormat(refreshToken)) {
         throw 'Invalid refresh token format received from server';
+      }
+
+      // Set user ID and username in AppConstants
+      if (response['user'] != null) {
+        final userData = response['user'] as Map<String, dynamic>;
+        AppConstants.userId = userData['_id'] as String? ?? '';
+        AppConstants.userName = userData['username'] as String? ?? 'Guest';
+        
+        // Store in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_id', AppConstants.userId);
+        await prefs.setString('username', AppConstants.userName);
+        
+        print("Set guest user ID: ${AppConstants.userId}");
+        print("Set guest username: ${AppConstants.userName}");
       }
 
       print("Guest sign-in successful");
@@ -173,6 +208,17 @@ class AuthService {
         print("Token removal failed: $e");
         // Continue with navigation
       }
+
+      // Clear user data from AppConstants
+      AppConstants.userId = '';
+      AppConstants.userName = '';
+      
+      // Clear from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_id');
+      await prefs.remove('username');
+      
+      print("Cleared user data from AppConstants and SharedPreferences");
 
       // Navigate to login screen
       Get.offAllNamed('/login');
