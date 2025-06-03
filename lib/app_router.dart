@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
-import 'package:gemini_chat_app_tutorial/pages/settings.dart';
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
+// import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
 import 'package:gemini_chat_app_tutorial/pages/login/login.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
@@ -16,9 +15,8 @@ import 'pages/notifications/notification.dart';
 class AppRouter {
   static final List<GetPage> routes = [
     GetPage(name: '/userInterest', page: () => UserInterestPage()),
-    GetPage(name: '/personal_details', page: () => PersonalDetailsPage()),
     GetPage(name: '/home', page: () => const HomePage()),
-    GetPage(name: '/settings', page: () => SettingsPage()),
+    // GetPage(name: '/settings', page: () => SettingsPage()),
     GetPage(name: '/onboarding', page: () => OnboardingPage()),
     GetPage(name: '/username', page: () => const UsernamePage()),
     GetPage(name: '/age', page: () => AgePage()),

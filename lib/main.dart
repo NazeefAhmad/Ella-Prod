@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart'; // Firebase core import
 import 'package:firebase_messaging/firebase_messaging.dart'; // Add this import
 import 'firebase_options.dart'; // Make sure this file is generated from Firebase setup
 import 'package:get/get.dart';
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetailsPage.dart';
 import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';

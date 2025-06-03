@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:gemini_chat_app_tutorial/pages/settings.dart';
+// import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import '../services/chat_service.dart';
 import '../services/chat_cache_service.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
