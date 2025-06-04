@@ -46,7 +46,7 @@ class ChatService {
       print('3. Verify your computer\'s IP address is correct');
       print('   - On Mac/Linux: Run "ifconfig" in terminal');
       print('   - On Windows: Run "ipconfig" in command prompt');
-      print('   - Look for your local IP (usually starts with 192.168.x.x)');
+  
       print('4. Make sure your Android device is on the same WiFi network as your computer');
       print('5. Check if your computer\'s firewall is blocking the connection');
       print('========================\n');

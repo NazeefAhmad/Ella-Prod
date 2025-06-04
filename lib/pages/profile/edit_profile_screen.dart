@@ -30,7 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ProfileEditService _profileEditService = ProfileEditService();
   final AuthService _authService = AuthService();
 
-  final List<String> _genders = ['Male', 'Female', 'Other'];
+  final List<String> _genders = ['male', 'female', 'other'];
   final List<String> _defaultImages = [
     'https://picsum.photos/200',
     'https://picsum.photos/201',
@@ -69,7 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _initialUsername = profile['username'];
         _emailController.text = profile['email'] ?? '';
         _bioController.text = profile['bio'] ?? '';
-        _selectedGender = profile['gender'];
+        _selectedGender = (profile['gender'] as String?)?.toLowerCase();
         if (profile['date_of_birth'] != null) {
           _selectedDate = DateTime.parse(profile['date_of_birth']);
         }
@@ -653,7 +653,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               items: _genders.map((String gender) {
                                 return DropdownMenuItem<String>(
                                   value: gender,
-                                  child: Text(gender),
+                                  child: Text(gender[0].toUpperCase() + gender.substring(1)),
                                 );
                               }).toList(),
                               onChanged: _emailController.text.contains('guest') ? null : (String? newValue) {

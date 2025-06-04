@@ -25,30 +25,67 @@ class _FeedScreenState extends State<FeedScreen> {
     {"name": "Zoya", "age": 26, "image": "assets/girls/airhostess.jpg", "bio": "Talk sweet, but smarter"},
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          _buildTabBar(),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              child: _buildProfileGrid(),
+ // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     backgroundColor: Colors.white,
+  //     body: Column(
+  //       children: [
+  //         _buildTabBar(),
+  //         Expanded(
+  //           child: AnimatedSwitcher(
+  //             duration: const Duration(milliseconds: 300),
+  //             transitionBuilder: (Widget child, Animation<double> animation) {
+  //               return FadeTransition(
+  //                 opacity: animation,
+  //                 child: child,
+  //               );
+  //             },
+  //             child: _buildProfileGrid(),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //     bottomNavigationBar: const BottomNavigation(selectedIndex: 0),
+  //   );
+  // }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    extendBody: true, // allows bottom nav to float over body
+    backgroundColor: Colors.white, // match your UI theme
+    body: Stack(
+      children: [
+        Column(
+          children: [
+            _buildTabBar(),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                child: _buildProfileGrid(),
+              ),
             ),
+          ],
+        ),
+        // Bottom navigation overlay
+        Positioned(
+          bottom: 16,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: BottomNavigation(selectedIndex: 0),
           ),
-        ],
-      ),
-      bottomNavigationBar: const BottomNavigation(selectedIndex: 0),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildTabBar() {
     return Container(

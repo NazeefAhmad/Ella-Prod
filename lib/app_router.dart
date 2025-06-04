@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart' show Curves;
 import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
 // import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
@@ -10,21 +11,111 @@ import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
 import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
 import 'pages/messages/messages_screen.dart';
 import 'pages/profile/profile_screen.dart';
+import 'pages/profile/edit_profile_screen.dart';
+import 'pages/profile/account_settings_screen.dart';
+import 'pages/profile/additional_resources_screen.dart';
 import 'pages/notifications/notification.dart';
 
 class AppRouter {
   static final List<GetPage> routes = [
-    GetPage(name: '/userInterest', page: () => UserInterestPage()),
-    GetPage(name: '/home', page: () => const HomePage()),
+    GetPage(
+      name: '/userInterest',
+      page: () => UserInterestPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/home',
+      page: () => const HomePage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
     // GetPage(name: '/settings', page: () => SettingsPage()),
-    GetPage(name: '/onboarding', page: () => OnboardingPage()),
-    GetPage(name: '/username', page: () => const UsernamePage()),
-    GetPage(name: '/age', page: () => AgePage()),
-    GetPage(name: '/login', page: () => LoginPage()),
-    GetPage(name: '/feed', page: () => FeedScreen()),
-    GetPage(name: '/messages', page: () => const MessagesScreen()),
-    GetPage(name: '/profile', page: () => const ProfileScreen()),
-    GetPage(name: '/notifications', page: () => const NotificationScreen()),
-    GetPage(name: '/', page: () => const SplashPage()),
+    GetPage(
+      name: '/onboarding',
+      page: () => OnboardingPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/username',
+      page: () => const UsernamePage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/age',
+      page: () => AgePage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/login',
+      page: () => LoginPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/feed',
+      page: () => FeedScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/messages',
+      page: () => const MessagesScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/profile',
+      page: () => const ProfileScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/editProfile',
+      page: () => const EditProfileScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/accountSettings',
+      page: () => const AccountSettingsScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/additionalResources',
+      page: () => const AdditionalResourcesScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/notifications',
+      page: () => const NotificationScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/',
+      page: () => const SplashPage(),
+      transition: Transition.fade,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
   ];
 }

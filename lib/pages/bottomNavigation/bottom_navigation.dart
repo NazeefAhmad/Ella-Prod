@@ -1,68 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class BottomNavigation extends StatelessWidget {
-//   final int selectedIndex;
-
-//   const BottomNavigation({Key? key, required this.selectedIndex}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 20, left: 30, right: 30),
-//       padding: const EdgeInsets.symmetric(horizontal: 20),
-//       //width: 260,
-
-//       height: 58,
-//       decoration: BoxDecoration(
-//         color: const Color(0xFF0C0C23),
-//         borderRadius: BorderRadius.circular(40),
-//         // boxShadow: [
-//         //   BoxShadow(
-//         //     color: Colors.black26,
-//         //     blurRadius: 10,
-//         //     offset: Offset(0, 4),
-//         //   ),
-//         // ],
-//       ),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceAround,
-//         children: [
-//           IconButton(
-//             icon: Icon(
-//               Icons.home,
-//               color: selectedIndex == 0 ? const Color.fromRGBO(255, 32, 78, 1) : Colors.white,
-//               size: 30,
-//             ),
-//             onPressed: () {
-//               // Navigate or update here
-//             },
-//           ),
-//           IconButton(
-//             icon: Icon(
-//               Icons.message_outlined,
-//               color: selectedIndex == 1 ? const Color.fromRGBO(255, 32, 78, 1) : Colors.white,
-//               size: 28,
-//             ),
-//             onPressed: () {
-//               // Navigate or update here
-//             },
-//           ),
-//           IconButton(
-//             icon: Icon(
-//               Icons.person_outline,
-//               color: selectedIndex == 2 ? const Color.fromRGBO(255, 32, 78, 1): Colors.white,
-//               size: 30,
-//             ),
-//             onPressed: () {
-//               // Navigate or update here
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -112,13 +47,13 @@ class _BottomNavigationState extends State<BottomNavigation> with SingleTickerPr
 
     switch (index) {
       case 0:
-        Get.toNamed('/feed');
+        Get.offAllNamed('/feed');
         break;
       case 1:
-        Get.toNamed('/messages');
+        Get.offAllNamed('/messages');
         break;
       case 2:
-        Get.toNamed('/profile');
+        Get.offAllNamed('/profile');
         break;
     }
   }
@@ -148,7 +83,7 @@ class _BottomNavigationState extends State<BottomNavigation> with SingleTickerPr
                 BoxShadow(
                   color: const Color(0xFF000000).withOpacity(0.06),
                   blurRadius: 5,
-                  spreadRadius: 5,
+                //  spreadRadius: 5,
                 ),
               ],
             ),

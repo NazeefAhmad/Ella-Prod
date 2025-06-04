@@ -12,6 +12,7 @@ import 'edit_profile_screen.dart';
 import 'notifications_screen.dart';
 import '../../services/profile_service.dart';
 import '../../services/auth_service.dart';
+import 'package:get/get.dart';
 
 // Shimmer Placeholder Widget
 class ProfileShimmerPlaceholder extends StatelessWidget {
@@ -331,9 +332,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ImageProvider? currentImageProvider = _getImageProvider(_profileImagePath, _defaultNetworkImage);
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(248, 248, 248, 1),
+      extendBody: true, // allows bottom nav to float over body
+      backgroundColor: const Color.fromRGBO(248, 248, 248, 1),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 101,
         centerTitle: true,
@@ -345,211 +347,156 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-       
       ),
-      body: _isLoading
-          ? const ProfileShimmerPlaceholder()
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Center(
-                    child: GestureDetector(
-                      onTap: _pickAndUpdateImage,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 144,
-                            height: 151,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey[200],
-                            ),
-                            child: currentImageProvider != null
-                              ? CircleAvatar(
-                                  backgroundImage: currentImageProvider,
-                                  onBackgroundImageError: (exception, stackTrace) {
-                                    print('Error loading background image: $exception');
-                                    if (mounted) {
-                                       setState(() {
-                                         if (_profileImagePath == _defaultNetworkImage) _profileImagePath = null;
-                                         _defaultNetworkImage = null;
-                                       });
-                                    }
-                                  },
-                                  radius: 72,
-                                )
-                              : const Center(
-                                    child: Text(
-                                      'AB',
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
-                          ),
-                          if (_userEmail?.contains('guest') != true)
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Color.fromRGBO(255, 32, 78, 1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: 125,
-                    height: 29,
-                    child: Text(
-                      _guestUsername ?? 'Guest User',
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Container(
-                    width: 231,
-                    height: 20,
-                    child: Text(
-                      _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(248, 248, 248, 1),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+      body: Stack(
+        children: [
+          _isLoading
+              ? const ProfileShimmerPlaceholder()
+              : SafeArea(
+                  child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Container(
-                          height: 48,
-                          width: double.infinity,
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: ElevatedButton.icon(
-                            onPressed: _userEmail?.contains('guest') == true
-                                ? _showSignInDialog
-                                : () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const EditProfileScreen(),
-                                      ),
-                                    ).then((_) => _loadUserProfile(forceRefresh: true));
-                                  },
-                            icon: Icon(_userEmail?.contains('guest') == true ? Icons.login : Icons.edit_outlined),
-                            label: Text(_userEmail?.contains('guest') == true ? 'Sign in to edit profile' : 'Edit Profile'),
-                            
-                            style: ElevatedButton.styleFrom(
-                            
-                              backgroundColor: _userEmail?.contains('guest') == true ? const Color.fromRGBO(255, 32, 78, 1) : Colors.grey[200],
-                              foregroundColor: _userEmail?.contains('guest') == true ? Colors.white : Colors.black87,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              
-                              shape: RoundedRectangleBorder(
-                                
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                        const SizedBox(height: 20),
+                        Center(
+                          child: GestureDetector(
+                            onTap: _pickAndUpdateImage,
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                CircleAvatar(
+                                  radius: 72,
+                                  backgroundColor: Colors.grey[200],
+                                  backgroundImage: currentImageProvider,
+                                  child: currentImageProvider == null
+                                      ? const Text(
+                                          'AB',
+                                          style: TextStyle(
+                                            fontSize: 32,
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      : null,
+                                  onBackgroundImageError: currentImageProvider != null
+                                      ? (_, __) {
+                                          if (mounted) {
+                                            setState(() {
+                                              _defaultNetworkImage = null;
+                                              _profileImagePath = null;
+                                            });
+                                          }
+                                        }
+                                      : null,
+                                ),
+                                if (!_isGuestUser)
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color.fromRGBO(255, 32, 78, 1),
+                                    ),
+                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                                  ),
+                              ],
                             ),
                           ),
                         ),
-                         const SizedBox(height: 30),
-                        const Divider(height: 1),
-                        const SizedBox(height: 30),
-                        _buildSettingsItem(
-                          'Account Settings',
-                          icon: Icons.person_outline,
-                          onTap: _isGuestUser
-                              ? _showSignInDialog
-                              : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AccountSettingsScreen(),
+                        const SizedBox(height: 16),
+                        Text(
+                          _guestUsername ?? 'Guest User',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
+                          style: const TextStyle(color: Colors.grey, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  icon: Icon(
+                                    _isGuestUser ? Icons.login : Icons.edit_outlined,
+                                    size: 20,
+                                  ),
+                                  label: Text(_isGuestUser ? 'Sign in to edit profile' : 'Edit Profile'),
+                                  onPressed: _isGuestUser
+                                      ? _showSignInDialog
+                                      : () async {
+                                          await Get.toNamed('/editProfile');
+                                          _loadUserProfile(forceRefresh: true);
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isGuestUser
+                                        ? const Color.fromRGBO(255, 32, 78, 1)
+                                        : Colors.grey[200],
+                                    foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  );
-                                },
-                        ),
-                        _buildSettingsItem(
-                          'Change Preference',
-                          iconPath: 'assets/icons/gender_pref.png',
-                          onTap: _isGuestUser
-                              ? _showSignInDialog
-                              : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const UserInterestPage(),
-                                    ),
-                                  );
-                                },
-                        ),
-                        _buildSettingsItem(
-                          'Notifications',
-                          icon: Icons.notifications_none,
-                          onTap: _isGuestUser
-                              ? _showSignInDialog
-                              : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const NotificationsScreen(),
-                                    ),
-                                  );
-                                },
-                        ),
-                        _buildSettingsItem(
-                          'Rate our App',
-                          icon: Icons.star_border,
-                          onTap: _launchStore,
-                        ),
-                        _buildSettingsItem(
-                          'Additional Resources',
-                          icon: Icons.info_outline,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AdditionalResourcesScreen(),
+                                  ),
+                                ),
                               ),
-                            );
-                          },
+                              const SizedBox(height: 30),
+                              const Divider(),
+                              const SizedBox(height: 30),
+                              _buildSettingsItem('Account Settings',
+                                icon: Icons.person_outline,
+                                onTap: _isGuestUser ? _showSignInDialog : () {
+                                  Get.toNamed('/accountSettings');
+                                },
+                              ),
+                              _buildSettingsItem('Change Preference',
+                                iconPath: 'assets/icons/gender_pref.png',
+                                onTap: _isGuestUser ? _showSignInDialog : () {
+                                  Get.toNamed('/userInterest');
+                                },
+                              ),
+                              _buildSettingsItem('Notifications',
+                                icon: Icons.notifications_none,
+                                onTap: _isGuestUser ? _showSignInDialog : () {
+                                  Get.toNamed('/notifications');
+                                },
+                              ),
+                              _buildSettingsItem('Rate our App',
+                                icon: Icons.star_border,
+                                onTap: _launchStore,
+                              ),
+                              _buildSettingsItem('Additional Resources',
+                                icon: Icons.info_outline,
+                                onTap: () {
+                                  Get.toNamed('/additionalResources');
+                                },
+                              ),
+                              const SizedBox(height: 50),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 10,),
-                        Divider(height: 1,)
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+          // Bottom navigation overlay
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: BottomNavigation(selectedIndex: 2),
             ),
-      bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
+          ),
+        ],
+      ),
     );
   }
-} 
+}
