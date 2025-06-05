@@ -15,6 +15,7 @@ class _ChangePrefPageState extends State<ChangePref> {
   String? selectedPreference;
   final ProfileService _profileService = ProfileService();
   bool _isLoading = false;
+  bool _isConfirmed = false;
 
   // Preference types
   static const String MEN = 'male';
@@ -162,12 +163,39 @@ class _ChangePrefPageState extends State<ChangePref> {
               activeTextColor: activeTextColor,
               inactiveTextColor: inactiveTextColor,
             ),
+
+            // Place the confirmation checkbox here
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Checkbox(
+                  value: _isConfirmed,
+                  activeColor: activeColor,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _isConfirmed = value ?? false;
+                    });
+                  },
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'I confirm to change my preferences',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF8E8E9A),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             const Spacer(),
             ElevatedButton(
-              onPressed: _isLoading ? null : _handlePreferenceSelection,
+              onPressed: (_isLoading || selectedPreference == null || !_isConfirmed) ? null : _handlePreferenceSelection,
               style: ElevatedButton.styleFrom(
-                backgroundColor: selectedPreference != null ? activeColor : inactiveColor,
-                foregroundColor: selectedPreference != null ? activeTextColor : inactiveTextColor,
+                backgroundColor: (selectedPreference != null && _isConfirmed) ? activeColor : inactiveColor,
+                foregroundColor: (selectedPreference != null && _isConfirmed) ? activeTextColor : inactiveTextColor,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -179,7 +207,7 @@ class _ChangePrefPageState extends State<ChangePref> {
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text(
-                      'Select your Preference',
+                      'Change your Preference',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

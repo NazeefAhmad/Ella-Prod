@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:gemini_chat_app_tutorial/consts.dart';
 import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gemini_chat_app_tutorial/services/api_service.dart';
 
 class ProfileService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -74,6 +75,30 @@ class ProfileService {
         await prefs.setString(_profileDataCacheKey, response.body);
         await prefs.setString(_profileDataCacheTimestampKey, DateTime.now().toIso8601String());
         return data as Map<String, dynamic>;
+      } else if (response.statusCode == 401) {
+        // Token is invalid, try to refresh it
+        print('Token is invalid, attempting to refresh...');
+        final apiService = ApiService();
+        await apiService.refreshAccessToken();
+        
+        // Retry the request with new token
+        final newHeaders = await _getAuthHeaders();
+        final retryResponse = await http.get(
+          Uri.parse('$_baseUrl/profile/profile'),
+          headers: newHeaders,
+        );
+
+        if (retryResponse.statusCode == 200) {
+          final data = json.decode(retryResponse.body);
+          if (data == null) {
+            throw 'Invalid response from server';
+          }
+          await prefs.setString(_profileDataCacheKey, retryResponse.body);
+          await prefs.setString(_profileDataCacheTimestampKey, DateTime.now().toIso8601String());
+          return data as Map<String, dynamic>;
+        } else {
+          throw 'Failed to get profile after token refresh: ${retryResponse.statusCode}';
+        }
       } else {
         throw 'Failed to get profile: ${response.statusCode}';
       }
@@ -112,10 +137,38 @@ class ProfileService {
           await prefs.setString(_profilePicUrlCacheTimestampKey, DateTime.now().toIso8601String());
         }
         return imageUrl;
+      } else if (response.statusCode == 401) {
+        // Token is invalid, try to refresh it
+        print('Token is invalid, attempting to refresh...');
+        final apiService = ApiService();
+        await apiService.refreshAccessToken();
+        
+        // Retry the request with new token
+        final newHeaders = await _getAuthHeaders();
+        final retryResponse = await http.get(
+          Uri.parse('$_baseUrl/profile/DP'),
+          headers: newHeaders,
+        );
+
+        if (retryResponse.statusCode == 200) {
+          final data = json.decode(retryResponse.body);
+          final imageUrl = data['profile_picture'] as String?;
+          if (imageUrl != null) {
+            await prefs.setString(_profilePicUrlCacheKey, imageUrl);
+            await prefs.setString(_profilePicUrlCacheTimestampKey, DateTime.now().toIso8601String());
+          }
+          return imageUrl;
+        } else if (retryResponse.statusCode == 404) {
+          await prefs.remove(_profilePicUrlCacheKey);
+          await prefs.remove(_profilePicUrlCacheTimestampKey);
+          return null;
+        } else {
+          throw 'Failed to get profile picture after token refresh: ${retryResponse.statusCode}';
+        }
       } else if (response.statusCode == 404) {
-        await prefs.remove(_profilePicUrlCacheKey); // Ensure no stale cache if not found
+        await prefs.remove(_profilePicUrlCacheKey);
         await prefs.remove(_profilePicUrlCacheTimestampKey);
-        return null; // No profile picture found
+        return null;
       } else {
         throw 'Failed to get profile picture: ${response.statusCode}';
       }
@@ -138,10 +191,30 @@ class ProfileService {
       print('Update profile response status: ${response.statusCode}');
       print('Update profile response body: ${response.body}');
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 200) {
+        await clearProfileCache(); // Clear cache on successful update
+      } else if (response.statusCode == 401) {
+        // Token is invalid, try to refresh it
+        print('Token is invalid, attempting to refresh...');
+        final apiService = ApiService();
+        await apiService.refreshAccessToken();
+        
+        // Retry the request with new token
+        final newHeaders = await _getAuthHeaders();
+        final retryResponse = await http.put(
+          Uri.parse('$_baseUrl/profile/profile'),
+          headers: newHeaders,
+          body: json.encode(profileData),
+        );
+
+        if (retryResponse.statusCode == 200) {
+          await clearProfileCache(); // Clear cache on successful update
+        } else {
+          throw 'Failed to update profile after token refresh: ${retryResponse.statusCode}';
+        }
+      } else {
         throw 'Failed to update profile: ${response.statusCode}';
       }
-      await clearProfileCache(); // Clear cache on successful update
     } catch (e) {
       print('Error in updateProfile: $e');
       rethrow;
