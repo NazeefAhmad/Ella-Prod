@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../login/login.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/loading_dialog.dart';
+import '../../widgets/back_button.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({Key? key}) : super(key: key);
@@ -149,10 +151,7 @@ class AccountSettingsScreen extends StatelessWidget {
             fontWeight: FontWeight.w400,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const CustomBackButton(),
       ),
       body: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),

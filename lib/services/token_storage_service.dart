@@ -32,11 +32,50 @@ class TokenStorageService {
 
   Future<bool> isAccessTokenExpired() async {
     final expiryString = await _storage.read(key: _tokenExpiryKey);
-    if (expiryString == null) return true;
+    if (expiryString == null) {
+      print('Token expiry time not found');
+      return true;
+    }
 
     final expiryTime = DateTime.parse(expiryString);
-    // Consider token expired if it's within 5 minutes of expiry
-    return DateTime.now().isAfter(expiryTime.subtract(const Duration(minutes: 5)));
+    final now = DateTime.now();
+    final timeUntilExpiry = expiryTime.difference(now);
+    print('Token expires in: ${timeUntilExpiry.inMinutes} minutes');
+    
+    // Consider token expired if it's within 10 minutes of expiry
+    final isExpired = now.isAfter(expiryTime.subtract(const Duration(minutes: 10)));
+    if (isExpired) {
+      print('Token is expired or will expire soon');
+    }
+    return isExpired;
+  }
+
+  // Add method to check if token needs refresh
+  Future<bool> needsRefresh() async {
+    final expiryString = await _storage.read(key: _tokenExpiryKey);
+    if (expiryString == null) {
+      print('Token expiry time not found in needsRefresh check');
+      return true;
+    }
+
+    final expiryTime = DateTime.parse(expiryString);
+    final now = DateTime.now();
+    final timeUntilExpiry = expiryTime.difference(now);
+    print('Token refresh check - Time until expiry: ${timeUntilExpiry.inMinutes} minutes');
+    
+    // Start refresh process when token is within 15 minutes of expiry
+    final needsRefresh = now.isAfter(expiryTime.subtract(const Duration(minutes: 15)));
+    if (needsRefresh) {
+      print('Token needs refresh - within 15 minutes of expiry');
+    }
+    return needsRefresh;
+  }
+
+  // Add method to get token expiry time
+  Future<DateTime?> getTokenExpiryTime() async {
+    final expiryString = await _storage.read(key: _tokenExpiryKey);
+    if (expiryString == null) return null;
+    return DateTime.parse(expiryString);
   }
 
   Future<void> deleteTokens() async {

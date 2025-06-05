@@ -13,6 +13,7 @@ import 'notifications_screen.dart';
 import '../../services/profile_service.dart';
 import '../../services/auth_service.dart';
 import 'package:get/get.dart';
+import '../../widgets/back_button.dart';
 
 // Shimmer Placeholder Widget
 class ProfileShimmerPlaceholder extends StatelessWidget {
@@ -347,6 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: const CustomBackButton(),
       ),
       body: Stack(
         children: [
@@ -459,7 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildSettingsItem('Change Preference',
                                 iconPath: 'assets/icons/gender_pref.png',
                                 onTap: _isGuestUser ? _showSignInDialog : () {
-                                  Get.toNamed('/userInterest');
+                                  Get.toNamed('/changePref');
                                 },
                               ),
                               _buildSettingsItem('Notifications',

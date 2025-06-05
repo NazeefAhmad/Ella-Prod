@@ -132,7 +132,7 @@
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
 //             Text(
-//               'What’s your age?',
+//               'What's your age?',
 //               style: TextStyle(
 //                 fontSize: 28,
 //                 fontWeight: FontWeight.bold,
@@ -224,6 +224,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
+import '../../widgets/back_button.dart';
 
 class AgePage extends StatefulWidget {
   const AgePage({Key? key}) : super(key: key);
@@ -247,18 +248,7 @@ class _AgePageState extends State<AgePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 16),
                   Container(
                     width: 80,

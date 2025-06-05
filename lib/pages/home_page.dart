@@ -14,6 +14,7 @@ import '../models/chat_message.dart' as model;
 import '../consts.dart';
 import '../services/profile_service.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/back_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -517,7 +518,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 fontSize: 34,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
-                fontFamily: 'Comic_Neue',
+                fontFamily: 'DM_sans',
               ),
               textAlign: TextAlign.center,
             ),
@@ -830,10 +831,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const CustomBackButton(),
       ),
       body: Stack(
         children: [

@@ -5,6 +5,178 @@ import 'dart:math';
 import '../../services/profile_service.dart';
 import '../../services/profile_edit_service.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/back_button.dart';
+
+class CustomTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String labelText;
+  final bool enabled;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final int? maxLines;
+  final int? minLines;
+
+  const CustomTextField({
+    Key? key,
+    required this.controller,
+    required this.labelText,
+    required this.enabled,
+    this.keyboardType,
+    this.validator,
+    this.maxLines,
+    this.minLines,
+  }) : super(key: key);
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() {
+          _isFocused = hasFocus;
+        });
+      },
+      child: TextFormField(
+        controller: widget.controller,
+        enabled: widget.enabled,
+        keyboardType: widget.keyboardType,
+        validator: widget.validator,
+        maxLines: widget.maxLines,
+        minLines: widget.minLines,
+        decoration: InputDecoration(
+          labelText: _isFocused ? '' : widget.labelText,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          filled: true,
+          fillColor: _isFocused ? const Color.fromRGBO(255, 32, 78, 0.05) : Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[400]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[400]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BioTextField extends StatefulWidget {
+  final TextEditingController bioController;
+  final TextEditingController emailController;
+
+  const BioTextField({
+    Key? key,
+    required this.bioController,
+    required this.emailController,
+  }) : super(key: key);
+
+  @override
+  State<BioTextField> createState() => _BioTextFieldState();
+}
+
+class _BioTextFieldState extends State<BioTextField> {
+  String _charWarning = '';
+  static const int _maxChars = 60;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.bioController.removeListener(_checkCharLimit);
+    widget.bioController.addListener(_checkCharLimit);
+  }
+
+  void _checkCharLimit() {
+    if (!mounted) return;
+    
+    final text = widget.bioController.text;
+    final charCount = text.length;
+
+    if (charCount > _maxChars) {
+      widget.bioController.text = text.substring(0, _maxChars);
+      widget.bioController.selection = TextSelection.fromPosition(
+        TextPosition(offset: widget.bioController.text.length),
+      );
+    }
+
+    setState(() {
+      if (charCount >= _maxChars) {
+        _charWarning = 'Character limit reached (60/60)';
+      } else {
+        _charWarning = '';
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.bioController.removeListener(_checkCharLimit);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Focus(
+          onFocusChange: (hasFocus) {
+            setState(() {
+              _isFocused = hasFocus;
+            });
+          },
+          child: TextFormField(
+            controller: widget.bioController,
+            enabled: !widget.emailController.text.contains('guest'),
+            minLines: 1,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+              labelText: _isFocused ? '' : 'ex - tell us more about yourself',
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              filled: true,
+              fillColor: _isFocused ? const Color.fromRGBO(255, 32, 78, 0.05) : Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[400]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[400]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 1.5),
+              ),
+            ),
+          ),
+        ),
+        if (_charWarning.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            _charWarning,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.red,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -369,10 +541,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             fontWeight: FontWeight.w400,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const CustomBackButton(),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -513,25 +682,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            TextFormField(
+                            CustomTextField(
                               controller: _nameController,
+                              labelText: 'How would like to be called Yourself as...',
                               enabled: !_emailController.text.contains('guest'),
-                              decoration: InputDecoration(
-                                labelText: 'How would like to be called Yourself as...',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 1.5),
-                                ),
-                                labelStyle: const TextStyle(color: Colors.grey),
-                              ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your username';
@@ -553,26 +707,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            TextFormField(
-                              controller: _bioController,
-                              enabled: !_emailController.text.contains('guest'),
-                              maxLines: 3,
-                              decoration: InputDecoration(
-                                labelText: 'ex - tell us more about yourself',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 1.5),
-                                ),
-                                labelStyle: const TextStyle(color: Colors.grey),
-                              ),
+                            BioTextField(
+                              key: ValueKey('bio_text_field_${_bioController.text}'),
+                              bioController: _bioController,
+                              emailController: _emailController,
                             ),
                             const SizedBox(height: 15),
 
@@ -588,26 +726,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            TextFormField(
+                            CustomTextField(
                               controller: _emailController,
+                              labelText: 'example@gmail.com',
                               enabled: !_emailController.text.contains('guest'),
                               keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                labelText: 'example@gmail.com',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.grey[400]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color.fromRGBO(255, 32, 78, 1), width: 1.5),
-                                ),
-                                labelStyle: const TextStyle(color: Colors.grey),
-                              ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';

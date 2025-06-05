@@ -1,3 +1,4 @@
+import 'package:gemini_chat_app_tutorial/pages/User_Interest/change_pref.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart' show Curves;
 import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
@@ -106,6 +107,13 @@ class AppRouter {
     GetPage(
       name: '/notifications',
       page: () => const NotificationScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+     GetPage(
+      name: '/changePref',
+      page: () => const ChangePref(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,

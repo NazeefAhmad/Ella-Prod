@@ -3,6 +3,7 @@ import 'responsive_config.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
+    fontFamily: 'DM_sans',
     primarySwatch: Colors.blue,
     brightness: Brightness.light,
     scaffoldBackgroundColor: Colors.white,
@@ -11,14 +12,28 @@ class AppTheme {
       elevation: 0,
       iconTheme: IconThemeData(color: Colors.black),
       titleTextStyle: TextStyle(
+        fontFamily: 'DM_sans',
         color: Colors.black,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
     ),
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: Colors.black),
-      bodyMedium: TextStyle(color: Colors.black87),
+      displayLarge: TextStyle(fontFamily: 'DM_sans'),
+      displayMedium: TextStyle(fontFamily: 'DM_sans'),
+      displaySmall: TextStyle(fontFamily: 'DM_sans'),
+      headlineLarge: TextStyle(fontFamily: 'DM_sans'),
+      headlineMedium: TextStyle(fontFamily: 'DM_sans'),
+      headlineSmall: TextStyle(fontFamily: 'DM_sans'),
+      titleLarge: TextStyle(fontFamily: 'DM_sans'),
+      titleMedium: TextStyle(fontFamily: 'DM_sans'),
+      titleSmall: TextStyle(fontFamily: 'DM_sans'),
+      bodyLarge: TextStyle(fontFamily: 'DM_sans', color: Colors.black),
+      bodyMedium: TextStyle(fontFamily: 'DM_sans', color: Colors.black87),
+      bodySmall: TextStyle(fontFamily: 'DM_sans'),
+      labelLarge: TextStyle(fontFamily: 'DM_sans'),
+      labelMedium: TextStyle(fontFamily: 'DM_sans'),
+      labelSmall: TextStyle(fontFamily: 'DM_sans'),
     ),
     cardTheme: CardTheme(
       elevation: 2,
@@ -62,6 +77,7 @@ class AppTheme {
   );
 
   static ThemeData darkTheme = ThemeData(
+    fontFamily: 'DM_sans',
     primarySwatch: Colors.blue,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: const Color(0xFF0C0C23),
@@ -70,14 +86,28 @@ class AppTheme {
       elevation: 0,
       iconTheme: IconThemeData(color: Colors.white),
       titleTextStyle: TextStyle(
+        fontFamily: 'DM_sans',
         color: Colors.white,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
     ),
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
+      displayLarge: TextStyle(fontFamily: 'DM_sans'),
+      displayMedium: TextStyle(fontFamily: 'DM_sans'),
+      displaySmall: TextStyle(fontFamily: 'DM_sans'),
+      headlineLarge: TextStyle(fontFamily: 'DM_sans'),
+      headlineMedium: TextStyle(fontFamily: 'DM_sans'),
+      headlineSmall: TextStyle(fontFamily: 'DM_sans'),
+      titleLarge: TextStyle(fontFamily: 'DM_sans'),
+      titleMedium: TextStyle(fontFamily: 'DM_sans'),
+      titleSmall: TextStyle(fontFamily: 'DM_sans'),
+      bodyLarge: TextStyle(fontFamily: 'DM_sans', color: Colors.white),
+      bodyMedium: TextStyle(fontFamily: 'DM_sans', color: Colors.white70),
+      bodySmall: TextStyle(fontFamily: 'DM_sans'),
+      labelLarge: TextStyle(fontFamily: 'DM_sans'),
+      labelMedium: TextStyle(fontFamily: 'DM_sans'),
+      labelSmall: TextStyle(fontFamily: 'DM_sans'),
     ),
     cardTheme: CardTheme(
       elevation: 2,
@@ -128,6 +158,7 @@ class AppTheme {
     Color? color,
   }) {
     return TextStyle(
+      fontFamily: 'DM_sans',
       fontSize: ResponsiveConfig.isMobile(context) ? fontSize * 0.9 : fontSize,
       fontWeight: fontWeight,
       color: color,

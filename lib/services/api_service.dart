@@ -22,48 +22,92 @@ class ApiService {
   }
 
   // Function to refresh access token
-  Future<void> _refreshAccessToken() async {
-    try {
-      final refreshToken = await _tokenStorage.getRefreshToken();
-      if (refreshToken == null) throw 'No refresh token available';
+  Future<void> refreshAccessToken() async {
+    int retryCount = 0;
+    const maxRetries = 3;
+    const retryDelay = Duration(seconds: 2);
 
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/refresh'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'refresh_token': refreshToken}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data == null) {
-          throw 'Invalid response from server';
+    print('Starting token refresh process...');
+    while (retryCount < maxRetries) {
+      try {
+        final refreshToken = await _tokenStorage.getRefreshToken();
+        if (refreshToken == null) {
+          print('No refresh token available');
+          throw 'No refresh token available';
         }
 
-        final accessToken = data['access_token'] as String?;
-        final newRefreshToken = data['refresh_token'] as String?;
-        // Convert minutes to seconds for consistency
-        final expiresIn = (data['expires_in'] ?? 30) * 60; // Default to 30 minutes if not provided
+        print('Attempting token refresh (attempt ${retryCount + 1}/$maxRetries)...');
+        final response = await http.post(
+          Uri.parse('$_baseUrl/auth/refresh'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'refresh_token': refreshToken}),
+        ).timeout(const Duration(seconds: 10));
 
-        if (accessToken == null || newRefreshToken == null) {
-          throw 'Missing required tokens in response';
+        print('Token refresh response status: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          if (data == null) {
+            print('Invalid response from server - null data');
+            throw 'Invalid response from server';
+          }
+
+          final accessToken = data['access_token'] as String?;
+          final newRefreshToken = data['refresh_token'] as String?;
+          final expiresIn = (data['expires_in'] ?? 30) * 60;
+
+          if (accessToken == null || newRefreshToken == null) {
+            print('Missing required tokens in response');
+            throw 'Missing required tokens in response';
+          }
+
+          print('Token refresh successful - saving new tokens');
+          await _tokenStorage.saveTokens(
+            accessToken: accessToken,
+            refreshToken: newRefreshToken,
+            expiresIn: expiresIn,
+          );
+          print('New tokens saved successfully');
+          return;
+        } else if (response.statusCode == 401) {
+          print('Refresh token is invalid or expired');
+          break;
+        } else {
+          print('API error: Status ${response.statusCode}, Body: ${response.body}');
+          retryCount++;
+          if (retryCount < maxRetries) {
+            print('Retrying in ${retryDelay.inSeconds} seconds...');
+            await Future.delayed(retryDelay);
+            continue;
+          }
+          throw 'Failed to refresh token after $maxRetries attempts';
         }
-
-        await _tokenStorage.saveTokens(
-          accessToken: accessToken,
-          refreshToken: newRefreshToken,
-          expiresIn: expiresIn,
-        );
-      } else {
-        print('API error: Status ${response.statusCode}, Body: ${response.body}');
-        throw 'Failed to refresh token';
+      } on TimeoutException {
+        print('Token refresh request timed out');
+        retryCount++;
+        if (retryCount < maxRetries) {
+          print('Retrying in ${retryDelay.inSeconds} seconds...');
+          await Future.delayed(retryDelay);
+          continue;
+        }
+        throw 'Token refresh timed out after $maxRetries attempts';
+      } catch (e) {
+        print('Error refreshing token: $e');
+        retryCount++;
+        if (retryCount < maxRetries) {
+          print('Retrying in ${retryDelay.inSeconds} seconds...');
+          await Future.delayed(retryDelay);
+          continue;
+        }
+        print('All retry attempts failed, logging out user');
+        await _tokenStorage.deleteTokens();
+        Get.offAllNamed('/login');
+        rethrow;
       }
-    } catch (e) {
-      print('Error refreshing token: $e');
-      // If refresh fails, clear tokens and redirect to login
-      await _tokenStorage.deleteTokens();
-      Get.offAllNamed('/login');
-      rethrow;
     }
+
+    print('Token refresh failed after all attempts, logging out user');
+    await _tokenStorage.deleteTokens();
+    Get.offAllNamed('/login');
   }
 
   // Function to make authenticated requests with automatic token refresh
@@ -73,7 +117,7 @@ class ApiService {
     try {
       // Check if access token is expired
       if (await _tokenStorage.isAccessTokenExpired()) {
-        await _refreshAccessToken();
+        await refreshAccessToken();
       }
 
       final headers = await _getAuthHeaders();
@@ -81,7 +125,7 @@ class ApiService {
 
       // If token is invalid or expired, try refreshing once
       if (response.statusCode == 401) {
-        await _refreshAccessToken();
+        await refreshAccessToken();
         final newHeaders = await _getAuthHeaders();
         return await requestFn(newHeaders);
       }

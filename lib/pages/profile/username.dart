@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../services/profile_service.dart';
+import '../../widgets/back_button.dart';
 
 class UsernamePage extends StatefulWidget {
   const UsernamePage({Key? key}) : super(key: key);
@@ -88,10 +90,7 @@ class _UsernamePageState extends State<UsernamePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const CustomBackButton(),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

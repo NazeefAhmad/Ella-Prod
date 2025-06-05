@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
 import 'package:gemini_chat_app_tutorial/widgets/loading_dialog.dart';
+import '../../widgets/back_button.dart';
 
 class UserInterestPage extends StatefulWidget {
   const UserInterestPage({Key? key}) : super(key: key);
@@ -78,18 +79,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Get.back(),
-                    ),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 16),
                   Container(
                     width: 80,

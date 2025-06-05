@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
-import 'package:gemini_chat_app_tutorial/pages/messages/messages_screen.dart';
+
 import 'package:get/get.dart';
 //import 'package:hoocup/pages/feed/feed.dart';
+import '../../widgets/back_button.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({Key? key}) : super(key: key);
@@ -23,10 +23,7 @@ class NotificationScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const CustomBackButton(),
       ),
       body: Center(
         child: Column(

@@ -123,26 +123,55 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Comic_Neue
+    - family: DM_sans
       fonts:
-        - asset: assets/Fonts/Comic_Neue/ComicNeue-Regular.ttf
-        - asset: assets/Fonts/Comic_Neue/ComicNeue-Italic.ttf
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/Fonts/DM_Sans/static/DMSans-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Bold.ttf
+          weight: 700
+        - asset: assets/Fonts/DM_Sans/static/DMSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Light.ttf
+          weight: 300
+        - asset: assets/Fonts/DM_Sans/static/DMSans-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-ExtraLight.ttf
+          weight: 200
+        - asset: assets/Fonts/DM_Sans/static/DMSans-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Thin.ttf
+          weight: 100
+        - asset: assets/Fonts/DM_Sans/static/DMSans-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/Fonts/DM_Sans/static/DMSans-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-ExtraBold.ttf
+          weight: 800
+        - asset: assets/Fonts/DM_Sans/static/DMSans-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/Fonts/DM_Sans/static/DMSans-Black.ttf
+          weight: 900
+        - asset: assets/Fonts/DM_Sans/static/DMSans-BlackItalic.ttf
+          weight: 900
           style: italic
 
-    - family: Fira_Sans
-      fonts:
-        - asset: assets/Fonts/Fira_Sans/FiraSans-Black.ttf
-        - asset: assets/Fonts/Fira_Sans/FiraSans-BlackItalic.ttf
-          weight: 700
-
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat/static/Montserrat-Regular.ttf
-        - asset: assets/fonts/Montserrat/static/Montserrat-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Montserrat/static/Montserrat-Medium.ttf
-          weight: 500
-
+    
 flutter_launcher_icons:
   android: true
   ios: true

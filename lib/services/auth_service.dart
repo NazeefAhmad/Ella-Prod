@@ -6,11 +6,42 @@ import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/consts.dart';
 import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
   final ApiService _apiService = ApiService();
   final ProfileService _profileService = ProfileService();
+  Timer? _tokenRefreshTimer;
+
+  // Start background token refresh
+  void startTokenRefresh() {
+    // Cancel any existing timer
+    _tokenRefreshTimer?.cancel();
+    
+    // Check token status every minute
+    _tokenRefreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) async {
+      try {
+        if (await _tokenStorage.needsRefresh()) {
+          print('Token needs refresh, attempting to refresh...');
+          await _apiService.refreshAccessToken();
+        }
+      } catch (e) {
+        print('Error in background token refresh: $e');
+      }
+    });
+  }
+
+  // Stop background token refresh
+  void stopTokenRefresh() {
+    _tokenRefreshTimer?.cancel();
+    _tokenRefreshTimer = null;
+  }
+
+  @override
+  void dispose() {
+    stopTokenRefresh();
+  }
 
   // Validate JWT token format
   bool _isValidJwtFormat(String token) {
@@ -101,6 +132,8 @@ class AuthService {
       print("Sign-in successful. User: ${userCredential.user?.email}");
       print("Access Token: ${accessToken.substring(0, 20)}..."); // Log first 20 chars for debugging
 
+      // Start token refresh after successful sign in
+      startTokenRefresh();
       return userCredential.user;
     } catch (e) {
       print("Google Sign-In Error: $e");
@@ -147,6 +180,9 @@ class AuthService {
       print("Access Token: ${accessToken.substring(0, 20)}..."); // Log first 20 chars for debugging
       print("Refresh Token: ${refreshToken.substring(0, 20)}..."); // Log first 20 chars for debugging
 
+      // Start token refresh after successful guest sign in
+      startTokenRefresh();
+
       return true;
     } catch (e) {
       print("Guest Sign-In Error: $e");
@@ -168,6 +204,9 @@ class AuthService {
   Future<void> signOut() async {
     try {
       print("Starting sign out process...");
+      
+      // Stop token refresh
+      stopTokenRefresh();
       
       // Get device ID
       String deviceId = AppConstants.deviceId;

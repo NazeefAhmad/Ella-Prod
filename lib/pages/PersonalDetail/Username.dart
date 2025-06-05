@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
 import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
+import '../../widgets/back_button.dart';
 
 class UsernamePage extends StatefulWidget {
   const UsernamePage({super.key});
@@ -179,19 +180,7 @@ class _UsernamePageState extends State<UsernamePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.grey.shade200,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Get.back();
-            },
-          ),
-        ),
+        leading: const CustomBackButton(),
         title: Row(
           children: [
             Expanded(
