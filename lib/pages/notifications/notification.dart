@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
+import 'package:gemini_chat_app_tutorial/pages/messages/messages_screen.dart';
+import 'package:get/get.dart';
+//import 'package:hoocup/pages/feed/feed.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({Key? key}) : super(key: key);
@@ -68,24 +72,44 @@ class NotificationScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 children: [
-                  _buildFeatureItem(
-                    icon: Icons.favorite,
-                    title: 'New Matches',
-                    description: 'Get notified when someone likes your profile',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFeatureItem(
-                    icon: Icons.chat_bubble_outline,
-                    title: 'Messages',
-                    description: 'Never miss a conversation with your matches',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFeatureItem(
-                    icon: Icons.update,
-                    title: 'Updates',
-                    description: 'Stay informed about new features and events',
-                  ),
-                ],
+  _buildFeatureItem(
+    icon: Icons.favorite,
+    title: 'New Matches',
+    description: 'Get notified when someone likes your profile',
+    onTap: () {
+
+            Get.toNamed('/feed');
+    },
+  ),
+  const SizedBox(height: 16),
+  _buildFeatureItem(
+    icon: Icons.chat_bubble_outline,
+    title: 'Messages',
+    description: 'Never miss a conversation with your matches',
+    onTap: () {
+
+   Get.toNamed('/messages');
+    },
+  ),
+  const SizedBox(height: 16),
+  _buildFeatureItem(
+    icon: Icons.update,
+    title: 'Updates',
+    description: 'Stay informed about new features and events',
+    onTap: () {
+     Get.snackbar(
+      'Coming Soon',
+      'Stay tuned for the latest updates and features!',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.black87,
+      colorText: Colors.white,
+      duration: Duration(seconds: 2),
+    );
+      // Get.to(UpdatesScreen());
+    },
+  ),
+],
+
               ),
             ),
           ],
@@ -98,8 +122,11 @@ class NotificationScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required String description,
+    required VoidCallback onTap,
   }) {
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey[50],
@@ -148,7 +175,8 @@ class NotificationScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      )
+      )
     );
   }
 } 
