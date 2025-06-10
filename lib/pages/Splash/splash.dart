@@ -169,7 +169,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Your original background
+  backgroundColor: Color(0x00f1f1f1), // FF for alpha, 123456 for hex color
+
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
@@ -179,8 +180,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               child: ScaleTransition(
                 scale: _scaleAnimation,
                 child: Image.asset(
-                  'assets/images/splash/hoocup_splash.png', // Your original image
-                  width: 250,
+                  'assets/images/splash/Splash.png', // Your original image
+                 
                   fit: BoxFit.contain,
                 ),
               ),

@@ -98,6 +98,7 @@ flutter:
     - assets/images/login/login_girls.png
     - assets/images/Round.gif
     - assets/images/lines.gif
+    - assets/images/splash/Splash.png
     - assets/images/bubbles.gif
     - assets/images/
     - assets/images/hearts/
@@ -106,6 +107,7 @@ flutter:
     - assets/icons/gallery.png
     - assets/girls/
     - assets/images/splash/
+    - assets/images/splash/Splash.png
     - dev.env
     - assets/sounds/
 
