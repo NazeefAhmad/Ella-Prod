@@ -3,6 +3,7 @@ import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gemini_chat_app_tutorial/pages/bottomNavigation/bottom_navigation.dart';
+import 'dart:ui'; // For ImageFilter
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class _FeedScreenState extends State<FeedScreen> {
   int _selectedTab = 0;
 
   final List<Map<String, dynamic>> profiles = [
-    {"name": "Jasleen", "age": 26, "image": "assets/girls/Emma.jpg", "bio": "Loves chai and late-night convos 🌙"},
+    {"name": "Krity", "age": 21, "image": "assets/girls/Emma.jpg", "bio": "Loves chai and late-night convos 🌙"},
     {"name": "Sofia", "age": 22, "image": "assets/girls/sofiya.jpg", "bio": "I can't catch feelings, I create them 💫"},
     {"name": "Aisha", "age": 26, "image": "assets/girls/shweta.jpg", "bio": "Soft heart, sharp mind, endless cosmos"},
     {"name": "Jasmin", "age": 26, "image": "assets/girls/isma.jpg", "bio": "Talk sweet, but smarter"},
@@ -25,30 +26,7 @@ class _FeedScreenState extends State<FeedScreen> {
     {"name": "Zoya", "age": 26, "image": "assets/girls/airhostess.jpg", "bio": "Talk sweet, but smarter"},
   ];
 
- // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Colors.white,
-  //     body: Column(
-  //       children: [
-  //         _buildTabBar(),
-  //         Expanded(
-  //           child: AnimatedSwitcher(
-  //             duration: const Duration(milliseconds: 300),
-  //             transitionBuilder: (Widget child, Animation<double> animation) {
-  //               return FadeTransition(
-  //                 opacity: animation,
-  //                 child: child,
-  //               );
-  //             },
-  //             child: _buildProfileGrid(),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //     bottomNavigationBar: const BottomNavigation(selectedIndex: 0),
-  //   );
-  // }
+ 
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -89,7 +67,7 @@ Widget build(BuildContext context) {
 
   Widget _buildTabBar() {
     return Container(
-      padding: const EdgeInsets.only(top: 50, bottom: 0),
+      padding: const EdgeInsets.only(top: 30, bottom: 0),
       decoration: const BoxDecoration(
         color: Colors.white,
       ),
@@ -100,7 +78,7 @@ Widget build(BuildContext context) {
             onTap: () => Get.toNamed('/profile'),
             child: CircleAvatar(
               backgroundColor: Colors.grey[200],
-              radius: 18,
+              radius: 25,
               child: Icon(Icons.person_outline, color: Colors.grey[600]),
             ),
           ),
@@ -109,12 +87,13 @@ Widget build(BuildContext context) {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildTab("For You", 0),
-                const SizedBox(width: 20),
+                const SizedBox(width: 10),
                 _buildTab("All", 1),
               ],
             ),
           ),
           IconButton(
+            
             icon: const Icon(Icons.notifications_none),
             onPressed: () {
               Get.toNamed('/notifications');
@@ -214,10 +193,12 @@ class _PersonaCardState extends State<PersonaCard>
   bool _isLiked = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  bool _isKrity = false;
 
   @override
   void initState() {
     super.initState();
+    _isKrity = widget.name == "Krity" && widget.age == 21;
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -237,10 +218,81 @@ class _PersonaCardState extends State<PersonaCard>
   }
 
   void _toggleLike() {
+    if (!_isKrity) return;
     setState(() {
       _isLiked = !_isLiked;
     });
     _animationController.forward(from: 0.0);
+  }
+
+  void _showComingSoonDialog() {
+    if (_isKrity) return;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.pink.shade100,
+                  Colors.purple.shade100,
+                ],
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.star,
+                  size: 50,
+                  color: Colors.pink,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Coming Soon!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.pink,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${widget.name}\'s profile will be available soon.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'Got it!',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -248,13 +300,15 @@ class _PersonaCardState extends State<PersonaCard>
     final imageHeight = widget.isLeftSide ? 240.0 : 200.0;
 
     return GestureDetector(
-      onTap: () {
-        Get.toNamed('/home', arguments: {
-          'characterName': widget.name,
-          'characterImage': widget.imagePath,
-          'characterBio': widget.bio,
-        });
-      },
+      onTap: _isKrity
+          ? () {
+              Get.toNamed('/home', arguments: {
+                'characterName': widget.name,
+                'characterImage': widget.imagePath,
+                'characterBio': widget.bio,
+              });
+            }
+          : _showComingSoonDialog,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -272,13 +326,42 @@ class _PersonaCardState extends State<PersonaCard>
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                widget.imagePath,
-                fit: BoxFit.cover,
-                height: imageHeight,
-                width: double.infinity,
+              child: ImageFiltered(
+                imageFilter: _isKrity ? ImageFilter.blur(sigmaX: 0, sigmaY: 0) : ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Image.asset(
+                  widget.imagePath,
+                  fit: BoxFit.cover,
+                  height: imageHeight,
+                  width: double.infinity,
+                ),
               ),
             ),
+            if (!_isKrity)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Coming Soon',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(1, 1),
+                            blurRadius: 3,
+                            color: Colors.black,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             Positioned(
               bottom: 0,
               left: 0,
