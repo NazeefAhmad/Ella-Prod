@@ -89,7 +89,7 @@ Widget build(BuildContext context) {
 
   Widget _buildTabBar() {
     return Container(
-      padding: const EdgeInsets.only(top: 50, bottom: 10),
+      padding: const EdgeInsets.only(top: 50, bottom: 0),
       decoration: const BoxDecoration(
         color: Colors.white,
       ),
@@ -318,7 +318,7 @@ class _PersonaCardState extends State<PersonaCard>
     return Row(
       children: [
         CircleAvatar(
-          radius: 14,
+          radius: 18,
           backgroundImage: AssetImage(widget.imagePath),
         ),
         const SizedBox(width: 6),
@@ -332,7 +332,7 @@ class _PersonaCardState extends State<PersonaCard>
                     widget.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 16,
                       color: Colors.white,
                     ),
                   ),
@@ -340,7 +340,7 @@ class _PersonaCardState extends State<PersonaCard>
                     Text(
                       " ${widget.age}",
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 25,
                         color: Colors.white,
                       ),
                     ),
@@ -349,7 +349,7 @@ class _PersonaCardState extends State<PersonaCard>
                 Text(
                   widget.bio,
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: Colors.white70,
                   ),
                   maxLines: 1,

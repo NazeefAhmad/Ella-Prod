@@ -507,40 +507,40 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _buildWelcomeSection() {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(86.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Hello, Ask Me Anything...",
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'DM_sans',
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.circle, color: Colors.green, size: 14),
-                SizedBox(width: 6),
-                Text(
-                  "Online",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w200,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      // child: Padding(
+      //   padding: const EdgeInsets.all(86.0),
+      //   child: Column(
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //       const Text(
+      //         "Hello, Ask Me Anything...",
+      //         style: TextStyle(
+      //           fontSize: 34,
+      //           fontWeight: FontWeight.bold,
+      //           color: Colors.black,
+      //           fontFamily: 'DM_sans',
+      //         ),
+      //         textAlign: TextAlign.center,
+      //       ),
+      //       const SizedBox(height: 8),
+      //       Row(
+      //         mainAxisAlignment: MainAxisAlignment.center,
+      //         children: const [
+      //           Icon(Icons.circle, color: Colors.green, size: 14),
+      //           SizedBox(width: 6),
+      //           Text(
+      //             "Online",
+      //             style: TextStyle(
+      //               fontSize: 18,
+      //               fontWeight: FontWeight.w200,
+      //               color: Colors.blueGrey,
+      //             ),
+      //           ),
+      //         ],
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 
