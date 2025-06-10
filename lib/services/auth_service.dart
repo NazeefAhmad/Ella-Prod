@@ -259,13 +259,13 @@ class AuthService {
       
       print("Cleared user data from AppConstants and SharedPreferences");
 
-      // Navigate to login screen
-      Get.offAllNamed('/login');
+      // Navigate to onboarding screen
+      Get.offAllNamed('/onboarding');
       print("Sign out process completed");
     } catch (e) {
       print("Sign-Out Error: $e");
-      // Still try to navigate to login screen even if there's an error
-      Get.offAllNamed('/login');
+      // Still try to navigate to onboarding screen even if there's an error
+      Get.offAllNamed('/onboarding');
     }
   }
 

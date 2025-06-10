@@ -100,14 +100,14 @@ class ApiService {
         }
         print('All retry attempts failed, logging out user');
         await _tokenStorage.deleteTokens();
-        Get.offAllNamed('/login');
+        Get.offAllNamed('/onboarding');
         rethrow;
       }
     }
 
     print('Token refresh failed after all attempts, logging out user');
     await _tokenStorage.deleteTokens();
-    Get.offAllNamed('/login');
+    Get.offAllNamed('/onboarding');
   }
 
   // Function to make authenticated requests with automatic token refresh

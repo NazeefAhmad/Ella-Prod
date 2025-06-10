@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' show Curves;
 import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
 // import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
-import 'package:gemini_chat_app_tutorial/pages/login/login.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
@@ -51,13 +50,6 @@ class AppRouter {
     GetPage(
       name: '/age',
       page: () => AgePage(),
-      transition: Transition.rightToLeft,
-      transitionDuration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    ),
-    GetPage(
-      name: '/login',
-      page: () => LoginPage(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,

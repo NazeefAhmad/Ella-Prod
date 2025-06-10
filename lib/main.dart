@@ -11,7 +11,6 @@ import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 //import 'package:gemini_chat_app_tutorial/pages/UserInterest/UserInterest.dart';
 import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
 import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
-import 'package:gemini_chat_app_tutorial/pages/login/login.dart';
 import 'imports.dart'; // Make sure the imports file is correct
 import 'package:gemini_chat_app_tutorial/app_router.dart'; // Import app_router.dart
 import 'package:shared_preferences/shared_preferences.dart';

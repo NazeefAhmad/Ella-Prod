@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../login/login.dart';
+import '../Onboarding/onboarding.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/loading_dialog.dart';
 import '../../widgets/back_button.dart';
