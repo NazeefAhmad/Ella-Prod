@@ -83,7 +83,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                   const SizedBox(width: 16),
                   Container(
                     width: 80,
-                    height: 8,
+                    height: 6,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF3855),
                       borderRadius: BorderRadius.circular(4),
@@ -92,7 +92,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                   const SizedBox(width: 8),
                   Container(
                     width: 80,
-                    height: 8,
+                    height: 6,
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF3855),
                       borderRadius: BorderRadius.circular(4),
@@ -101,7 +101,7 @@ class _UserInterestPageState extends State<UserInterestPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Container(
-                      height: 8,
+                      height: 6,
                       decoration: BoxDecoration(
                         color: const Color(0xFFFF3855),
                         borderRadius: BorderRadius.circular(4),
@@ -121,9 +121,9 @@ class _UserInterestPageState extends State<UserInterestPage> {
                   children: [
                     const SizedBox(height: 20),
                     const Text(
-                      'Who are you interested in?',
+                      'Who are you \n interested in?',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF1A1A2C),
                       ),
@@ -131,9 +131,10 @@ class _UserInterestPageState extends State<UserInterestPage> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Tell us who you\'d like to match with!',
+                      'Tell us who you\'d like to \n match with!',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF8E8E9A),
                       ),
                       textAlign: TextAlign.center,

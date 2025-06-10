@@ -157,7 +157,7 @@ class _UsernamePageState extends State<UsernamePage> {
           children: [
             Expanded(
               child: Container(
-                height: 16,
+                height: 6,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
@@ -167,7 +167,7 @@ class _UsernamePageState extends State<UsernamePage> {
             const SizedBox(width: 8),
             Container(
               width: 80,
-              height: 16,
+              height: 6,
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(8),
@@ -176,7 +176,7 @@ class _UsernamePageState extends State<UsernamePage> {
             const SizedBox(width: 8),
             Container(
               width: 60,
-              height: 16,
+              height: 6,
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(8),
@@ -187,16 +187,16 @@ class _UsernamePageState extends State<UsernamePage> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(18.0),
           child: Column(
             children: [
               const SizedBox(height: 40),
               const Text(
-                "What Should We\nCall You?",
+                "What Should We Call You?",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
               ),
@@ -205,7 +205,7 @@ class _UsernamePageState extends State<UsernamePage> {
                 "Your AI match should\nknow your name",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   color: Colors.grey,
                 ),
               ),
@@ -278,8 +278,8 @@ class _UsernamePageState extends State<UsernamePage> {
               ],
               const Spacer(),
               Container(
-                width: double.infinity,
-                height: 56,
+                width: 250,
+                height: 59,
                 margin: const EdgeInsets.only(bottom: 24),
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleSubmit,
