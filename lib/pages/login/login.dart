@@ -168,7 +168,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 45),
+                const SizedBox(height: 95),
                 
                 // "Sign in with Google" button - using your existing functionality
                 GestureDetector(
