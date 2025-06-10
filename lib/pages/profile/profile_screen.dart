@@ -22,32 +22,53 @@ class ProfileShimmerPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
+      baseColor: Colors.grey[200]!,
       highlightColor: Colors.grey[100]!,
+      period: const Duration(milliseconds: 1500), // Slower shimmer for smoother effect
       child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(), // Disable scrolling for placeholder
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            const CircleAvatar(radius: 50), // Profile picture placeholder
+            Container(
+              width: 144,
+              height: 144,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
             const SizedBox(height: 16),
-            Container(width: 150, height: 24, color: Colors.white), // Username placeholder
+            Container(
+              width: 150,
+              height: 24,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
             const SizedBox(height: 8),
-            Container(width: 200, height: 16, color: Colors.white), // Bio placeholder
+            Container(
+              width: 200,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
             const SizedBox(height: 30),
-            Container( 
-              width: double.infinity, 
-              height: 50, 
+            Container(
+              width: double.infinity,
+              height: 48,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-              )
-            ), 
-            
-                 SizedBox(height: 20,),
-                      Divider(height: 1,),
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Divider(height: 1),
             const SizedBox(height: 20),
             _buildShimmerListItem(),
             _buildShimmerListItem(),
@@ -65,16 +86,38 @@ class ProfileShimmerPlaceholder extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.white, 
-        borderRadius: BorderRadius.circular(10)
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Container(width: 24, height: 24, color: Colors.grey[300]), // Icon placeholder
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
           const SizedBox(width: 16),
-          Expanded(child: Container(height: 16, color: Colors.grey[300])), // Text placeholder
+          Expanded(
+            child: Container(
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
           const SizedBox(width: 16),
-          Container(width: 16, height: 16, color: Colors.grey[300]), // Chevron placeholder
+          Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
         ],
       ),
     );
@@ -112,12 +155,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    // Pre-load the profile data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserProfile();
+    });
   }
 
   Future<void> _loadUserProfile({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    
     try {
-      setState(() => _isLoading = true);
+      // Only show loading state if we don't have any data
+      if (_guestUsername == null) {
+        setState(() => _isLoading = true);
+      }
       
       final results = await Future.wait([
         _profileService.getUserProfile(forceRefresh: forceRefresh),
@@ -126,9 +177,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final profile = results[0] as Map<String, dynamic>;
       final profilePicture = results[1] as String?;
-      
-      print('Fetched profile data: $profile');
-      print('Fetched profile picture: $profilePicture');
       
       if (!mounted) return;
       
@@ -147,14 +195,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_profileImagePath == null) {
           _defaultNetworkImage = profilePicture;
         }
-        
-        print('Profile data after setState:');
-        print('Username: $_guestUsername');
-        print('Bio: $_userBio');
-        print('Email: $_userEmail');
-        print('Gender: $_userGender');
-        print('DOB: $_userDob');
-        print('Profile Picture: $_defaultNetworkImage');
         
         _isLoading = false;
       });
@@ -333,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ImageProvider? currentImageProvider = _getImageProvider(_profileImagePath, _defaultNetworkImage);
 
     return Scaffold(
-      extendBody: true, // allows bottom nav to float over body
+      extendBody: true,
       backgroundColor: const Color.fromRGBO(248, 248, 248, 1),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -350,153 +390,154 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         leading: const CustomBackButton(),
       ),
-      body: _isLoading
-          ? const ProfileShimmerPlaceholder()
-          : Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      Center(
-                        child: GestureDetector(
-                          onTap: _pickAndUpdateImage,
-                          child: Stack(
-                            alignment: Alignment.bottomRight,
-                            children: [
-                              CircleAvatar(
-                                radius: 72,
-                                backgroundColor: Colors.grey[200],
-                                backgroundImage: currentImageProvider,
-                                child: currentImageProvider == null
-                                    ? const Text(
-                                        'AB',
-                                        style: TextStyle(
-                                          fontSize: 32,
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                    : null,
-                                onBackgroundImageError: currentImageProvider != null
-                                    ? (_, __) {
-                                        if (mounted) {
-                                          setState(() {
-                                            _defaultNetworkImage = null;
-                                            _profileImagePath = null;
-                                          });
-                                        }
-                                      }
-                                    : null,
+      body: Stack(
+        children: [
+          if (_isLoading && _guestUsername == null)
+            const ProfileShimmerPlaceholder()
+          else
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Center(
+                    child: GestureDetector(
+                      onTap: _pickAndUpdateImage,
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 72,
+                            backgroundColor: Colors.grey[200],
+                            backgroundImage: currentImageProvider,
+                            child: currentImageProvider == null
+                                ? const Text(
+                                    'AB',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : null,
+                            onBackgroundImageError: currentImageProvider != null
+                                ? (_, __) {
+                                    if (mounted) {
+                                      setState(() {
+                                        _defaultNetworkImage = null;
+                                        _profileImagePath = null;
+                                      });
+                                    }
+                                  }
+                                : null,
+                          ),
+                          if (!_isGuestUser)
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromRGBO(255, 32, 78, 1),
                               ),
-                              if (!_isGuestUser)
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color.fromRGBO(255, 32, 78, 1),
-                                  ),
-                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                                ),
-                            ],
+                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _guestUsername ?? 'Guest User',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
+                    style: const TextStyle(color: Colors.grey, fontSize: 15),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            icon: Icon(
+                              _isGuestUser ? Icons.login : Icons.edit_outlined,
+                              size: 20,
+                            ),
+                            label: Text(_isGuestUser ? 'Sign in to edit profile' : 'Edit Profile'),
+                            onPressed: _isGuestUser
+                                ? _showSignInDialog
+                                : () async {
+                                    await Get.toNamed('/editProfile');
+                                    _loadUserProfile(forceRefresh: true);
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isGuestUser
+                                  ? const Color.fromRGBO(255, 32, 78, 1)
+                                  : Colors.grey[200],
+                              foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _guestUsername ?? 'Guest User',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                        const SizedBox(height: 30),
+                        const Divider(),
+                        const SizedBox(height: 30),
+                        _buildSettingsItem('Account Settings',
+                          icon: Icons.person_outline,
+                          onTap: _isGuestUser ? _showSignInDialog : () {
+                            Get.toNamed('/accountSettings');
+                          },
                         ),
-                      ),
-                      Text(
-                        _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
-                        style: const TextStyle(color: Colors.grey, fontSize: 15),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              height: 48,
-                              child: ElevatedButton.icon(
-                                icon: Icon(
-                                  _isGuestUser ? Icons.login : Icons.edit_outlined,
-                                  size: 20,
-                                ),
-                                label: Text(_isGuestUser ? 'Sign in to edit profile' : 'Edit Profile'),
-                                onPressed: _isGuestUser
-                                    ? _showSignInDialog
-                                    : () async {
-                                        await Get.toNamed('/editProfile');
-                                        _loadUserProfile(forceRefresh: true);
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isGuestUser
-                                      ? const Color.fromRGBO(255, 32, 78, 1)
-                                      : Colors.grey[200],
-                                  foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 30),
-                            const Divider(),
-                            const SizedBox(height: 30),
-                            _buildSettingsItem('Account Settings',
-                              icon: Icons.person_outline,
-                              onTap: _isGuestUser ? _showSignInDialog : () {
-                                Get.toNamed('/accountSettings');
-                              },
-                            ),
-                            _buildSettingsItem('Change Preference',
-                              iconPath: 'assets/icons/gender_pref.png',
-                              onTap: _isGuestUser ? _showSignInDialog : () {
-                                Get.toNamed('/changePref');
-                              },
-                            ),
-                            _buildSettingsItem('Notifications',
-                              icon: Icons.notifications_none,
-                              onTap: _isGuestUser ? _showSignInDialog : () {
-                                Get.toNamed('/notifications');
-                              },
-                            ),
-                            _buildSettingsItem('Rate our App',
-                              icon: Icons.star_border,
-                              onTap: _launchStore,
-                            ),
-                            _buildSettingsItem('Additional Resources',
-                              icon: Icons.info_outline,
-                              onTap: () {
-                                Get.toNamed('/additionalResources');
-                              },
-                            ),
-                            const SizedBox(height: 100), // Added extra padding at bottom for bottom nav
-                          ],
+                        _buildSettingsItem('Change Preference',
+                          iconPath: 'assets/icons/gender_pref.png',
+                          onTap: _isGuestUser ? _showSignInDialog : () {
+                            Get.toNamed('/changePref');
+                          },
                         ),
-                      ),
-                    ],
+                        _buildSettingsItem('Notifications',
+                          icon: Icons.notifications_none,
+                          onTap: _isGuestUser ? _showSignInDialog : () {
+                            Get.toNamed('/notifications');
+                          },
+                        ),
+                        _buildSettingsItem('Rate our App',
+                          icon: Icons.star_border,
+                          onTap: _launchStore,
+                        ),
+                        _buildSettingsItem('Additional Resources',
+                          icon: Icons.info_outline,
+                          onTap: () {
+                            Get.toNamed('/additionalResources');
+                          },
+                        ),
+                        const SizedBox(height: 100), // Added extra padding at bottom for bottom nav
+                      ],
+                    ),
                   ),
-                ),
-                // Bottom navigation overlay
-                Positioned(
-                  bottom: 16,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: BottomNavigation(selectedIndex: 2),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+          // Bottom navigation overlay
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: BottomNavigation(selectedIndex: 2),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
