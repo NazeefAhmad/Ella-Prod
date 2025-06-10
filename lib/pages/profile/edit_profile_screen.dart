@@ -6,6 +6,7 @@ import '../../services/profile_service.dart';
 import '../../services/profile_edit_service.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/back_button.dart';
+import '../../widgets/sign_in_dialog.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -215,6 +216,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _loadUserProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final profile = await _profileService.getUserProfile();
+      if (profile['is_guest'] == true) {
+        if (mounted) {
+          Navigator.pop(context);
+          SignInDialog.show(
+            context: context,
+            authService: _authService,
+            onSignInSuccess: () async {
+              if (mounted) {
+                await _loadUserProfile();
+              }
+            },
+          );
+        }
+      }
+    });
   }
 
   Future<void> _loadUserProfile() async {
@@ -234,6 +252,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (!mounted) return;
       
       final isGuest = profile['is_guest'] ?? false;
+      
+      if (isGuest) {
+        Navigator.pop(context);
+        SignInDialog.show(
+          context: context,
+          authService: _authService,
+          onSignInSuccess: () async {
+            if (mounted) {
+              await _loadUserProfile();
+            }
+          },
+        );
+        return;
+      }
       
       setState(() {
         _isGuestUser = isGuest;
@@ -484,41 +516,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showSignInDialog() {
-    showDialog(
+    SignInDialog.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Sign in Required'),
-          content: const Text('Please sign in to edit your profile.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                try {
-                  await _authService.signInWithGoogle();
-                  if (mounted) {
-                    await _loadUserProfile();
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Sign in failed: $e')),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(255, 32, 78, 1),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Sign in with Google'),
-            ),
-          ],
-        );
+      authService: _authService,
+      onSignInSuccess: () async {
+        if (mounted) {
+          await _loadUserProfile();
+        }
       },
     );
   }

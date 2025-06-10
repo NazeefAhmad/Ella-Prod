@@ -4,6 +4,7 @@ import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
 import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
 import '../../widgets/back_button.dart';
+import '../../widgets/sign_in_dialog.dart';
 
 class UsernamePage extends StatefulWidget {
   const UsernamePage({super.key});
@@ -129,46 +130,17 @@ class _UsernamePageState extends State<UsernamePage> {
     }
   }
 
-  void _handleSignIn() async {
-    showDialog(
+  void _handleSignIn() {
+    SignInDialog.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Sign in to set your username'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                icon: const Icon(Icons.login),
-                label: const Text('Sign in with Google'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(255, 32, 78, 1),
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () async {
-                  try {
-                    await _authService.signInWithGoogle();
-                    if (mounted) {
-                      Navigator.of(context).pop();
-                      // Reload state to reflect new user
-                      _isInitialized = false;
-                      await _checkUserType();
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      Get.snackbar('Error', 'Sign in failed: $e', snackPosition: SnackPosition.BOTTOM);
-                    }
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
-        );
+      authService: _authService,
+      onSignInSuccess: () async {
+        if (mounted) {
+          Navigator.of(context).pop();
+          // Reload state to reflect new user
+          _isInitialized = false;
+          await _checkUserType();
+        }
       },
     );
   }
