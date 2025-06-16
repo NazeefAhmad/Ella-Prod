@@ -110,6 +110,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
+      defaultTransition: Transition.noTransition,
     );
   }
 }

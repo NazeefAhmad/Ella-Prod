@@ -388,156 +388,167 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: const CustomBackButton(),
-      ),
-      body: Stack(
-        children: [
-          if (_isLoading && _guestUsername == null)
-            const ProfileShimmerPlaceholder()
-          else
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Center(
-                    child: GestureDetector(
-                      onTap: _pickAndUpdateImage,
-                      child: Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CircleAvatar(
-                            radius: 72,
-                            backgroundColor: Colors.grey[200],
-                            backgroundImage: currentImageProvider,
-                            child: currentImageProvider == null
-                                ? const Text(
-                                    'AB',
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : null,
-                            onBackgroundImageError: currentImageProvider != null
-                                ? (_, __) {
-                                    if (mounted) {
-                                      setState(() {
-                                        _defaultNetworkImage = null;
-                                        _profileImagePath = null;
-                                      });
-                                    }
-                                  }
-                                : null,
-                          ),
-                          if (!_isGuestUser)
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color.fromRGBO(255, 32, 78, 1),
-                              ),
-                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _guestUsername ?? 'Guest User',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
-                    style: const TextStyle(color: Colors.grey, fontSize: 15),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton.icon(
-                            icon: Icon(
-                              _isGuestUser ? Icons.login : Icons.edit_outlined,
-                              size: 20,
-                            ),
-                            label: Text(_isGuestUser ? 'Sign in to edit profile' : 'Edit Profile'),
-                            onPressed: _isGuestUser
-                                ? _showSignInDialog
-                                : () async {
-                                    await Get.toNamed('/editProfile');
-                                    _loadUserProfile(forceRefresh: true);
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isGuestUser
-                                  ? const Color.fromRGBO(255, 32, 78, 1)
-                                  : Colors.grey[200],
-                              foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        const Divider(),
-                        const SizedBox(height: 30),
-                        _buildSettingsItem('Account Settings',
-                          icon: Icons.person_outline,
-                          onTap: _isGuestUser ? _showSignInDialog : () {
-                            Get.toNamed('/accountSettings');
-                          },
-                        ),
-                        _buildSettingsItem('Change Preference',
-                          iconPath: 'assets/icons/gender_pref.png',
-                          onTap: _isGuestUser ? _showSignInDialog : () {
-                            Get.toNamed('/changePref');
-                          },
-                        ),
-                        _buildSettingsItem('Notifications',
-                          icon: Icons.notifications_none,
-                          onTap: _isGuestUser ? _showSignInDialog : () {
-                            Get.toNamed('/notifications');
-                          },
-                        ),
-                        _buildSettingsItem('Rate our App',
-                          icon: Icons.star_border,
-                          onTap: _launchStore,
-                        ),
-                        _buildSettingsItem('Additional Resources',
-                          icon: Icons.info_outline,
-                          onTap: () {
-                            Get.toNamed('/additionalResources');
-                          },
-                        ),
-                        const SizedBox(height: 100), // Added extra padding at bottom for bottom nav
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          // Bottom navigation overlay
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: BottomNavigation(selectedIndex: 2),
+        leading: GestureDetector(
+          onTap: () {
+            Get.back();
+          },
+          child: const Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+              size: 20,
             ),
           ),
-        ],
+        ),
       ),
+      body: _isLoading
+          ? const ProfileShimmerPlaceholder()
+          : Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _pickAndUpdateImage,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              CircleAvatar(
+                                radius: 72,
+                                backgroundColor: Colors.grey[200],
+                                backgroundImage: currentImageProvider,
+                                child: currentImageProvider == null
+                                    ? const Text(
+                                        'AB',
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    : null,
+                                onBackgroundImageError: currentImageProvider != null
+                                    ? (_, __) {
+                                        if (mounted) {
+                                          setState(() {
+                                            _defaultNetworkImage = null;
+                                            _profileImagePath = null;
+                                          });
+                                        }
+                                      }
+                                    : null,
+                              ),
+                              if (!_isGuestUser)
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color.fromRGBO(255, 32, 78, 1),
+                                  ),
+                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _guestUsername ?? 'Guest User',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        _isGuestUser ? 'Guest Account' : (_userBio?.isNotEmpty == true ? _userBio! : 'No bio yet'),
+                        style: const TextStyle(color: Colors.grey, fontSize: 15),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton.icon(
+                                icon: Icon(
+                                  _isGuestUser ? Icons.login : Icons.edit_outlined,
+                                  size: 20,
+                                ),
+                                label: Text(_isGuestUser ? 'Sign in to edit profile' : 'Edit Profile'),
+                                onPressed: _isGuestUser
+                                    ? _showSignInDialog
+                                    : () async {
+                                        await Get.toNamed('/editProfile');
+                                        _loadUserProfile(forceRefresh: true);
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _isGuestUser
+                                      ? const Color.fromRGBO(255, 32, 78, 1)
+                                      : Colors.grey[200],
+                                  foregroundColor: _isGuestUser ? Colors.white : Colors.black87,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            const Divider(),
+                            const SizedBox(height: 30),
+                            _buildSettingsItem('Account Settings',
+                              icon: Icons.person_outline,
+                              onTap: _isGuestUser ? _showSignInDialog : () {
+                                Get.toNamed('/accountSettings');
+                              },
+                            ),
+                            _buildSettingsItem('Change Preference',
+                              iconPath: 'assets/icons/gender_pref.png',
+                              onTap: _isGuestUser ? _showSignInDialog : () {
+                                Get.toNamed('/changePref');
+                              },
+                            ),
+                            _buildSettingsItem('Notifications',
+                              icon: Icons.notifications_none,
+                              onTap: _isGuestUser ? _showSignInDialog : () {
+                                Get.toNamed('/notifications');
+                              },
+                            ),
+                            _buildSettingsItem('Rate our App',
+                              icon: Icons.star_border,
+                              onTap: _launchStore,
+                            ),
+                            _buildSettingsItem('Additional Resources',
+                              icon: Icons.info_outline,
+                              onTap: () {
+                                Get.toNamed('/additionalResources');
+                              },
+                            ),
+                            const SizedBox(height: 100), // Added extra padding at bottom for bottom nav
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Bottom navigation overlay
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: BottomNavigation(selectedIndex: 2),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

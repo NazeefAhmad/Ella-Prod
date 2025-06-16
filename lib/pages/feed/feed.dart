@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gemini_chat_app_tutorial/pages/bottomNavigation/bottom_navigation.dart';
 import 'dart:ui'; // For ImageFilter
+import '../../utils/navigation_helper.dart';
 
 class FeedScreen extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _FeedScreenState extends State<FeedScreen> {
   int _selectedTab = 0;
 
   final List<Map<String, dynamic>> profiles = [
-    {"name": "Krity", "age": 21, "image": "assets/girls/Emma.jpg", "bio": "Loves chai and late-night convos 🌙"},
+    {"name": "Krity", "age": 21, "image": "assets/girls/Krity/krity.jpg", "bio": "Mumbai vibe ✈️ HMU! 🫶 "},
     {"name": "Sofia", "age": 22, "image": "assets/girls/sofiya.jpg", "bio": "I can't catch feelings, I create them 💫"},
     {"name": "Aisha", "age": 26, "image": "assets/girls/shweta.jpg", "bio": "Soft heart, sharp mind, endless cosmos"},
     {"name": "Jasmin", "age": 26, "image": "assets/girls/isma.jpg", "bio": "Talk sweet, but smarter"},
@@ -26,44 +27,43 @@ class _FeedScreenState extends State<FeedScreen> {
     {"name": "Zoya", "age": 26, "image": "assets/girls/airhostess.jpg", "bio": "Talk sweet, but smarter"},
   ];
 
- 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    extendBody: true, // allows bottom nav to float over body
-    backgroundColor: Colors.white, // match your UI theme
-    body: Stack(
-      children: [
-        Column(
-          children: [
-            _buildTabBar(),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                child: _buildProfileGrid(),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true, // allows bottom nav to float over body
+      backgroundColor: Colors.white, // match your UI theme
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              _buildTabBar(),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: _buildProfileGrid(),
+                ),
               ),
-            ),
-          ],
-        ),
-        // Bottom navigation overlay
-        Positioned(
-          bottom: 16,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: BottomNavigation(selectedIndex: 0),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          // Bottom navigation overlay
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: BottomNavigation(selectedIndex: 0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildTabBar() {
     return Container(
@@ -75,7 +75,7 @@ Widget build(BuildContext context) {
         children: [
           const SizedBox(width: 16),
           GestureDetector(
-            onTap: () => Get.toNamed('/profile'),
+            onTap: () => NavigationHelper.navigateTo('/profile'),
             child: CircleAvatar(
               backgroundColor: Colors.grey[200],
               radius: 25,
@@ -93,10 +93,9 @@ Widget build(BuildContext context) {
             ),
           ),
           IconButton(
-            
             icon: const Icon(Icons.notifications_none),
             onPressed: () {
-              Get.toNamed('/notifications');
+              NavigationHelper.navigateTo('/notifications');
             },
             color: Colors.black,
           ),
@@ -144,7 +143,7 @@ Widget build(BuildContext context) {
       child: MasonryGridView.builder(
         controller: _scrollController,
         gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+          crossAxisCount:2,
         ),
         itemCount: 18,
         itemBuilder: (context, index) {
@@ -302,7 +301,7 @@ class _PersonaCardState extends State<PersonaCard>
     return GestureDetector(
       onTap: _isKrity
           ? () {
-              Get.toNamed('/home', arguments: {
+              NavigationHelper.navigateTo('/home', arguments: {
                 'characterName': widget.name,
                 'characterImage': widget.imagePath,
                 'characterBio': widget.bio,
@@ -432,7 +431,7 @@ class _PersonaCardState extends State<PersonaCard>
                 Text(
                   widget.bio,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 10,
                     color: Colors.white70,
                   ),
                   maxLines: 1,
