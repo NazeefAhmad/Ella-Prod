@@ -4,12 +4,13 @@ import 'package:firebase_core/firebase_core.dart'; // Firebase core import
 import 'package:firebase_messaging/firebase_messaging.dart'; // Add this import
 import 'firebase_options.dart'; // Make sure this file is generated from Firebase setup
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
 //import 'package:gemini_chat_app_tutorial/pages/UserInterest/UserInterest.dart';
-import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
+import 'package:gemini_chat_app_tutorial/pages/chat_screen/home_page.dart';
 import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
 import 'imports.dart'; // Make sure the imports file is correct
 import 'package:gemini_chat_app_tutorial/app_router.dart'; // Import app_router.dart
@@ -18,6 +19,11 @@ import 'config/theme_config.dart';
 import 'config/language_config.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
+import 'services/connectivity_service.dart';
+import 'widgets/connectivity_wrapper.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:io' show Platform;
+
 
 // Add this function to handle background messages
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -93,24 +99,32 @@ class MyApp extends StatelessWidget {
     final themeController = Get.put(ThemeController());
     final languageController = Get.put(LanguageController());
 
-    return GetMaterialApp(
-      title: 'Ella A.I',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
-      translations: LanguageConfig(),
-      locale: languageController.getLocale(languageController.currentLanguage.value),
-      fallbackLocale: const Locale('en', 'US'),
-      initialRoute: '/',
-      getPages: AppRouter.routes,
-      debugShowCheckedModeBanner: false,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-          child: child!,
-        );
-      },
-      defaultTransition: Transition.noTransition,
+    return MultiProvider(
+      providers: [
+        Provider<ConnectivityService>(
+          create: (_) => ConnectivityService(),
+          dispose: (_, service) => service.dispose(),
+        ),
+      ],
+      child: GetMaterialApp(
+        title: 'Ella A.I',
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        translations: LanguageConfig(),
+        locale: languageController.getLocale(languageController.currentLanguage.value),
+        fallbackLocale: const Locale('en', 'US'),
+        initialRoute: '/',
+        getPages: AppRouter.routes,
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: ConnectivityWrapper(child: child!),
+          );
+        },
+        defaultTransition: Transition.noTransition,
+      ),
     );
   }
 }

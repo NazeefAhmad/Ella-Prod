@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 
 // Your project files
 import 'package:gemini_chat_app_tutorial/consts.dart';
-import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
 import 'package:gemini_chat_app_tutorial/services/chat_service.dart';
 
 // Re-export commonly used packages

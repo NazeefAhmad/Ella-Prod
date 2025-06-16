@@ -1,7 +1,7 @@
 import 'package:gemini_chat_app_tutorial/pages/User_Interest/change_pref.dart';
+import 'package:gemini_chat_app_tutorial/pages/chat_screen/home_page.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart' show Curves;
-import 'package:gemini_chat_app_tutorial/pages/home_page.dart';
 // import 'package:gemini_chat_app_tutorial/pages/settings.dart';
 import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
 import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
