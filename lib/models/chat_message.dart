@@ -17,6 +17,7 @@ class ChatMessage {
   final MessageStatus status;
   final DateTime? deliveredAt;
   final DateTime? readAt;
+  final String? id;
 
   ChatMessage({
     required this.user,
@@ -26,5 +27,6 @@ class ChatMessage {
     this.status = MessageStatus.sent,
     this.deliveredAt,
     this.readAt,
+    this.id,
   });
 } 

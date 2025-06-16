@@ -122,6 +122,66 @@ class ChatService {
     }
   }
 
+  Future<ChatResponse> sendMediaMessage(String message, String mediaPath, String mediaType) async {
+    print('\n=== Media Chat Request ===');
+    print('ChatService: Sending media message to $baseUrl/chat/media');
+    print('ChatService: Request Details:');
+    print('- User ID: $userId');
+    print('- Username: $userName');
+    print('- Message: $message');
+    print('- Media Type: $mediaType');
+    print('- Timestamp: ${DateTime.now()}');
+    
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/chat/media'));
+      
+      // Add text fields
+      request.fields['user_id'] = userId;
+      request.fields['username'] = userName;
+      request.fields['message'] = message;
+      request.fields['media_type'] = mediaType;
+      
+      // Add media file
+      request.files.add(await http.MultipartFile.fromPath('media', mediaPath));
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print('\n=== Server Response ===');
+      print('ChatService: Response Status: ${response.statusCode}');
+      print('ChatService: Response Headers: ${response.headers}');
+      print('ChatService: Response Body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        print('\n=== Error Response ===');
+        print('ChatService: API error - Status: ${response.statusCode}');
+        print('ChatService: Error Body: ${response.body}');
+        print('========================\n');
+        throw Exception('Failed to send media message: ${response.statusCode}');
+      }
+
+      return ChatResponse.fromJson(jsonDecode(response.body));
+    } on SocketException catch (e) {
+      print('\n=== Connection Error ===');
+      print('ChatService: Cannot connect to server at $baseUrl');
+      print('ChatService: Error details: $e');
+      print('ChatService: Please ensure server is running and accessible');
+      print('========================\n');
+      rethrow;
+    } on TimeoutException catch (e) {
+      print('\n=== Timeout Error ===');
+      print('ChatService: Server connection timed out');
+      print('ChatService: Error details: $e');
+      print('========================\n');
+      rethrow;
+    } catch (e) {
+      print('\n=== Error ===');
+      print('ChatService: Error sending media message: $e');
+      print('========================\n');
+      rethrow;
+    }
+  }
+
   Future<ChatHistoryResponse> getChatHistory(String chatId, {int limit = 50, int offset = 0}) async {
     // Use a default chat ID if empty
     final effectiveChatId = chatId.isNotEmpty ? chatId : 'guest_${DateTime.now().millisecondsSinceEpoch}';

@@ -26,6 +26,7 @@ class ChatController extends GetxController {
   final RxBool isBotTyping = false.obs;
   final RxInt currentOffset = 0.obs;
   final RxBool hasMoreMessages = true.obs;
+  final RxString lastSentMessageId = ''.obs;
 
   late model.ChatUser currentUser;
   late model.ChatUser botUser;
@@ -242,6 +243,13 @@ class ChatController extends GetxController {
       return;
     }
 
+    final messageId = DateTime.now().millisecondsSinceEpoch.toString();
+    
+    if (lastSentMessageId.value == messageId) {
+      return;
+    }
+    lastSentMessageId.value = messageId;
+
     final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
 
     final sendingMessage = model.ChatMessage(
@@ -250,49 +258,27 @@ class ChatController extends GetxController {
       text: chatMessage.text,
       medias: chatMessage.medias,
       status: model.MessageStatus.sending,
+      id: messageId,
     );
 
     messages.insert(0, sendingMessage);
     hasChatStarted.value = true;
-
-    Timer(const Duration(milliseconds: 1500), () {
-      messages[0] = model.ChatMessage(
-        user: chatMessage.user,
-        createdAt: chatMessage.createdAt,
-        text: chatMessage.text,
-        medias: chatMessage.medias,
-        status: model.MessageStatus.sent,
-      );
-    });
-
-    Timer(const Duration(milliseconds: 3000), () {
-      messages[0] = model.ChatMessage(
-        user: chatMessage.user,
-        createdAt: chatMessage.createdAt,
-        text: chatMessage.text,
-        medias: chatMessage.medias,
-        status: model.MessageStatus.delivered,
-      );
-      isBotTyping.value = true;
-    });
-
-    Timer(const Duration(seconds: 15), () {
-      if (messages.isNotEmpty && messages[0].status != model.MessageStatus.sent) {
-        messages[0] = model.ChatMessage(
-          user: chatMessage.user,
-          createdAt: chatMessage.createdAt,
-          text: chatMessage.text,
-          medias: chatMessage.medias,
-          status: model.MessageStatus.failed,
-        );
-        isBotTyping.value = false;
-        Get.snackbar('Error', 'Message delivery failed.',
-            snackPosition: SnackPosition.BOTTOM);
-      }
-    });
+    isBotTyping.value = true;
 
     try {
-      final response = await _chatService.sendMessage(chatMessage.text);
+      String responseText;
+      if (chatMessage.medias != null && chatMessage.medias!.isNotEmpty) {
+        final media = chatMessage.medias!.first;
+        final response = await _chatService.sendMediaMessage(
+          chatMessage.text,
+          media.url,
+          media.type.toString(),
+        );
+        responseText = response.response;
+      } else {
+        final response = await _chatService.sendMessage(chatMessage.text);
+        responseText = response.response;
+      }
 
       final sentMessage = model.ChatMessage(
         user: chatMessage.user,
@@ -301,18 +287,22 @@ class ChatController extends GetxController {
         medias: chatMessage.medias,
         status: model.MessageStatus.sent,
         deliveredAt: DateTime.now(),
+        id: messageId,
       );
 
       final botMessage = model.ChatMessage(
         user: botUser,
         createdAt: DateTime.now(),
-        text: response.response,
+        text: responseText,
         status: model.MessageStatus.sent,
         deliveredAt: DateTime.now(),
+        id: '${messageId}_bot',
       );
 
-      messages[0] = sentMessage;
-      messages.insert(0, botMessage);
+      if (messages.isNotEmpty && messages[0].id == messageId) {
+        messages[0] = sentMessage;
+        messages.insert(0, botMessage);
+      }
       isBotTyping.value = false;
 
       _chatCacheService.saveMessages(chatId, messages).then((_) {
@@ -320,14 +310,17 @@ class ChatController extends GetxController {
       });
     } catch (e) {
       print('📱 Error sending message: $e');
-      final failedMessage = model.ChatMessage(
-        user: chatMessage.user,
-        createdAt: chatMessage.createdAt,
-        text: chatMessage.text,
-        medias: chatMessage.medias,
-        status: model.MessageStatus.failed,
-      );
-      messages[0] = failedMessage;
+      if (messages.isNotEmpty && messages[0].id == messageId) {
+        final failedMessage = model.ChatMessage(
+          user: chatMessage.user,
+          createdAt: chatMessage.createdAt,
+          text: chatMessage.text,
+          medias: chatMessage.medias,
+          status: model.MessageStatus.failed,
+          id: messageId,
+        );
+        messages[0] = failedMessage;
+      }
       isBotTyping.value = false;
       Get.snackbar('Error', 'Failed to send message.',
           snackPosition: SnackPosition.BOTTOM);

@@ -49,27 +49,72 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMediaMessage() async {
-    final picker = ImagePicker();
-    XFile? file = await picker.pickImage(source: ImageSource.gallery);
-
-    if (file != null) {
-      final userText = _textEditingController.text.trim();
-
-      final mediaMsg = model.ChatMessage(
-        user: _controller.currentUser,
-        createdAt: DateTime.now(),
-        text: userText.isEmpty ? " " : userText,
-        medias: [
-          model.ChatMedia(
-            url: file.path,
-            fileName: file.name,
-            type: model.MediaType.image,
-          ),
-        ],
+    try {
+      final picker = ImagePicker();
+      XFile? file = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
       );
 
-      _textEditingController.clear();
-      _controller.sendMessage(mediaMsg);
+      if (file != null) {
+        // Check file size (5MB limit)
+        final fileSize = await file.length();
+        if (fileSize > 5 * 1024 * 1024) { // 5MB in bytes
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Image size must be less than 5MB'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        // Check file extension
+        final extension = file.path.split('.').last.toLowerCase();
+        if (!['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Invalid image format. Please use JPG, JPEG, PNG, or GIF'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        final userText = _textEditingController.text.trim();
+
+        final mediaMsg = model.ChatMessage(
+          user: _controller.currentUser,
+          createdAt: DateTime.now(),
+          text: userText.isEmpty ? " " : userText,
+          medias: [
+            model.ChatMedia(
+              url: file.path,
+              fileName: file.name,
+              type: model.MediaType.image,
+            ),
+          ],
+        );
+
+        _textEditingController.clear();
+        _controller.sendMessage(mediaMsg);
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -127,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
           if (isCurrentUser) {
             switch (msg.status) {
               case model.MessageStatus.sending:
-                statusIcon = '⌛';
+                statusIcon = '⏳';
                 statusColor = Colors.grey;
                 break;
               case model.MessageStatus.sent:
