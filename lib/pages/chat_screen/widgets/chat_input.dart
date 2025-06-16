@@ -87,6 +87,10 @@ class _ChatInputState extends State<ChatInput> {
                 fontSize: 16,
                 color: Colors.black,
               ),
+              maxLines: null,
+              minLines: 1,
+              textInputAction: TextInputAction.newline,
+              keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
                 hintStyle: const TextStyle(
@@ -97,12 +101,21 @@ class _ChatInputState extends State<ChatInput> {
                   borderRadius: BorderRadius.circular(25),
                   borderSide: BorderSide.none,
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
                 filled: true,
                 fillColor: const Color(0xFFF3F4F6),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 24,
-                  vertical: 18,
+                  vertical: 12,
                 ),
+                isDense: true,
               ),
               onSubmitted: (_) => _sendMessage(),
             ),
