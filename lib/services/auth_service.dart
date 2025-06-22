@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
-import 'package:gemini_chat_app_tutorial/services/api_service.dart';
+import 'package:hoocup/services/token_storage_service.dart';
+import 'package:hoocup/services/api_service.dart';
 import 'package:get/get.dart';
-import 'package:gemini_chat_app_tutorial/consts.dart';
-import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
+import 'package:hoocup/consts.dart';
+import 'package:hoocup/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 

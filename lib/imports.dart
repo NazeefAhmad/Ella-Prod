@@ -12,8 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 // Your project files
-import 'package:gemini_chat_app_tutorial/consts.dart';
-import 'package:gemini_chat_app_tutorial/services/chat_service.dart';
+import 'package:hoocup/consts.dart';
+import 'package:hoocup/services/chat_service.dart';
 
 // Re-export commonly used packages
 export 'package:flutter/material.dart';

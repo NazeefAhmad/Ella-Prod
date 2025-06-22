@@ -5,22 +5,24 @@ import 'package:firebase_messaging/firebase_messaging.dart'; // Add this import
 import 'firebase_options.dart'; // Make sure this file is generated from Firebase setup
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:gemini_chat_app_tutorial/pages/Splash/splash.dart';
-import 'package:gemini_chat_app_tutorial/pages/Onboarding/onboarding.dart';
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/username.dart';
-import 'package:gemini_chat_app_tutorial/pages/PersonalDetail/age.dart';
+import 'pages/Splash/splash.dart';
+import 'pages/Onboarding/onboarding.dart';
+import 'pages/PersonalDetail/username.dart';
+import 'pages/PersonalDetail/age.dart';
 //import 'package:gemini_chat_app_tutorial/pages/UserInterest/UserInterest.dart';
-import 'package:gemini_chat_app_tutorial/pages/chat_screen/home_page.dart';
-import 'package:gemini_chat_app_tutorial/pages/feed/feed.dart';
+import 'pages/chat_screen/home_page.dart';
+import 'pages/feed/feed.dart';
 import 'imports.dart'; // Make sure the imports file is correct
-import 'package:gemini_chat_app_tutorial/app_router.dart'; // Import app_router.dart
+import 'app_router.dart'; // Import app_router.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'config/theme_config.dart';
 import 'config/language_config.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
 import 'services/connectivity_service.dart';
+import 'services/version_service.dart';
 import 'widgets/connectivity_wrapper.dart';
+import 'widgets/update_dialog.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:io' show Platform;
 
@@ -98,12 +100,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeController = Get.put(ThemeController());
     final languageController = Get.put(LanguageController());
+    final versionService = VersionService();
 
     return MultiProvider(
       providers: [
         Provider<ConnectivityService>(
           create: (_) => ConnectivityService(),
           dispose: (_, service) => service.dispose(),
+        ),
+        Provider<VersionService>(
+          create: (_) => versionService,
         ),
       ],
       child: GetMaterialApp(
@@ -120,11 +126,61 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-            child: ConnectivityWrapper(child: child!),
+            child: ConnectivityWrapper(
+              child: VersionCheckWrapper(
+                versionService: versionService,
+                child: child!,
+              ),
+            ),
           );
         },
         defaultTransition: Transition.noTransition,
       ),
     );
+  }
+}
+
+class VersionCheckWrapper extends StatefulWidget {
+  final Widget child;
+  final VersionService versionService;
+
+  const VersionCheckWrapper({
+    Key? key,
+    required this.child,
+    required this.versionService,
+  }) : super(key: key);
+
+  @override
+  State<VersionCheckWrapper> createState() => _VersionCheckWrapperState();
+}
+
+class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdate();
+  }
+
+  Future<void> _checkForUpdate() async {
+    try {
+      final hasUpdate = await widget.versionService.checkForUpdate();
+      if (hasUpdate && mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => UpdateDialog(
+            isForceUpdate: true,
+            versionService: widget.versionService,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error checking for updates: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }

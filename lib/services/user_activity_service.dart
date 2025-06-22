@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:gemini_chat_app_tutorial/consts.dart';
-import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
+import 'package:hoocup/consts.dart';
+import 'package:hoocup/services/token_storage_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class UserActivityService {

@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:gemini_chat_app_tutorial/consts.dart';
-import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gemini_chat_app_tutorial/services/api_service.dart';
+import 'package:hoocup/consts.dart';
+import 'package:hoocup/services/token_storage_service.dart';
+import 'package:hoocup/services/api_service.dart';
 
 class ProfileService {
   final TokenStorageService _tokenStorage = TokenStorageService();

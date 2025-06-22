@@ -3,10 +3,13 @@ import 'dart:io';
 import 'dart:async';  // Add this import for TimeoutException
 import 'package:http/http.dart' as http;
 import 'package:device_info_plus/device_info_plus.dart';  
-import 'package:gemini_chat_app_tutorial/consts.dart';  
-import 'package:gemini_chat_app_tutorial/services/token_storage_service.dart';
+import 'package:hoocup/consts.dart';  
+import 'package:hoocup/services/token_storage_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ApiService {
   final TokenStorageService _tokenStorage = TokenStorageService();

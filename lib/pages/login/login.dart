@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
-import 'package:gemini_chat_app_tutorial/services/api_service.dart';  // Adjust the path as needed
+import 'package:hoocup/services/auth_service.dart';
+import 'package:hoocup/services/api_service.dart';  // Adjust the path as needed
 import '../../widgets/loading_dialog.dart';
 
 class LoginPage extends StatelessWidget {

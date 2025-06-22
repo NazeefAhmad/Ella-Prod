@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gemini_chat_app_tutorial/consts.dart';
+import 'package:hoocup/consts.dart';
 
 class JwtService {
   static final JwtService _instance = JwtService._internal();

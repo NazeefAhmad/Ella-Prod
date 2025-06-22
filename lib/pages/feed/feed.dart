@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:gemini_chat_app_tutorial/pages/bottomNavigation/bottom_navigation.dart';
+import 'package:hoocup/pages/bottomNavigation/bottom_navigation.dart';
 import 'dart:ui'; // For ImageFilter
 import '../../utils/navigation_helper.dart';
 

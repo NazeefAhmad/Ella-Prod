@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gemini_chat_app_tutorial/services/profile_service.dart';
-import 'package:gemini_chat_app_tutorial/widgets/loading_dialog.dart';
+import 'package:hoocup/services/profile_service.dart';
+import 'package:hoocup/widgets/loading_dialog.dart';
 import '../../widgets/back_button.dart';
 
 class ChangePref extends StatefulWidget {

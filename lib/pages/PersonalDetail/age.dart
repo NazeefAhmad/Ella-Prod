@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:gemini_chat_app_tutorial/pages/User_Interest/UserInterest.dart';
+import 'package:hoocup/pages/User_Interest/UserInterest.dart';
 import '../../widgets/back_button.dart';
 
 class AgePage extends StatefulWidget {

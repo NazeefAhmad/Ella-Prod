@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gemini_chat_app_tutorial/services/auth_service.dart';
-import 'package:gemini_chat_app_tutorial/consts.dart';
+import 'package:hoocup/services/auth_service.dart';
+import 'package:hoocup/consts.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:android_id/android_id.dart';
 import 'dart:io' show Platform;
