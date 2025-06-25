@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import '../consts.dart';
+import '../models/notification_model.dart';
 
 class NotificationService {
   final String _baseUrl = '${AppConstants.baseUrl}/notifications';
@@ -146,5 +147,26 @@ class NotificationService {
     _messaging.onTokenRefresh.listen((token) async {
       await registerFCMToken();
     });
+  }
+
+  // Fetch notification history
+  Future<List<NotificationModel>> fetchNotifications() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/history'),
+        headers: {
+          'Authorization': 'Bearer ${await _auth.currentUser?.getIdToken()}',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        return data.map((e) => NotificationModel.fromJson(e)).toList();
+      } else {
+        throw Exception('Failed to load notifications');
+      }
+    } catch (e) {
+      print('Error fetching notifications: $e');
+      rethrow;
+    }
   }
 } 

@@ -21,7 +21,9 @@ class NotificationController extends GetxController {
     try {
       isLoading.value = true;
       await _notificationService.initialize();
-      // TODO: Fetch notifications from your backend
+      // Fetch notifications from your backend
+      final fetched = await _notificationService.fetchNotifications();
+      notifications.assignAll(fetched);
       isLoading.value = false;
     } catch (e) {
       print('Error initializing notifications: $e');
