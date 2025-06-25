@@ -43,13 +43,16 @@ void main() async {
     // Load the environment variables from the dev.env file
     await dotenv.load(fileName: "dev.env");
 
-    // Initialize Firebase
+    // Initialize Firebase with better error handling
+    print("🔥 Initializing Firebase...");
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    print("✅ Firebase initialized successfully");
 
     // Initialize Firebase Messaging
     try {
+      print("📱 Initializing Firebase Messaging...");
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       
       // Set background message handler
@@ -82,12 +85,15 @@ void main() async {
         await prefs.setString('fcmtoken', token);
         print("📱 Updated FCM token in SharedPreferences");
       });
+      
+      print("✅ Firebase Messaging initialized successfully");
     } catch (e) {
-      print('Firebase Messaging initialization error: $e');
+      print('❌ Firebase Messaging initialization error: $e');
     }
 
   } catch (e) {
-    print('Initialization error: $e');
+    print('❌ Initialization error: $e');
+    // Don't crash the app, but log the error
   }
 
   runApp(const MyApp());

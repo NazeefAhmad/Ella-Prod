@@ -7,6 +7,8 @@ import 'package:hoocup/consts.dart';
 import 'package:hoocup/services/profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:hoocup/firebase_options.dart';
 
 class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -58,30 +60,41 @@ class AuthService {
     try {
       print("Starting Google Sign-In process...");
 
+      // Ensure Firebase is initialized
+      if (Firebase.apps.isEmpty) {
+        print("❌ Firebase not initialized. Initializing now...");
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        print("✅ Firebase initialized for Google Sign-In");
+      }
+
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: '683567834719-ubol9j6hpnr86rouff57k3o9uegrcpd9.apps.googleusercontent.com',
         scopes: ['email', 'profile'],
       );
 
+      print("🔐 Attempting Google Sign-In...");
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        print("Google Sign-In canceled by user.");
+        print("❌ Google Sign-In canceled by user.");
         return null;
       }
 
-      print("Google user authenticated: ${googleUser.email}");
+      print("✅ Google user authenticated: ${googleUser.email}");
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      print("Google authentication obtained: "
-          "AccessToken: ${googleAuth.accessToken}, IDToken: ${googleAuth.idToken}");
+      print("✅ Google authentication obtained: "
+          "AccessToken: ${googleAuth.accessToken != null ? 'Present' : 'Missing'}, "
+          "IDToken: ${googleAuth.idToken != null ? 'Present' : 'Missing'}");
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      print("Signing in with credentials...");
+      print("🔥 Signing in with Firebase credentials...");
 
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       
@@ -91,7 +104,7 @@ class AuthService {
         throw 'Failed to get Firebase ID token';
       }
 
-      print("Firebase ID token obtained: ${firebaseIdToken.substring(0, 20)}...");
+      print("✅ Firebase ID token obtained: ${firebaseIdToken.substring(0, 20)}...");
       
       // Get JWT tokens from your backend using the Firebase ID token
       final response = await _apiService.getGoogleAuthToken(
@@ -125,18 +138,18 @@ class AuthService {
         await prefs.setString('user_id', AppConstants.userId);
         await prefs.setString('username', AppConstants.userName);
         
-        print("Set user ID: ${AppConstants.userId}");
-        print("Set username: ${AppConstants.userName}");
+        print("✅ Set user ID: ${AppConstants.userId}");
+        print("✅ Set username: ${AppConstants.userName}");
       }
 
-      print("Sign-in successful. User: ${userCredential.user?.email}");
-      print("Access Token: ${accessToken.substring(0, 20)}..."); // Log first 20 chars for debugging
+      print("🎉 Sign-in successful. User: ${userCredential.user?.email}");
+      print("✅ Access Token: ${accessToken.substring(0, 20)}..."); // Log first 20 chars for debugging
 
       // Start token refresh after successful sign in
       startTokenRefresh();
       return userCredential.user;
     } catch (e) {
-      print("Google Sign-In Error: $e");
+      print("❌ Google Sign-In Error: $e");
       return null;
     }
   }
