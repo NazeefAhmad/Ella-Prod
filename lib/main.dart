@@ -23,6 +23,7 @@ import 'services/connectivity_service.dart';
 import 'services/version_service.dart';
 import 'widgets/connectivity_wrapper.dart';
 import 'widgets/update_dialog.dart';
+import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:io' show Platform;
 
@@ -35,6 +36,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  final config = ClarityConfig(
+    projectId: "s564z36nwm",
+    logLevel: LogLevel.None // Note: Use "LogLevel.Verbose" value while testing to debug initialization issues.
+  );
+
+  runApp(ClarityWidget(
+    app: MyApp(),
+    clarityConfig: config,
+  ));
 
   try {
     // Initialize SharedPreferences
