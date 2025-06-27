@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_core/firebase_core.dart'; // Firebase core import
-import 'package:firebase_messaging/firebase_messaging.dart'; // Add this import
-import 'firebase_options.dart'; // Make sure this file is generated from Firebase setup
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'pages/Splash/splash.dart';
 import 'pages/Onboarding/onboarding.dart';
 import 'pages/PersonalDetail/username.dart';
 import 'pages/PersonalDetail/age.dart';
-//import 'package:gemini_chat_app_tutorial/pages/UserInterest/UserInterest.dart';
 import 'pages/chat_screen/home_page.dart';
 import 'pages/feed/feed.dart';
-import 'imports.dart'; // Make sure the imports file is correct
-import 'app_router.dart'; // Import app_router.dart
+import 'imports.dart';
+import 'app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'config/theme_config.dart';
 import 'config/language_config.dart';
@@ -27,15 +26,14 @@ import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:io' show Platform;
 
-
-// Add this function to handle background messages
+/// Background message handler for Firebase Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("Handling a background message: ${message.messageId}");
+  print("🔄 Background message received: ${message.messageId}");
 }
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   final config = ClarityConfig(
     projectId: "s564z36nwm",
@@ -48,28 +46,28 @@ void main() async {
   ));
 
   try {
-    // Initialize SharedPreferences
-    await SharedPreferences.getInstance();
-
-    // Load the environment variables from the dev.env file
+    // Load environment variables
     await dotenv.load(fileName: "dev.env");
 
-    // Initialize Firebase with better error handling
+    // Initialize Firebase
     print("🔥 Initializing Firebase...");
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print("✅ Firebase initialized successfully");
 
-    // Initialize Firebase Messaging
+    // Initialize SharedPreferences (optional here, but included for completeness)
+    await SharedPreferences.getInstance();
+
+    // Firebase Messaging Setup
     try {
       print("📱 Initializing Firebase Messaging...");
       FirebaseMessaging messaging = FirebaseMessaging.instance;
-      
-      // Set background message handler
+
+      // Handle background messages
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-      // Request permission for iOS
+      // iOS permission request
       if (Platform.isIOS) {
         await messaging.requestPermission(
           alert: true,
@@ -78,36 +76,42 @@ void main() async {
         );
       }
 
-      // Get FCM token
+      // Get initial token
       String? token = await messaging.getToken();
       print("📱 Initial FCM Token: $token");
 
-      // Store the token in SharedPreferences
       if (token != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('fcmtoken', token);
         print("📱 Stored initial FCM token in SharedPreferences");
       }
 
-      // Listen to token refresh
+      // Handle token refresh
       messaging.onTokenRefresh.listen((String token) async {
         print("📱 FCM Token Refreshed: $token");
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('fcmtoken', token);
-        print("📱 Updated FCM token in SharedPreferences");
       });
-      
+
       print("✅ Firebase Messaging initialized successfully");
     } catch (e) {
       print('❌ Firebase Messaging initialization error: $e');
     }
 
-  } catch (e) {
-    print('❌ Initialization error: $e');
-    // Don't crash the app, but log the error
-  }
+    // Initialize Clarity and Run App
+    final config = ClarityConfig(
+      projectId: "s564z36nwm",
+      logLevel: LogLevel.None,
+    );
 
-  runApp(const MyApp());
+    runApp(ClarityWidget(
+      app: const MyApp(),
+      clarityConfig: config,
+    ));
+
+  } catch (e) {
+    print('❌ Global initialization error: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -192,7 +196,7 @@ class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
         );
       }
     } catch (e) {
-      print('Error checking for updates: $e');
+      print('⚠️ Error checking for updates: $e');
     }
   }
 

@@ -69,29 +69,27 @@ class AuthService {
         print("✅ Firebase initialized for Google Sign-In");
       }
 
-      final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: '683567834719-ubol9j6hpnr86rouff57k3o9uegrcpd9.apps.googleusercontent.com',
-        scopes: ['email', 'profile'],
-      );
+      // Initialize GoogleSignIn
+      await GoogleSignIn.instance.initialize();
 
       print("🔐 Attempting Google Sign-In...");
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        print("❌ Google Sign-In canceled by user.");
-        return null;
-      }
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate(
+        scopeHint: ['email', 'profile'],
+      );
 
       print("✅ Google user authenticated: ${googleUser.email}");
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final idToken = googleUser.authentication.idToken;
+      final clientAuth = await googleUser.authorizationClient.authorizationForScopes(['email', 'profile']);
+      final googleAccessToken = clientAuth?.accessToken;
 
       print("✅ Google authentication obtained: "
-          "AccessToken: ${googleAuth.accessToken != null ? 'Present' : 'Missing'}, "
-          "IDToken: ${googleAuth.idToken != null ? 'Present' : 'Missing'}");
+          "AccessToken: ${googleAccessToken != null ? 'Present' : 'Missing'}, "
+          "IDToken: ${idToken != null ? 'Present' : 'Missing'}");
 
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        accessToken: googleAccessToken,
+        idToken: idToken,
       );
 
       print("🔥 Signing in with Firebase credentials...");
@@ -236,7 +234,7 @@ class AuthService {
       // Sign out from Google
       try {
         print("Signing out from Google...");
-        await GoogleSignIn().signOut();
+        await GoogleSignIn.instance.signOut();
         print("Google Sign-Out successful.");
       } catch (e) {
         print("Google Sign-Out failed: $e");
