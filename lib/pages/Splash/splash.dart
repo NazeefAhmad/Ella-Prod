@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hoocup/services/auth_service.dart';
+import 'package:hoocup/services/version_service.dart';
 import 'package:hoocup/consts.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:android_id/android_id.dart';
 import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:hoocup/widgets/update_dialog.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -49,7 +51,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
         } else if (Platform.isAndroid) {
           AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
           fetchedDeviceId = await androidIdPlugin.getId() ?? '';
-          fetchedDeviceFingerprint = androidInfo.fingerprint ?? '';
+          fetchedDeviceFingerprint = androidInfo.fingerprint;
           print("📱 Android Device Info - ID: $fetchedDeviceId, Fingerprint: $fetchedDeviceFingerprint");
         }
 
@@ -107,6 +109,46 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   Future<void> _initAppAndNavigate() async {
     await _fetchAndSetDeviceInfo(); // Fetch device info first
+
+    // Check for app updates
+    try {
+      print('🔄 Splash: Starting version check...');
+      final versionService = VersionService();
+      final versionInfo = await versionService.checkForUpdate();
+      print('🔄 Splash: Version check result: $versionInfo');
+      
+      final bool needsUpdate = versionInfo["needs_update"] ?? false;
+      final bool forceUpdate = versionInfo["force_update"] ?? false;
+      final String? updateMessage = versionInfo["update_message"];
+      final String? updateUrl = versionInfo["update_url"];
+      
+      if (needsUpdate && mounted) {
+        print('🔄 Splash: Showing update dialog...');
+        print('🔄 Splash: Force update: $forceUpdate');
+        print('🔗 Splash: Update URL: $updateUrl');
+        await showDialog(
+          context: context,
+          barrierDismissible: !forceUpdate, // Only dismissible if not force update
+          builder: (context) => UpdateDialog(
+            isForceUpdate: forceUpdate,
+            versionService: versionService,
+            updateMessage: updateMessage,
+            updateUrl: updateUrl,
+          ),
+        );
+        print('✅ Splash: Update dialog shown successfully');
+        
+        // If it's a force update, don't navigate further
+        if (forceUpdate) {
+          return;
+        }
+      } else {
+        print('ℹ️ Splash: No update needed, proceeding with navigation');
+      }
+    } catch (e) {
+      print('⚠️ Splash: Error checking for updates: $e');
+      // Continue with navigation even if version check fails
+    }
 
     // Load user ID and username from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
