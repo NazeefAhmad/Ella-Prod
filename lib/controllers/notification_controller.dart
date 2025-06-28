@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import '../services/notification_service.dart';
+import '../services/comprehensive_notification_service.dart';
+import '../services/permission_manager.dart';
 import '../models/notification_model.dart';
 
 class NotificationController extends GetxController {
-  final NotificationService _notificationService = NotificationService();
+  final ComprehensiveNotificationService _notificationService = ComprehensiveNotificationService();
+  final PermissionManager _permissionManager = PermissionManager();
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
-  final RxBool isNotificationsEnabled = true.obs;
+  final RxBool isNotificationsEnabled = false.obs;
   final RxBool isLoading = true.obs;
 
   @override
@@ -20,10 +22,16 @@ class NotificationController extends GetxController {
   Future<void> _initializeNotifications() async {
     try {
       isLoading.value = true;
-      await _notificationService.initialize();
-      // Fetch notifications from your backend
-      final fetched = await _notificationService.fetchNotifications();
-      notifications.assignAll(fetched);
+      
+      // Load permission status
+      await _notificationService.loadPermissionStatus();
+      bool isGranted = await _permissionManager.isNotificationPermissionGranted();
+      isNotificationsEnabled.value = isGranted;
+      
+      // Note: fetchNotifications method is not available in the new service
+      // You would need to implement this separately if you need to fetch from backend
+      // For now, we'll just initialize the service
+      
       isLoading.value = false;
     } catch (e) {
       print('Error initializing notifications: $e');
@@ -36,9 +44,6 @@ class NotificationController extends GetxController {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       _handleNotification(message);
     });
-
-    // Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // Handle notification tap when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -95,11 +100,28 @@ class NotificationController extends GetxController {
   Future<void> toggleNotifications(bool value) async {
     try {
       if (value) {
-        await _notificationService.subscribeToTopic('default');
+        // User wants to enable notifications
+        bool granted = await _permissionManager.requestNotificationPermission();
+        
+        if (!granted) {
+          // Permission denied, show settings dialog
+          bool shouldOpenSettings = await _permissionManager.showPermissionDialog(Get.context!);
+          
+          if (shouldOpenSettings) {
+            await _permissionManager.openNotificationSettings();
+          }
+        }
       } else {
-        await _notificationService.unsubscribeFromTopic('default');
+        // User wants to disable notifications - open settings
+        await _permissionManager.openNotificationSettings();
       }
-      isNotificationsEnabled.value = value;
+
+      // Reload status after a delay to allow user to change settings
+      Future.delayed(const Duration(milliseconds: 500), () async {
+        await _notificationService.loadPermissionStatus();
+        bool isGranted = await _permissionManager.isNotificationPermissionGranted();
+        isNotificationsEnabled.value = isGranted;
+      });
     } catch (e) {
       print('Error toggling notifications: $e');
       Get.snackbar(
@@ -112,6 +134,13 @@ class NotificationController extends GetxController {
 
   Future<void> refreshNotifications() async {
     await _initializeNotifications();
+  }
+
+  // Method to check current permission status
+  Future<void> checkPermissionStatus() async {
+    await _notificationService.loadPermissionStatus();
+    bool isGranted = await _permissionManager.isNotificationPermissionGranted();
+    isNotificationsEnabled.value = isGranted;
   }
 }
 

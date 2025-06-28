@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ import 'controllers/theme_controller.dart';
 import 'controllers/language_controller.dart';
 import 'services/connectivity_service.dart';
 import 'services/version_service.dart';
+import 'services/comprehensive_notification_service.dart';
 import 'widgets/connectivity_wrapper.dart';
 import 'widgets/update_dialog.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
@@ -35,16 +37,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final config = ClarityConfig(
-    projectId: "s564z36nwm",
-    logLevel: LogLevel.None // Note: Use "LogLevel.Verbose" value while testing to debug initialization issues.
-  );
-
-  runApp(ClarityWidget(
-    app: MyApp(),
-    clarityConfig: config,
-  ));
-
   try {
     // Load environment variables
     await dotenv.load(fileName: "dev.env");
@@ -56,46 +48,16 @@ void main() async {
     );
     print("✅ Firebase initialized successfully");
 
-    // Initialize SharedPreferences (optional here, but included for completeness)
+    // Initialize SharedPreferences
     await SharedPreferences.getInstance();
 
-    // Firebase Messaging Setup
+    // Initialize comprehensive notification service
     try {
-      print("📱 Initializing Firebase Messaging...");
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-      // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      // iOS permission request
-      if (Platform.isIOS) {
-        await messaging.requestPermission(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      }
-
-      // Get initial token
-      String? token = await messaging.getToken();
-      print("📱 Initial FCM Token: $token");
-
-      if (token != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('fcmtoken', token);
-        print("📱 Stored initial FCM token in SharedPreferences");
-      }
-
-      // Handle token refresh
-      messaging.onTokenRefresh.listen((String token) async {
-        print("📱 FCM Token Refreshed: $token");
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('fcmtoken', token);
-      });
-
-      print("✅ Firebase Messaging initialized successfully");
+      print("📱 Initializing Comprehensive Notification Service...");
+      await ComprehensiveNotificationService().initialize();
+      print("✅ Comprehensive Notification Service initialized successfully");
     } catch (e) {
-      print('❌ Firebase Messaging initialization error: $e');
+      print('❌ Comprehensive Notification Service initialization error: $e');
     }
 
     // Initialize Clarity and Run App

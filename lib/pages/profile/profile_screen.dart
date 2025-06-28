@@ -518,7 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _buildSettingsItem('Notifications',
                               icon: Icons.notifications_none,
                               onTap: _isGuestUser ? _showSignInDialog : () {
-                                Get.toNamed('/notifications');
+                                Get.toNamed('/notificationSettings');
                               },
                             ),
                             _buildSettingsItem('Rate our App',

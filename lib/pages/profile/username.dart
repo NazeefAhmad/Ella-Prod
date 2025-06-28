@@ -45,14 +45,58 @@ class _UsernamePageState extends State<UsernamePage> {
     }
   }
 
+  bool isValidUsername(String username) {
+    final regex = RegExp(r'^[a-zA-Z0-9_]+$');
+    final isValid = regex.hasMatch(username);
+    print('Username validation: "$username" -> $isValid');
+    return isValid;
+  }
+
+void showSnackbar(BuildContext context, String message) {
+  final snackBar = SnackBar(
+    content: Text(
+      message,
+      style: const TextStyle(color: Colors.black, fontSize: 14),
+    ),
+    backgroundColor: Colors.white, // White background
+    behavior: SnackBarBehavior.floating,
+    elevation: 20,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+      side: BorderSide(color: Colors.grey.withOpacity(0.25)),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    duration: const Duration(seconds: 3),
+  );
+
+  // Remove existing snackbars and show the new one
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(snackBar);
+}
+
+
+
   Future<void> _updateUsername() async {
     final newUsername = _usernameController.text.trim();
+    print('Attempting to update username to: "$newUsername"');
     
     if (newUsername.isEmpty) {
       setState(() => _errorMessage = 'Username cannot be empty');
       return;
     }
 
+    if (!isValidUsername(newUsername)) {
+      print('Username validation failed, showing snackbar');
+      showSnackbar(
+        context,
+        '⚠️ Whoops! Usernames can only have letters, numbers, and underscores. No spaces or funky stuff!',
+      );
+      return;
+    }
+
+    print('Username validation passed, proceeding with API call');
     if (newUsername == _currentUsername) {
       Navigator.pop(context);
       return;

@@ -426,6 +426,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  bool isValidUsername(String username) {
+    final regex = RegExp(r'^[a-zA-Z0-9_]+$');
+    final isValid = regex.hasMatch(username);
+    print('Username validation: "$username" -> $isValid');
+    return isValid;
+  }
+
+  void showSnackbar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(color: Colors.black, fontSize: 14),
+      ),
+      backgroundColor: Colors.white,
+      behavior: SnackBarBehavior.floating,
+      elevation: 20,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.withOpacity(0.25)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      duration: const Duration(seconds: 3),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -454,6 +484,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       // Check username changes
       if (_nameController.text != _initialUsername) {
+        if (!isValidUsername(_nameController.text)) {
+          showSnackbar(
+            context,
+            '⚠️ Whoops! Usernames can only have letters, numbers, and underscores. No spaces or funky stuff!',
+          );
+          return;
+        }
         updates['username'] = _nameController.text;
         hasChanges = true;
       }
@@ -480,7 +517,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final currentDob = currentProfile['date_of_birth'];
       if (_selectedDate != null && 
           (currentDob == null || DateTime.parse(currentDob).toString() != _selectedDate.toString())) {
-        updates['date_of_birth'] = _selectedDate.toString();
+        // Format date as YYYY-MM-DD only, without time information
+        final formattedDate = "${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
+        updates['date_of_birth'] = formattedDate;
         hasChanges = true;
       }
 

@@ -15,6 +15,7 @@ import 'pages/profile/edit_profile_screen.dart';
 import 'pages/profile/account_settings_screen.dart';
 import 'pages/profile/additional_resources_screen.dart';
 import 'pages/notifications/notification.dart';
+import 'pages/notifications/notification_settings_screen.dart';
 
 class AppRouter {
   static final List<GetPage> routes = [
@@ -99,6 +100,13 @@ class AppRouter {
     GetPage(
       name: '/notifications',
       page: () => const NotificationScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    ),
+    GetPage(
+      name: '/notificationSettings',
+      page: () => const NotificationSettingsScreen(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
