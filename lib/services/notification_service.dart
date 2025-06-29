@@ -255,8 +255,8 @@ class NotificationService {
           'Authorization': 'Bearer ${await _auth.currentUser?.getIdToken()}',
         },
         body: jsonEncode({
-          'token': token,
-          'device_id': deviceId,
+          'token': AppConstants.fcmtoken,
+          'device_id': AppConstants.deviceId,
           'device_type': deviceType,
         }),
       );
