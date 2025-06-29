@@ -119,4 +119,48 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//check
+
+class VersionCheckWrapper extends StatefulWidget {
+  final Widget child;
+  final VersionService versionService;
+
+  const VersionCheckWrapper({
+    Key? key,
+    required this.child,
+    required this.versionService,
+  }) : super(key: key);
+
+  @override
+  State<VersionCheckWrapper> createState() => _VersionCheckWrapperState();
+}
+
+class _VersionCheckWrapperState extends State<VersionCheckWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdate();
+  }
+
+  Future<void> _checkForUpdate() async {
+    try {
+      final hasUpdate = await widget.versionService.checkForUpdate();
+      if (hasUpdate && mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => UpdateDialog(
+            isForceUpdate: true,
+            versionService: widget.versionService,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error checking for updates: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
