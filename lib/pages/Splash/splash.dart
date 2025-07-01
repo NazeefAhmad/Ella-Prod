@@ -9,6 +9,7 @@ import 'dart:io' show Platform;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hoocup/widgets/update_dialog.dart';
+import 'package:hoocup/services/api_service.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -155,6 +156,19 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     AppConstants.userId = prefs.getString('user_id') ?? '';
     AppConstants.userName = prefs.getString('username') ?? '';
     print("Loaded from SharedPreferences - User ID: ${AppConstants.userId}, Username: ${AppConstants.userName}");
+
+    // Fetch Firebase UID and User ID from API and update AppConstants
+    try {
+      final apiService = ApiService();
+      final firebaseData = await apiService.fetchFirebaseUidAndUserId();
+      if (firebaseData != null) {
+        print('Fetched Firebase UID and User ID: ${firebaseData['firebase_uid']}, ${firebaseData['user_id']}');
+      } else {
+        print('Failed to fetch Firebase UID and User ID');
+      }
+    } catch (e) {
+      print('Error fetching Firebase UID and User ID: ${e.toString()}');
+    }
 
     bool isAuthenticated = false;
     try {
