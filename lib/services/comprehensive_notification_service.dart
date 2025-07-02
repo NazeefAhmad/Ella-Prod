@@ -241,7 +241,6 @@
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hoocup/consts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -251,17 +250,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'dart:io' show Platform;
 
-import 'dart:convert';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
-import 'dart:io' show Platform;
 
 class ComprehensiveNotificationService {
   static final ComprehensiveNotificationService _instance = ComprehensiveNotificationService._internal();
@@ -512,7 +500,7 @@ class ComprehensiveNotificationService {
       // Use AppConstants.accessToken instead of SharedPreferences
       String? authToken = AppConstants.accessToken;
       
-      if (authToken == null || authToken.isEmpty) {
+      if (authToken.isEmpty) {
         print('⚠️ No auth token available, skipping backend registration');
         return;
       }
@@ -559,7 +547,7 @@ class ComprehensiveNotificationService {
       // Use AppConstants.accessToken instead of SharedPreferences
       String? authToken = AppConstants.accessToken;
       
-      if (authToken == null || authToken.isEmpty) {
+      if (authToken.isEmpty) {
         print('❌ No auth token available for testing');
         return;
       }
@@ -592,7 +580,7 @@ class ComprehensiveNotificationService {
       // Use AppConstants.accessToken instead of SharedPreferences
       String? authToken = AppConstants.accessToken;
       
-      if (authToken == null || authToken.isEmpty) {
+      if (authToken.isEmpty) {
         print('❌ No auth token available');
         return;
       }
@@ -764,8 +752,8 @@ class ComprehensiveNotificationService {
     
     print('�� Debug Token Status:');
     print('FCM Token: ${fcmToken?.substring(0, 20)}...');
-    print('Auth Token: ${authToken?.substring(0, 20)}...');
-    print('Auth Token Length: ${authToken?.length}');
+    print('Auth Token: ${authToken.substring(0, 20)}...');
+    print('Auth Token Length: ${authToken.length}');
     print('API URL: ${dotenv.env['API_BASE_URL']}');
   }
 }

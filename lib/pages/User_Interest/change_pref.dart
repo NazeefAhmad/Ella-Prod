@@ -14,7 +14,7 @@ class ChangePref extends StatefulWidget {
 class _ChangePrefPageState extends State<ChangePref> {
   String? selectedPreference;
   final ProfileService _profileService = ProfileService();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _isConfirmed = false;
 
   // Preference types

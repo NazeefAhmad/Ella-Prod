@@ -1,10 +1,8 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import '../../../services/chat_service.dart';
 import '../../../services/chat_cache_service.dart';
 import '../../../models/chat_user.dart' as model;
 import '../../../models/chat_message.dart' as model;
-import '../../../models/chat_media.dart' as model;
 import '../../../consts.dart';
 import '../../../services/profile_service.dart';
 import 'dart:async';

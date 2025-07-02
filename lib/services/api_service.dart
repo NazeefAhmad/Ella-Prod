@@ -7,9 +7,6 @@ import 'package:hoocup/consts.dart';
 import 'package:hoocup/services/token_storage_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ApiService {
   final TokenStorageService _tokenStorage = TokenStorageService();

@@ -82,7 +82,6 @@
 // } 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:get/get.dart';
 import '../../widgets/back_button.dart';
 
 // WebViewScreen to display the URL in an in-app web view
@@ -90,7 +89,7 @@ class WebViewScreen extends StatefulWidget {
   final String url;
   final String title;
 
-  const WebViewScreen({Key? key, required this.url, required this.title}) : super(key: key);
+  const WebViewScreen({super.key, required this.url, required this.title});
 
   @override
   WebViewScreenState createState() => WebViewScreenState();
@@ -159,7 +158,7 @@ class WebViewScreenState extends State<WebViewScreen> {
 
 // AdditionalResourcesScreen modified to use WebViewScreen
 class AdditionalResourcesScreen extends StatelessWidget {
-  const AdditionalResourcesScreen({Key? key}) : super(key: key);
+  const AdditionalResourcesScreen({super.key});
 
   Widget _buildOptionItem(BuildContext context, String title, {Color? textColor, required String url}) {
     return ListTile(

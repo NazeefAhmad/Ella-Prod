@@ -6,10 +6,10 @@ class SignInDialog extends StatelessWidget {
   final VoidCallback onSignInSuccess;
 
   const SignInDialog({
-    Key? key,
+    super.key,
     required this.authService,
     required this.onSignInSuccess,
-  }) : super(key: key);
+  });
 
   static Future<void> show({
     required BuildContext context,

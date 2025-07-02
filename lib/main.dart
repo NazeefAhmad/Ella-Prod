@@ -2,16 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'pages/Splash/splash.dart';
-import 'pages/Onboarding/onboarding.dart';
-import 'pages/PersonalDetail/username.dart';
-import 'pages/PersonalDetail/age.dart';
-import 'pages/chat_screen/home_page.dart';
-import 'pages/feed/feed.dart';
 import 'imports.dart';
 import 'app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,10 +16,7 @@ import 'services/connectivity_service.dart';
 import 'services/version_service.dart';
 import 'services/comprehensive_notification_service.dart';
 import 'widgets/connectivity_wrapper.dart';
-import 'widgets/update_dialog.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'dart:io' show Platform;
 
 /// Background message handler for Firebase Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -77,7 +67,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +98,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
             child: ConnectivityWrapper(
               child: child!,
             ),

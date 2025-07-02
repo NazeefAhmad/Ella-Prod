@@ -2,10 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:hoocup/consts.dart';
 import '../models/chat_models.dart';
-import 'package:dash_chat_2/dash_chat_2.dart';
-import 'package:get/get.dart';
 
 class ChatService {
   // For physical Android device, use your computer's IP address

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:app_settings/app_settings.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../services/comprehensive_notification_service.dart';
 import '../services/permission_manager.dart';
 
 class NotificationSettingsWidget extends StatefulWidget {
-  const NotificationSettingsWidget({Key? key}) : super(key: key);
+  const NotificationSettingsWidget({super.key});
 
   @override
   State<NotificationSettingsWidget> createState() => _NotificationSettingsWidgetState();

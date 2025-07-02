@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hoocup/consts.dart';
 import 'package:hoocup/services/token_storage_service.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 
 class ProfileEditService {
   final TokenStorageService _tokenStorage = TokenStorageService();

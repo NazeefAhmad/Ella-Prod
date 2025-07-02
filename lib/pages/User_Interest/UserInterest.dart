@@ -5,7 +5,7 @@ import 'package:hoocup/widgets/loading_dialog.dart';
 import '../../widgets/back_button.dart';
 
 class UserInterestPage extends StatefulWidget {
-  const UserInterestPage({Key? key}) : super(key: key);
+  const UserInterestPage({super.key});
 
   @override
   State<UserInterestPage> createState() => _UserInterestPageState();
@@ -14,7 +14,7 @@ class UserInterestPage extends StatefulWidget {
 class _UserInterestPageState extends State<UserInterestPage> {
   String? selectedPreference;
   final ProfileService _profileService = ProfileService();
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   // Preference types
   static const String MEN = 'male';
@@ -196,8 +196,8 @@ class _UserInterestPageState extends State<UserInterestPage> {
                           : const Text(
                               'Select your Preference',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),

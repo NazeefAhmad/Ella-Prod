@@ -6,7 +6,7 @@ import 'package:hoocup/pages/User_Interest/UserInterest.dart';
 import '../../widgets/back_button.dart';
 
 class AgePage extends StatefulWidget {
-  const AgePage({Key? key}) : super(key: key);
+  const AgePage({super.key});
 
   @override
   _AgePageState createState() => _AgePageState();
@@ -136,11 +136,11 @@ class _AgePageState extends State<AgePage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
-                width: 240,
+                width: 250,
                 height: 59,
                 decoration: BoxDecoration(
                   color: isOver18
-                      ? Color.fromRGBO(255, 32, 71, 1)
+                      ? Color.fromRGBO(255, 32, 78, 1)
                       : Color.fromRGBO(217, 217, 217, 1),
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -155,7 +155,7 @@ class _AgePageState extends State<AgePage> {
                   
                     style: TextStyle(
                       fontSize: 22,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       color: isOver18
                           ? Colors.white
                           : Color.fromRGBO(140, 140, 140, 1),
