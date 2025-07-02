@@ -10,10 +10,12 @@ import 'package:get/get.dart';
 class ChatService {
   // For physical Android device, use your computer's IP address
   final String baseUrl;
+  final String userId;
   final String userName;
 
   ChatService({
     required this.baseUrl,
+    required this.userId,
     required this.userName,
   });
 
@@ -69,19 +71,19 @@ class ChatService {
   // Send chat message
   Future<ChatResponse> sendMessage(String message) async {
     print('\n=== Chat Request ===');
-    print('ChatService: Sending message to $baseUrl/chat/');
+    print('ChatService: Sending message to $baseUrl/chat');
     print('ChatService: Request Details:');
-    print('- User ID: ${AppConstants.userId}');
+    print('- User ID: $userId');
     print('- Username: $userName');
     print('- Message: $message');
     print('- Timestamp: ${DateTime.now()}');
     
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/chat/'),
+        Uri.parse('$baseUrl/chat'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(ChatRequest(
-          userId: AppConstants.userId,
+          userId: userId,
           userName: userName,
           message: message,
         ).toJson()),
@@ -126,7 +128,7 @@ class ChatService {
     print('\n=== Media Chat Request ===');
     print('ChatService: Sending media message to $baseUrl/chat/media');
     print('ChatService: Request Details:');
-    print('- User ID: ${AppConstants.userId}');
+    print('- User ID: $userId');
     print('- Username: $userName');
     print('- Message: $message');
     print('- Media Type: $mediaType');
@@ -136,7 +138,7 @@ class ChatService {
       var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/chat/media'));
       
       // Add text fields
-      request.fields['user_id'] = AppConstants.userId;
+      request.fields['user_id'] = userId;
       request.fields['username'] = userName;
       request.fields['message'] = message;
       request.fields['media_type'] = mediaType;

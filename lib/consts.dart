@@ -14,6 +14,5 @@ class AppConstants {
   static String genderPreference = 'genderPreference';  // Store the gender preference
   static String interest = ''; // Or you can initialize it to a default value
   static String deviceFingerprint = '';  // Initialize as empty string  
-  static String firebaseUid = '';  // Store the Firebase UID
 }
 //check Now 
