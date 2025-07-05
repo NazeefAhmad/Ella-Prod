@@ -12,7 +12,8 @@ import 'dart:async';
 class ChatController extends GetxController {
   final ChatService _chatService = ChatService(
     baseUrl: AppConstants.baseUrl,
-    userName: AppConstants.userName,
+    userName: AppConstants.userName, 
+    userId: AppConstants.userId,
   );
   final ChatCacheService _chatCacheService = ChatCacheService();
   final ProfileService _profileService = ProfileService();

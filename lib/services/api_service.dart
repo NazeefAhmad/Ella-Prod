@@ -471,29 +471,72 @@ class ApiService {
   }
 
   /// Fetches Firebase UID and user ID for the authenticated user and stores them in AppConstants and SharedPreferences
+  // Future<Map<String, dynamic>?> fetchFirebaseUidAndUserId() async {
+  //   try {
+  //     final url = Uri.parse('$_baseUrl/api/v1/firebase-uid');
+  //     final headers = await _getAuthHeaders();
+  //     final response = await http.get(url, headers: headers);
+  //     if (response.statusCode == 200) {
+  //       final data = json.decode(response.body);
+  //       final firebaseUid = data['firebase_uid'] as String? ?? '';
+  //       final userId = data['user_id'] as String? ?? '';
+  //       AppConstants.userId = userId;
+  //       AppConstants.firebaseUid = firebaseUid;
+  //       final prefs = await SharedPreferences.getInstance();
+  //       await prefs.setString('user_id', userId);
+  //       await prefs.setString('firebase_uid', firebaseUid);
+  //       return data;
+  //     } else {
+  //       print('Failed to fetch Firebase UID: \\${response.statusCode} - \\${response.body}');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching Firebase UID: \\${e.toString()}');
+  //     return null;
+  //   }
+  // }
+
   Future<Map<String, dynamic>?> fetchFirebaseUidAndUserId() async {
-    try {
-      final url = Uri.parse('$_baseUrl/api/v1/user/firebase-uid');
-      final headers = await _getAuthHeaders();
-      final response = await http.get(url, headers: headers);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final firebaseUid = data['firebase_uid'] as String? ?? '';
-        final userId = data['user_id'] as String? ?? '';
-        AppConstants.userId = userId;
-        AppConstants.firebaseUid = firebaseUid;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_id', userId);
-        await prefs.setString('firebase_uid', firebaseUid);
-        return data;
-      } else {
-        print('Failed to fetch Firebase UID: \\${response.statusCode} - \\${response.body}');
-        return null;
-      }
-    } catch (e) {
-      print('Error fetching Firebase UID: \\${e.toString()}');
+  try {
+    print('[fetchFirebaseUidAndUserId] Starting fetch...');
+
+    final url = Uri.parse('$_baseUrl/api/v1/firebase-uid');
+    print('[fetchFirebaseUidAndUserId] URL: $url');
+
+    final headers = await _getAuthHeaders();
+    print('[fetchFirebaseUidAndUserId] Headers: $headers');
+
+    final response = await http.get(url, headers: headers);
+    print('[fetchFirebaseUidAndUserId] Response Status: ${response.statusCode}');
+    print('[fetchFirebaseUidAndUserId] Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('[fetchFirebaseUidAndUserId] Decoded Data: $data');
+
+      final firebaseUid = data['firebase_uid'] as String? ?? '';
+      final userId = data['user_id'] as String? ?? '';
+      print('[fetchFirebaseUidAndUserId] Firebase UID: $firebaseUid');
+      print('[fetchFirebaseUidAndUserId] User ID: $userId');
+
+      AppConstants.userId = userId;
+      AppConstants.firebaseUid = firebaseUid;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userId);
+      await prefs.setString('firebase_uid', firebaseUid);
+      print('[fetchFirebaseUidAndUserId] Stored in SharedPreferences');
+
+      return data;
+    } else {
+      print('[fetchFirebaseUidAndUserId] Failed to fetch Firebase UID: ${response.statusCode} - ${response.body}');
       return null;
     }
+  } catch (e) {
+    print('[fetchFirebaseUidAndUserId] Error fetching Firebase UID: ${e.toString()}');
+    return null;
   }
+}
+
 }
 

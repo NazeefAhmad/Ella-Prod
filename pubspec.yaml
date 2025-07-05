@@ -116,7 +116,6 @@ flutter:
     - assets/images/splash/
     - assets/images/splash/Splash.png
     - dev.env
-    - assets/sounds/
     - assets/girls/Krity/krity.jpg
 
    # - assets/images/Ella-Bot-rounded-white.png
