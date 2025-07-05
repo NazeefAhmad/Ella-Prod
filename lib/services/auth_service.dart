@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hoocup/services/token_storage_service.dart';
 import 'package:hoocup/services/api_service.dart';
+import 'package:hoocup/services/shared_preferences_clear_service.dart';
 import 'package:get/get.dart';
 import 'package:hoocup/consts.dart';
 import 'package:hoocup/services/profile_service.dart';
@@ -14,6 +15,7 @@ class AuthService {
   final TokenStorageService _tokenStorage = TokenStorageService();
   final ApiService _apiService = ApiService();
   final ProfileService _profileService = ProfileService();
+  final SharedPreferencesClearService _prefsClearService = SharedPreferencesClearService();
   Timer? _tokenRefreshTimer;
 
   // Start background token refresh
@@ -259,16 +261,15 @@ class AuthService {
         // Continue with navigation
       }
 
+      // Clear all shared preferences data
+      await _prefsClearService.clearAllUserData();
+      print("All shared preferences cleared");
+
       // Clear user data from AppConstants
       AppConstants.userId = '';
       AppConstants.userName = '';
       
-      // Clear from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('user_id');
-      await prefs.remove('username');
-      
-      print("Cleared user data from AppConstants and SharedPreferences");
+      print("Cleared user data from AppConstants");
 
       // Navigate to onboarding screen
       Get.offAllNamed('/onboarding');
@@ -279,6 +280,8 @@ class AuthService {
       Get.offAllNamed('/onboarding');
     }
   }
+
+
 
   // Check if user is authenticated
   Future<bool> isAuthenticated() async {
@@ -293,6 +296,10 @@ class AuthService {
       // Call backend to deactivate account
       await _apiService.deactivateAccount();
       print("Account deactivation successful");
+
+      // Clear all shared preferences before sign out
+      await _prefsClearService.clearAllUserData();
+      print("All shared preferences cleared during deactivation");
 
       // Sign out from all services
       await signOut();
@@ -310,6 +317,10 @@ class AuthService {
       // Call backend to delete account
       await _apiService.deleteAccount();
       print("Account deletion successful");
+
+      // Clear all shared preferences before sign out
+      await _prefsClearService.clearAllUserData();
+      print("All shared preferences cleared during deletion");
 
       // Sign out from all services
       await signOut();

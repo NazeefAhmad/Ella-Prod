@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hoocup/consts.dart';
 import 'package:hoocup/services/token_storage_service.dart';
 import 'package:hoocup/services/api_service.dart';
+import 'package:hoocup/services/shared_preferences_clear_service.dart';
 
 class ProfileService {
   final TokenStorageService _tokenStorage = TokenStorageService();
@@ -35,6 +36,13 @@ class ProfileService {
     await prefs.remove(_profilePicUrlCacheKey);
     await prefs.remove(_profilePicUrlCacheTimestampKey);
     print('Profile cache cleared');
+  }
+
+  // Clear all profile-related data using the dedicated service
+  Future<void> clearAllProfileData() async {
+    final clearService = SharedPreferencesClearService();
+    await clearService.clearAllUserData();
+    print('All profile and user data cleared');
   }
 
   // Function to get auth headers with JWT token

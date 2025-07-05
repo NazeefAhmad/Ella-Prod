@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/chat_message.dart';
 import '../models/chat_user.dart';
 import '../models/chat_media.dart';
+import 'shared_preferences_clear_service.dart';
 
 class ChatCacheService {
   static const String _messagesPrefix = 'chat_messages_';
@@ -70,5 +71,12 @@ class ChatCacheService {
   Future<void> clearMessages(String chatId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_messagesPrefix + chatId);
+  }
+
+  // Clear all chat messages using the dedicated service
+  Future<void> clearAllChatMessages() async {
+    final clearService = SharedPreferencesClearService();
+    await clearService.clearAllUserData();
+    print('All chat messages cleared');
   }
 } 

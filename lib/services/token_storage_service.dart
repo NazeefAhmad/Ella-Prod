@@ -62,7 +62,7 @@ class TokenStorageService {
     final expiryTime = DateTime.parse(expiryString);
     final now = DateTime.now();
     final timeUntilExpiry = expiryTime.difference(now);
-    print('Token refresh check - Time until expiry: ${timeUntilExpiry.inMinutes} minutes');
+    print('Token refresh check : Time until expiry: ${timeUntilExpiry.inMinutes} minutes');
     
     // Start refresh process when token is within 15 minutes of expiry
     final needsRefresh = now.isAfter(expiryTime.subtract(const Duration(minutes: 15)));
