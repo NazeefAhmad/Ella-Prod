@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoocup/pages/feed/feed.dart';
 import 'dart:io' show Platform, File;
 import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
@@ -390,7 +391,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         leading: GestureDetector(
           onTap: () {
-            Get.back();
+          
+            
+         Get.to(() => FeedScreen());
+
           },
           child: const Padding(
             padding: EdgeInsets.only(left: 16.0),
