@@ -3,10 +3,10 @@ class AppConstants {
   // Make sure your mobile device is on the same network
   // static String baseUrl = 'http://192.168.1.19:8000';
 
-  static String baseUrl = 'http://192.168.1.22:8000';  // Use the deployed server URL
+  // static String baseUrl = 'http://192.168.1.22:8000';  // Use the deployed server URL
   
   // For production, use your deployed server URL
- //  static String baseUrl = 'https://hoocup.onrender.com';
+  static String baseUrl = 'https://hoocup.onrender.com';
 
   static String deviceId = '';  // Initialize as empty string
   static String accessToken = 'accessToken';
@@ -19,4 +19,3 @@ class AppConstants {
   static String firebaseUid = '';  // Store the Firebase UID
   static String userId = firebaseUid;  // Store the user ID, initially same as firebaseUid
 }
-//check Now 
