@@ -34,6 +34,8 @@ class ApiService {
     while (retryCount < maxRetries) {
       try {
         final refreshToken = await _tokenStorage.getRefreshToken();
+        print('[DEBUG] Current refresh token before refresh: '
+            + (refreshToken ?? 'null'));
         if (refreshToken == null) {
           print('No refresh token available');
           throw 'No refresh token available';
@@ -46,7 +48,8 @@ class ApiService {
           body: json.encode({'refresh_token': refreshToken}),
         ).timeout(const Duration(seconds: 10));
 
-        print('Token refresh response status: ${response.statusCode}');
+        print('[DEBUG] Token refresh response status: ${response.statusCode}');
+        print('[DEBUG] Token refresh response body: ${response.body}');
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           if (data == null) {
@@ -63,19 +66,21 @@ class ApiService {
             throw 'Missing required tokens in response';
           }
 
-          print('Token refresh successful - saving new tokens');
+          print('[DEBUG] Token refresh successful - saving new tokens');
+          print('[DEBUG] New refresh token after refresh: \n' + newRefreshToken);
           await _tokenStorage.saveTokens(
             accessToken: accessToken,
             refreshToken: newRefreshToken,
             expiresIn: expiresIn,
           );
-          print('New tokens saved successfully');
+          print('[DEBUG] New tokens saved successfully');
           return;
         } else if (response.statusCode == 401) {
-          print('Refresh token is invalid or expired');
+          print('[DEBUG] Refresh token is invalid or expired (401)');
+          print('[DEBUG] API error: Status ${response.statusCode}, Body: ${response.body}');
           break;
         } else {
-          print('API error: Status ${response.statusCode}, Body: ${response.body}');
+          print('[DEBUG] API error: Status ${response.statusCode}, Body: ${response.body}');
           retryCount++;
           if (retryCount < maxRetries) {
             print('Retrying in ${retryDelay.inSeconds} seconds...');
@@ -85,7 +90,7 @@ class ApiService {
           throw 'Failed to refresh token after $maxRetries attempts';
         }
       } on TimeoutException {
-        print('Token refresh request timed out');
+        print('[DEBUG] Token refresh request timed out');
         retryCount++;
         if (retryCount < maxRetries) {
           print('Retrying in ${retryDelay.inSeconds} seconds...');
@@ -94,21 +99,21 @@ class ApiService {
         }
         throw 'Token refresh timed out after $maxRetries attempts';
       } catch (e) {
-        print('Error refreshing token: $e');
+        print('[DEBUG] Error refreshing token: $e');
         retryCount++;
         if (retryCount < maxRetries) {
           print('Retrying in ${retryDelay.inSeconds} seconds...');
           await Future.delayed(retryDelay);
           continue;
         }
-        print('All retry attempts failed, logging out user');
+        print('[DEBUG] All retry attempts failed, logging out user');
         await _tokenStorage.deleteTokens();
         Get.offAllNamed('/onboarding');
         rethrow;
       }
     }
 
-    print('Token refresh failed after all attempts, logging out user');
+    print('[DEBUG] Token refresh failed after all attempts, logging out user');
     await _tokenStorage.deleteTokens();
     Get.offAllNamed('/onboarding');
   }
