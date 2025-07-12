@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For HapticFeedback
-import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hoocup/pages/bottomNavigation/bottom_navigation.dart';
 import 'dart:ui'; // For ImageFilter
 import '../../utils/navigation_helper.dart';
 
 class FeedScreen extends StatefulWidget {
+  const FeedScreen({super.key});
+
   @override
   _FeedScreenState createState() => _FeedScreenState();
 }
@@ -175,7 +176,7 @@ class PersonaCard extends StatefulWidget {
   final String bio;
   final bool isLeftSide;
 
-  const PersonaCard({
+  const PersonaCard({super.key, 
     required this.name,
     required this.imagePath,
     this.age,

@@ -8,12 +8,12 @@ class UpdateDialog extends StatelessWidget {
   final String? updateUrl;
 
   const UpdateDialog({
-    Key? key,
+    super.key,
     required this.isForceUpdate,
     required this.versionService,
     this.updateMessage,
     this.updateUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

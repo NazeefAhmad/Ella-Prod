@@ -18,7 +18,7 @@ class CustomTextField extends StatefulWidget {
   final int? minLines;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.labelText,
     required this.enabled,
@@ -26,7 +26,7 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.maxLines,
     this.minLines,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -78,10 +78,10 @@ class BioTextField extends StatefulWidget {
   final TextEditingController emailController;
 
   const BioTextField({
-    Key? key,
+    super.key,
     required this.bioController,
     required this.emailController,
-  }) : super(key: key);
+  });
 
   @override
   State<BioTextField> createState() => _BioTextFieldState();
@@ -180,7 +180,7 @@ class _BioTextFieldState extends State<BioTextField> {
 }
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({Key? key}) : super(key: key);
+  const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -917,8 +917,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     : const Text(
                                         'Submit',
                                         style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
                                       ),

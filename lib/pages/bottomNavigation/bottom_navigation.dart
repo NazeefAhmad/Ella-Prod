@@ -6,7 +6,7 @@ import '../../config/responsive_config.dart';
 class BottomNavigation extends StatefulWidget {
   final int selectedIndex;
 
-  const BottomNavigation({Key? key, required this.selectedIndex}) : super(key: key);
+  const BottomNavigation({super.key, required this.selectedIndex});
 
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();

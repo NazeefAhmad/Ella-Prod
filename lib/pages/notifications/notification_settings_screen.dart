@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:app_settings/app_settings.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:get/get.dart';
-import 'dart:io' show Platform;
 import '../../widgets/back_button.dart';
 import '../../services/comprehensive_notification_service.dart';
 import '../../services/permission_manager.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
-  const NotificationSettingsScreen({Key? key}) : super(key: key);
+  const NotificationSettingsScreen({super.key});
 
   @override
   State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();

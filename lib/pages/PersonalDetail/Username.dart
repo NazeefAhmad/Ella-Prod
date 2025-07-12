@@ -293,10 +293,10 @@ class _UsernamePageState extends State<UsernamePage> with SingleTickerProviderSt
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Continue", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      : const Text("Continue", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 36),
             ],
           ),
         ),

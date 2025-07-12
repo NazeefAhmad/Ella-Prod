@@ -1,0 +1,2 @@
+C:/Users/nakul/Downloads/Hoocup/Ella-Prod/android/app/.cxx/Debug/1l11613j/x86/CMakeFiles/edit_cache.dir
+C:/Users/nakul/Downloads/Hoocup/Ella-Prod/android/app/.cxx/Debug/1l11613j/x86/CMakeFiles/rebuild_cache.dir

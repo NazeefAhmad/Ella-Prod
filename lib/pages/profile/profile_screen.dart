@@ -6,11 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
 import '../bottomNavigation/bottom_navigation.dart';
-import 'account_settings_screen.dart';
-import 'additional_resources_screen.dart';
-import '../User_Interest/UserInterest.dart';
-import 'edit_profile_screen.dart';
-import 'notifications_screen.dart';
 import '../../services/profile_service.dart';
 import '../../services/auth_service.dart';
 import 'package:get/get.dart';
@@ -18,7 +13,7 @@ import '../../widgets/back_button.dart';
 
 // Shimmer Placeholder Widget
 class ProfileShimmerPlaceholder extends StatelessWidget {
-  const ProfileShimmerPlaceholder({Key? key}) : super(key: key);
+  const ProfileShimmerPlaceholder({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +121,7 @@ class ProfileShimmerPlaceholder extends StatelessWidget {
 }
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -379,14 +374,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 101,
+        toolbarHeight: 55,
         centerTitle: true,
         title: const Text(
           'Profile',
           style: TextStyle(
             color: Colors.black,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w400,
           ),
         ),
         leading: GestureDetector(
@@ -424,16 +419,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 radius: 72,
                                 backgroundColor: Colors.grey[200],
                                 backgroundImage: currentImageProvider,
-                                child: currentImageProvider == null
-                                    ? const Text(
-                                        'AB',
-                                        style: TextStyle(
-                                          fontSize: 32,
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                    : null,
                                 onBackgroundImageError: currentImageProvider != null
                                     ? (_, __) {
                                         if (mounted) {
@@ -443,6 +428,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           });
                                         }
                                       }
+                                    : null,
+                                child: currentImageProvider == null
+                                    ? const Text(
+                                        'AB',
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
                                     : null,
                               ),
                               if (!_isGuestUser)

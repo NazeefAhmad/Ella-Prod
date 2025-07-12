@@ -2,7 +2,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hoocup/consts.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'dart:convert';
-import 'dart:convert' show utf8;
 
 class JwtService {
   static final JwtService _instance = JwtService._internal();
@@ -268,7 +267,7 @@ class JwtService {
     
     // Check if it's base64 encoded
     try {
-      final decoded = utf8.decode(base64Url.decode(token.split('.')[0] + '=='));
+      final decoded = utf8.decode(base64Url.decode('${token.split('.')[0]}=='));
       print('Header (decoded): $decoded');
     } catch (e) {
       print('Not base64 encoded or invalid format');

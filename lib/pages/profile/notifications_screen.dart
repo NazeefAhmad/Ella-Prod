@@ -5,7 +5,7 @@ import '../../controllers/notification_controller.dart';
 import '../../models/notification_model.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -30,8 +30,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               )
             : CircleAvatar(
                 backgroundColor: Colors.grey[300],
-                child: const Icon(Icons.notifications, color: Colors.white),
                 radius: 24,
+                child: const Icon(Icons.notifications, color: Colors.white),
               ),
         title: Text(
           notification.title,

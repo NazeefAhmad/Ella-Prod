@@ -1,19 +1,10 @@
 // lib/imports.dart
 
 // Flutter packages
-import 'package:flutter/material.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:convert';
 
 // Third-party packages
-import 'package:dash_chat_2/dash_chat_2.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
 // Your project files
-import 'package:hoocup/consts.dart';
-import 'package:hoocup/services/chat_service.dart';
 
 // Re-export commonly used packages
 export 'package:flutter/material.dart';

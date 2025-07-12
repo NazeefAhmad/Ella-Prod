@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/chat_user.dart' as model;
 import '../../../models/chat_message.dart' as model;
-import 'package:image_picker/image_picker.dart';
 
 class ChatInput extends StatefulWidget {
   final TextEditingController textController;

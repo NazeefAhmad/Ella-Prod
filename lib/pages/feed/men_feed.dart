@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class MenFeedScreen extends StatefulWidget {
+  const MenFeedScreen({super.key});
+
   @override
   _MenFeedScreenState createState() => _MenFeedScreenState();
 }
@@ -62,7 +64,7 @@ class PersonaCard extends StatelessWidget {
   final String name;
   final String imagePath;
 
-  PersonaCard({required this.name, required this.imagePath});
+  const PersonaCard({super.key, required this.name, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {

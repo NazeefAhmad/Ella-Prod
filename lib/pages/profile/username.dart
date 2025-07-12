@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../services/profile_service.dart';
 import '../../widgets/back_button.dart';
 
 class UsernamePage extends StatefulWidget {
-  const UsernamePage({Key? key}) : super(key: key);
+  const UsernamePage({super.key});
 
   @override
   State<UsernamePage> createState() => _UsernamePageState();
