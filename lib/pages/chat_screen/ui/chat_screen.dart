@@ -242,6 +242,7 @@ class _ChatScreenState extends State<ChatScreen> {
       characterName: _controller.botUser.firstName,
       characterImage: _controller.botUser.profileImage ?? 'assets/images/Ella-Bot.jpeg',
       isBotTyping: _controller.isBotTyping,
+      currentChatId: _controller.chatId,
     );
   }
 

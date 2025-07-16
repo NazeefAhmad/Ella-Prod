@@ -31,6 +31,8 @@ class ChatController extends GetxController {
 
   static const int messagesPerPage = 50;
 
+  String get chatId => AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
+
   @override
   void onInit() {
     super.onInit();
@@ -185,8 +187,8 @@ class ChatController extends GetxController {
       }
     } catch (e) {
       print('📱 Error fetching from server: $e');
-      Get.snackbar('Error', 'Failed to refresh messages.',
-          snackPosition: SnackPosition.BOTTOM);
+      // Get.snackbar('Error', 'Failed to refresh messages.',
+      //     snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }

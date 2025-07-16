@@ -11,7 +11,7 @@ class LoadingIndicators {
           ),
           const SizedBox(height: 16),
           Text(
-            'Loading messages...',
+            'Loading lots of  messages...',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 16,

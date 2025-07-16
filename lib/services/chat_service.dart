@@ -165,6 +165,24 @@ Future<bool> checkHealth() async {
       rethrow;
     }
   }
+Future<bool> clearChatHistory(String chatId) async {
+  try {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/chat/$chatId/clear'),
+    );
+
+    if (response.statusCode == 200) {
+      print('✅ Chat cleared successfully for chatId: $chatId');
+      return true;
+    } else {
+      print('❌ Failed to clear chat. Status: ${response.statusCode}');
+      return false;
+    }
+  } catch (e) {
+    print('❌ Error clearing chat: $e');
+    return false;
+  }
+}
 
   // ✅ Fetch chat history
   Future<ChatHistoryResponse> getChatHistory(String chatId,
@@ -196,5 +214,12 @@ Future<bool> checkHealth() async {
     print('❌ ChatService: Error getting history: $e');
     rethrow;
   }
+
+
+
+  
 }
+// ✅ Clear (soft delete) a chat
+
 }
+

@@ -17,6 +17,8 @@ import 'services/version_service.dart';
 import 'services/comprehensive_notification_service.dart';
 import 'widgets/connectivity_wrapper.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
+import 'consts.dart';
+import 'services/chat_service.dart';
 
 /// Background message handler for Firebase Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -43,12 +45,19 @@ void main() async {
 
     // Initialize comprehensive notification service
     try {
-      print("📱 Initializing Comprehensive Notification Service...");
+      print("\ud83d\udcf1 Initializing Comprehensive Notification Service...");
       await ComprehensiveNotificationService().initialize();
-      print("✅ Comprehensive Notification Service initialized successfully");
+      print("\u2705 Comprehensive Notification Service initialized successfully");
     } catch (e) {
-      print('❌ Comprehensive Notification Service initialization error: $e');
+      print('\u274c Comprehensive Notification Service initialization error: $e');
     }
+
+    // Register ChatService with GetX for dependency injection
+    Get.put(ChatService(
+      baseUrl: AppConstants.baseUrl,
+      userName: AppConstants.userName,
+      userId: AppConstants.userId,
+    ));
 
     // Initialize Clarity and Run App
     final config = ClarityConfig(

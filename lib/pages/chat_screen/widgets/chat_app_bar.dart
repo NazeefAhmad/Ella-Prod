@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hoocup/services/chat_service.dart';
 import '../../../widgets/back_button.dart';
+import '../controllers/chat_controller.dart';
 
 class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String characterName;
   final String characterImage;
   final RxBool isBotTyping;
+  final String currentChatId;
 
   const ChatAppBar({
     super.key,
     required this.characterName,
     required this.characterImage,
     required this.isBotTyping,
+    required this.currentChatId,
   });
 
   @override
@@ -24,6 +28,7 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateMixin {
   late AnimationController _pulse;
   late Animation<double> _pulseAnimation;
+  final ChatService _chatService = Get.find<ChatService>(); // ✅ Automatically injects ChatService
 
   @override
   void initState() {
@@ -69,94 +74,110 @@ class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateM
           Expanded(child: _buildNameAndTypingIndicator()),
         ],
       ),
-   actions: [
-  PopupMenuButton<String>(
-    icon: const Icon(Icons.more_vert, color: Colors.black),
-    onSelected: (value) {
-      if (value == 'clear') {
-        debugPrint("Clear Chat Selected");
-        // TODO: Add your clear chat logic here
-      } else if (value == 'mute') {
-        debugPrint("Mute Selected");
-        // TODO: Add your mute logic here
-      } else if (value == 'report') {
-        debugPrint("Report Chat Selected");
-        // TODO: Add your report chat logic here
-      }
-    },
-    itemBuilder: (context) => const [
-      PopupMenuItem(
-        value: 'clear',
-        child: Text('Clear Chat'),
-      ),
-      PopupMenuItem(
-        value: 'mute',
-        child: Text('Mute'),
-      ),
-      PopupMenuItem(
-        value: 'report',
-        child: Text('Report Chat'),
-      ),
-    ],
-  ),
-],
-
+      actions: [_buildPopupMenu()],
       centerTitle: false,
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Container(
-          color: Colors.grey.shade200,
-          height: 1,
-        ),
+        child: Container(color: Colors.grey.shade200, height: 1),
       ),
     );
   }
 
- Widget _buildGradientAvatar(bool isTyping) {
-  return Container(
-    padding: const EdgeInsets.all(2.5),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: isTyping
-          ? const LinearGradient(colors: [Colors.purple, Colors.blue])
-          : null,
-      border: Border.all(color: Colors.grey.shade300, width: 2),
-    ),
-    child: CircleAvatar(
-      radius: 22,
-      backgroundColor: Colors.transparent,
-      child: ClipOval(
-        child: Image.asset(
-          widget.characterImage,
-          width: 44,
-          height: 44,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Center(
-            child: Text(
-              widget.characterName.isNotEmpty ? widget.characterName[0].toUpperCase() : '',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+  Widget _buildPopupMenu() {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.black),
+      onSelected: (value) => _handleMenuSelection(value),
+      itemBuilder: (context) => const [
+        PopupMenuItem(value: 'clear', child: Text('Clear Chat')),
+        PopupMenuItem(value: 'mute', child: Text('Mute')),
+        PopupMenuItem(value: 'report', child: Text('Report Chat')),
+      ],
+    );
+  }
+
+  Future<void> _handleMenuSelection(String value) async {
+    if (value == 'clear') {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Clear Chat?'),
+          content: const Text('Are you sure you want to clear this chat?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Clear'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed == true) {
+        final success = await _chatService.clearChatHistory(widget.currentChatId);
+        if (success) {
+          Get.snackbar('Success', 'Chat cleared.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green.shade50,
+              colorText: Colors.black);
+          // Clear local UI messages and refresh chat screen
+          final controller = Get.find<ChatController>();
+          controller.messages.clear();
+          controller.hasChatStarted.value = false;
+        } else {
+          Get.snackbar('Failed', 'Could not clear chat.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red.shade50,
+              colorText: Colors.black);
+        }
+      }
+    } else if (value == 'mute') {
+      debugPrint("Mute selected");
+      // Implement mute logic here
+    } else if (value == 'report') {
+      debugPrint("Report selected");
+      // Implement report logic here
+    }
+  }
+
+  Widget _buildGradientAvatar(bool isTyping) {
+    return Container(
+      padding: const EdgeInsets.all(2.5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: isTyping ? const LinearGradient(colors: [Colors.purple, Colors.blue]) : null,
+        border: Border.all(color: Colors.grey.shade300, width: 2),
+      ),
+      child: CircleAvatar(
+        radius: 22,
+        backgroundColor: Colors.transparent,
+        child: ClipOval(
+          child: Image.asset(
+            widget.characterImage,
+            width: 44,
+            height: 44,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Center(
+              child: Text(
+                widget.characterName.isNotEmpty ? widget.characterName[0].toUpperCase() : '',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildNameAndTypingIndicator() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          widget.characterName,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        Text(widget.characterName,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
         Obx(() => widget.isBotTyping.value
             ? Container(
                 margin: const EdgeInsets.only(top: 4),
@@ -170,11 +191,7 @@ class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateM
                   children: [
                     const Text(
                       'typing',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(width: 6),
                     _buildTypingDots(),
