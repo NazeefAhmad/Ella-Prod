@@ -281,7 +281,26 @@ class AuthService {
     }
   }
 
-
+  // Load user data from SharedPreferences
+  Future<void> loadUserDataFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedUserId = prefs.getString('user_id');
+      final storedUsername = prefs.getString('username');
+      
+      if (storedUserId != null && storedUserId.isNotEmpty) {
+        AppConstants.userId = storedUserId;
+        print("✅ Loaded user ID from SharedPreferences: $storedUserId");
+      }
+      
+      if (storedUsername != null && storedUsername.isNotEmpty) {
+        AppConstants.userName = storedUsername;
+        print("✅ Loaded username from SharedPreferences: $storedUsername");
+      }
+    } catch (e) {
+      print("❌ Error loading user data from SharedPreferences: $e");
+    }
+  }
 
   // Check if user is authenticated
   Future<bool> isAuthenticated() async {

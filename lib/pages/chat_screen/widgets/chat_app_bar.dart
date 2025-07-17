@@ -118,14 +118,18 @@ class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateM
       if (confirmed == true) {
         final success = await _chatService.clearChatHistory(widget.currentChatId);
         if (success) {
-          Get.snackbar('Success', 'Chat cleared.',
+          // Clear local Hive storage
+          final controller = Get.find<ChatController>();
+          await controller.clearLocalChat();
+          
+          // Clear local UI messages
+          controller.messages.clear();
+          controller.hasChatStarted.value = false;
+          
+          Get.snackbar('Success', 'Chat cleared successfully.',
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.green.shade50,
               colorText: Colors.black);
-          // Clear local UI messages and refresh chat screen
-          final controller = Get.find<ChatController>();
-          controller.messages.clear();
-          controller.hasChatStarted.value = false;
         } else {
           Get.snackbar('Failed', 'Could not clear chat.',
               snackPosition: SnackPosition.BOTTOM,

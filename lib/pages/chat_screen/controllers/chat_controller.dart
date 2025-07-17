@@ -6,6 +6,9 @@ import '../../../models/chat_message.dart' as model;
 import '../../../consts.dart';
 import '../../../services/profile_service.dart';
 import 'dart:async';
+import '../../../services/local_chat_service.dart';
+import '../../../models/chat_message.dart' as local_chat_model;
+import '../../../models/hive_chat_message.dart';
 
 class ChatController extends GetxController {
   final ChatService _chatService = ChatService(
@@ -15,6 +18,7 @@ class ChatController extends GetxController {
   );
   final ChatCacheService _chatCacheService = ChatCacheService();
   final ProfileService _profileService = ProfileService();
+  final LocalChatService _localChatService = LocalChatService();
 
   final RxList<model.ChatMessage> messages = <model.ChatMessage>[].obs;
   final RxBool isApiHealthy = true.obs;
@@ -31,7 +35,19 @@ class ChatController extends GetxController {
 
   static const int messagesPerPage = 50;
 
-  String get chatId => AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
+  // ✅ Get the correct chat ID - use user ID from ChatService if available, otherwise fallback
+  String get chatId {
+    final serviceUserId = _chatService.userId;
+    if (serviceUserId.isNotEmpty) {
+      return serviceUserId;
+    }
+    // Fallback to AppConstants.userId if ChatService doesn't have it
+    if (AppConstants.userId.isNotEmpty) {
+      return AppConstants.userId;
+    }
+    // Only use guest ID if no user ID is available
+    return 'guest_${DateTime.now().millisecondsSinceEpoch}';
+  }
 
   @override
   void onInit() {
@@ -46,7 +62,7 @@ class ChatController extends GetxController {
       final characterImage = args?['characterImage'] as String? ?? 'assets/images/Ella-Bot.jpeg';
       final characterBio = args?['characterBio'] as String? ?? '';
 
-      currentUser = model.ChatUser(id: AppConstants.userId, firstName: AppConstants.userName);
+      currentUser = model.ChatUser(id: chatId, firstName: AppConstants.userName);
       botUser = model.ChatUser(
         id: "bot",
         firstName: characterName,
@@ -56,7 +72,7 @@ class ChatController extends GetxController {
       await _initializeChat();
     } catch (e) {
       print('Error initializing chat service: $e');
-      currentUser = model.ChatUser(id: "Guest", firstName: "Guest");
+      currentUser = model.ChatUser(id: chatId, firstName: "Guest");
       botUser = model.ChatUser(
         id: "bot",
         firstName: "Ella",
@@ -69,6 +85,13 @@ class ChatController extends GetxController {
   Future<void> _initializeChat() async {
     print('📱 Initializing chat...');
     await _checkApiHealth();
+    
+    // ✅ Refresh user data if we don't have a valid user ID
+    if (_chatService.userId.isEmpty && AppConstants.userId.isEmpty) {
+      print('📱 No user ID found, refreshing user data...');
+      await _chatService.refreshUserData();
+    }
+    
     await loadMessages();
   }
 
@@ -93,114 +116,91 @@ class ChatController extends GetxController {
 
   Future<void> loadMessages() async {
     try {
-      final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
+      final chatId = this.chatId;
       print('📱 Loading chat history for chat ID: $chatId');
 
-      final isRefresh = currentOffset.value == 0;
-
-      if (isRefresh && isApiHealthy.value) {
-        print('📱 Refreshing messages from server...');
-        await _refreshFromServer(chatId);
-        return;
-      }
-
-      print('📱 Loading from cache...');
-      final cachedMessages = await _chatCacheService.getMessages(chatId);
-      
-      if (cachedMessages.isNotEmpty) {
-        print('📱 Found ${cachedMessages.length} messages in cache');
-        messages.value = cachedMessages;
+      // Load recent messages with caching for instant display
+      final localMessages = _localChatService.getRecentMessages(count: 20);
+      if (localMessages.isNotEmpty) {
+        print('📱 Loaded ${localMessages.length} recent messages from local Hive storage (cached)');
+        // Convert Hive messages to UI messages
+        messages.value = localMessages.map((msg) => model.ChatMessage(
+          user: msg.isUser ? currentUser : botUser,
+          createdAt: msg.timestamp,
+          text: msg.message,
+        )).toList();
         hasChatStarted.value = true;
         currentOffset.value = messages.length;
-        hasMoreMessages.value = messages.length >= messagesPerPage;
-        
-        if (isApiHealthy.value) {
-          final lastMessageTime = cachedMessages.first.createdAt;
-          final cacheAge = DateTime.now().difference(lastMessageTime);
-          
-          if (cacheAge.inMinutes > 5) {
-            print('📱 Cache is older than 5 minutes, refreshing from server...');
-            _refreshFromServer(chatId);
-          } else {
-            print('📱 Using cached data (age: ${cacheAge.inMinutes} minutes)');
-          }
-        }
+        hasMoreMessages.value = _localChatService.hasMoreMessages(currentOffset.value);
+        print('📱 Using cached local data - ${messages.length} messages loaded instantly');
+        return;
       } else {
-        print('📱 No cached messages found');
-        if (isApiHealthy.value) {
-          await _refreshFromServer(chatId);
-        } else {
-          hasChatStarted.value = false;
-          messages.clear();
-          currentOffset.value = 0;
-          hasMoreMessages.value = false;
-        }
+        print('📱 No local messages found - starting fresh chat');
+        hasChatStarted.value = false;
+        messages.clear();
+        currentOffset.value = 0;
+        hasMoreMessages.value = false;
       }
     } catch (e) {
-      print('📱 Error loading messages: $e');
+      print('📱 Error loading local messages: $e');
       hasChatStarted.value = false;
       messages.clear();
       currentOffset.value = 0;
       hasMoreMessages.value = false;
-      Get.snackbar('Info', 'Starting a new chat.',
-          snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> _refreshFromServer(String chatId) async {
+  // Load more local messages (pagination)
+  Future<void> loadMoreLocalMessages() async {
+    if (isLoadingMore.value) return;
+
+    isLoadingMore.value = true;
     try {
-      isLoading.value = true;
-      print('📱 Fetching from server...');
-      
-      final response = await _chatService.getChatHistory(
-        chatId,
-        limit: messagesPerPage,
-        offset: 0,
+      final moreMessages = _localChatService.getMessages(
+        limit: LocalChatService.pageSize,
+        offset: currentOffset.value,
       );
 
-      if (response.messages.isNotEmpty) {
-        final newMessages = response.messages.map((msg) => model.ChatMessage(
+      if (moreMessages.isNotEmpty) {
+        final newMessages = moreMessages.map((msg) => model.ChatMessage(
           user: msg.isUser ? currentUser : botUser,
-          createdAt: DateTime.parse(msg.timestamp ?? DateTime.now().toIso8601String()),
-          text: msg.content,
+          createdAt: msg.timestamp,
+          text: msg.message,
         )).toList();
 
-        messages.value = newMessages;
-        hasChatStarted.value = messages.isNotEmpty;
-        currentOffset.value = messages.length;
-        hasMoreMessages.value = messages.length >= messagesPerPage;
+        messages.addAll(newMessages);
+        currentOffset.value += newMessages.length;
+        hasMoreMessages.value = _localChatService.hasMoreMessages(currentOffset.value);
 
-        _chatCacheService.saveMessages(chatId, newMessages).then((_) {
-          print('📱 Successfully updated cache with ${newMessages.length} messages');
-        });
-        print('📱 Successfully updated with ${messages.length} messages from server');
+        print('📱 Loaded ${newMessages.length} more local messages');
+        print('📱 Total local messages: ${messages.length}');
       } else {
-        print('📱 No messages found from server');
-        if (messages.isEmpty) {
-          hasChatStarted.value = false;
-          messages.clear();
-          currentOffset.value = 0;
-          hasMoreMessages.value = false;
-        }
+        hasMoreMessages.value = false;
+        print('📱 No more local messages available');
       }
     } catch (e) {
-      print('📱 Error fetching from server: $e');
-      // Get.snackbar('Error', 'Failed to refresh messages.',
-      //     snackPosition: SnackPosition.BOTTOM);
+      print('📱 Error loading more local messages: $e');
     } finally {
-      isLoading.value = false;
+      isLoadingMore.value = false;
     }
   }
 
   Future<void> loadMoreMessages() async {
-    if (!isApiHealthy.value || isLoadingMore.value) return;
+    // First try to load more local messages
+    if (_localChatService.hasMoreMessages(currentOffset.value)) {
+      await loadMoreLocalMessages();
+      return;
+    }
+
+    // If no more local messages, fetch from server
+    if (!isApiHealthy.value || isLoadingMore.value || !hasMoreMessages.value) return;
 
     isLoadingMore.value = true;
     try {
-      final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
-      print('📱 Loading more messages for chat ID: $chatId, offset: ${currentOffset.value}');
+      final chatId = this.chatId;
+      print('📱 Loading more messages from server for chat ID: $chatId, offset: ${currentOffset.value}');
 
       final response = await _chatService.getChatHistory(
         chatId,
@@ -215,17 +215,27 @@ class ChatController extends GetxController {
           text: msg.content,
         )).toList();
 
+        // Add new messages to the beginning (older messages)
         messages.addAll(newMessages);
         currentOffset.value += newMessages.length;
         hasMoreMessages.value = newMessages.length == messagesPerPage;
 
-        _chatCacheService.saveMessages(chatId, messages).then((_) {
-          print('📱 Successfully cached ${messages.length} messages');
-        });
+        // Save new messages to Hive local storage
+        for (var msg in newMessages) {
+          final localMsg = HiveChatMessage(
+            sender: msg.user.firstName,
+            message: msg.text,
+            timestamp: msg.createdAt,
+            isUser: msg.user.id == currentUser.id,
+          );
+          await _localChatService.saveMessage(localMsg);
+        }
+
         print('📱 Successfully loaded ${newMessages.length} more messages from server');
+        print('📱 Total messages now: ${messages.length}');
       } else {
         hasMoreMessages.value = false;
-        print('📱 No more messages to load');
+        print('📱 No more messages available on server');
       }
     } catch (e) {
       print('📱 Error loading more messages: $e');
@@ -250,7 +260,7 @@ class ChatController extends GetxController {
     }
     lastSentMessageId.value = messageId;
 
-    final chatId = AppConstants.userId.isNotEmpty ? AppConstants.userId : 'guest_${DateTime.now().millisecondsSinceEpoch}';
+    final chatId = this.chatId;
 
     final sendingMessage = model.ChatMessage(
       user: chatMessage.user,
@@ -264,6 +274,15 @@ class ChatController extends GetxController {
     messages.insert(0, sendingMessage);
     hasChatStarted.value = true;
     isBotTyping.value = true;
+
+    // Save user message to Hive local storage immediately
+    final localMsg = HiveChatMessage(
+      sender: chatMessage.user.firstName,
+      message: chatMessage.text,
+      timestamp: chatMessage.createdAt,
+      isUser: chatMessage.user.id == currentUser.id,
+    );
+    await _localChatService.saveMessage(localMsg);
 
     try {
       String responseText;
@@ -305,13 +324,21 @@ class ChatController extends GetxController {
       }
       isBotTyping.value = false;
 
-      _chatCacheService.saveMessages(chatId, messages).then((_) {
-        print('📱 Successfully cached new messages');
-      });
+      // Save bot message to Hive local storage
+      final localBotMsg = HiveChatMessage(
+        sender: botUser.firstName,
+        message: responseText,
+        timestamp: DateTime.now(),
+        isUser: false,
+      );
+      await _localChatService.saveMessage(localBotMsg);
+      
+      print('📱 Message sent and saved to local storage');
     } catch (e) {
       print('📱 Error sending message: $e');
+      // Update message status to failed
       if (messages.isNotEmpty && messages[0].id == messageId) {
-        final failedMessage = model.ChatMessage(
+        messages[0] = model.ChatMessage(
           user: chatMessage.user,
           createdAt: chatMessage.createdAt,
           text: chatMessage.text,
@@ -319,11 +346,49 @@ class ChatController extends GetxController {
           status: model.MessageStatus.failed,
           id: messageId,
         );
-        messages[0] = failedMessage;
       }
-      isBotTyping.value = false;
-      Get.snackbar('Error', 'Failed to send message.',
-          snackPosition: SnackPosition.BOTTOM);
     }
+  }
+
+  Future<void> clearLocalChat() async {
+    await _localChatService.clearMessages();
+    print('📱 Local chat history cleared');
+  }
+
+  // Get storage information
+  Map<String, dynamic> getStorageInfo() {
+    return _localChatService.getStorageInfo();
+  }
+
+  // Manual cleanup - keep only last N messages
+  Future<void> keepLastMessages(int count) async {
+    await _localChatService.keepLastMessages(count);
+    await loadMessages(); // Reload messages after cleanup
+  }
+
+  // Delete messages older than specific date
+  Future<void> deleteMessagesOlderThan(DateTime date) async {
+    await _localChatService.deleteMessagesOlderThan(date);
+    await loadMessages(); // Reload messages after cleanup
+  }
+
+  // Search messages in local storage
+  List<model.ChatMessage> searchLocalMessages(String query) {
+    final searchResults = _localChatService.searchMessages(query);
+    return searchResults.map((msg) => model.ChatMessage(
+      user: msg.isUser ? currentUser : botUser,
+      createdAt: msg.timestamp,
+      text: msg.message,
+    )).toList();
+  }
+
+  // Get storage statistics
+  Map<String, dynamic> getStorageStats() {
+    final info = _localChatService.getStorageInfo();
+    return {
+      ...info,
+      'localMessageCount': _localChatService.getMessageCount(),
+      'displayedMessages': messages.length,
+    };
   }
 } 

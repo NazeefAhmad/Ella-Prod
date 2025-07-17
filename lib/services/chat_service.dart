@@ -7,6 +7,7 @@ import '../models/chat_models.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:get/get.dart';
 import 'package:hoocup/services/token_storage_service.dart';
+import '../consts.dart';
 
 class ChatService {
   final String baseUrl;
@@ -18,6 +19,30 @@ class ChatService {
     this.userId = '', // ✅ Allow initialization without knowing it
     required this.userName,
   });
+
+  // ✅ Update user ID when loaded from SharedPreferences
+  void updateUserId(String newUserId) {
+    userId = newUserId;
+    print('ChatService: ✅ User ID updated to: $userId');
+  }
+
+  // ✅ Update username when loaded from SharedPreferences
+  void updateUsername(String newUsername) {
+    // Note: userName is final, so we can't update it directly
+    // This method is for consistency and future use
+    print('ChatService: ✅ Username updated to: $newUsername');
+  }
+
+  // ✅ Refresh user data from backend and update local storage
+  Future<void> refreshUserData() async {
+    try {
+      await fetchAndSetFirebaseUidAndUserId();
+      print('ChatService: ✅ User data refreshed successfully');
+    } catch (e) {
+      print('ChatService: ❌ Error refreshing user data: $e');
+    }
+  }
+
 Future<bool> checkHealth() async {
   print('\n=== API Health Check ===');
   print('ChatService: Checking API health at $baseUrl/health');
@@ -83,6 +108,9 @@ Future<bool> checkHealth() async {
         userId = fetchedUserId; // ✅ Store userId for reuse
         print('ChatService: ✅ User ID set: $userId');
         print('ChatService: ✅ Firebase UID: $firebaseUid');
+        
+        // ✅ Also update AppConstants to keep them in sync
+        AppConstants.userId = fetchedUserId;
       } else {
         print('ChatService: ❌ Failed to fetch IDs. Status: ${response.statusCode}');
       }

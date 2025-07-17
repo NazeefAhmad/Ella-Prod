@@ -19,6 +19,11 @@ import 'widgets/connectivity_wrapper.dart';
 import 'package:clarity_flutter/clarity_flutter.dart';
 import 'consts.dart';
 import 'services/chat_service.dart';
+import 'services/auth_service.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'models/hive_chat_message.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Background message handler for Firebase Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -43,6 +48,18 @@ void main() async {
     // Initialize SharedPreferences
     await SharedPreferences.getInstance();
 
+    // Initialize Hive
+    final dir = await getApplicationDocumentsDirectory();
+    await Hive.initFlutter(dir.path);
+    Hive.registerAdapter(HiveChatMessageAdapter());
+    await Hive.openBox<HiveChatMessage>('chat_history');
+
+    // Load user data from SharedPreferences
+    print("📱 Loading user data from SharedPreferences...");
+    final authService = AuthService();
+    await authService.loadUserDataFromPrefs();
+    print("✅ User data loaded: userId= [38;5;2m${AppConstants.userId} [0m, userName=${AppConstants.userName}");
+
     // Initialize comprehensive notification service
     try {
       print("\ud83d\udcf1 Initializing Comprehensive Notification Service...");
@@ -53,11 +70,18 @@ void main() async {
     }
 
     // Register ChatService with GetX for dependency injection
-    Get.put(ChatService(
+    final chatService = ChatService(
       baseUrl: AppConstants.baseUrl,
       userName: AppConstants.userName,
       userId: AppConstants.userId,
-    ));
+    );
+    
+    // Update ChatService with loaded user data
+    if (AppConstants.userId.isNotEmpty) {
+      chatService.updateUserId(AppConstants.userId);
+    }
+    
+    Get.put(chatService);
 
     // Initialize Clarity and Run App
     final config = ClarityConfig(
