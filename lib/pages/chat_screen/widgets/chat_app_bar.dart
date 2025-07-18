@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hoocup/services/chat_service.dart';
 import '../../../widgets/back_button.dart';
 import '../controllers/chat_controller.dart';
+import 'package:hoocup/services/api_service.dart'; // Added for ApiService
 
 class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String characterName;
@@ -137,12 +138,109 @@ class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateM
               colorText: Colors.black);
         }
       }
-    } else if (value == 'mute') {
-      debugPrint("Mute selected");
-      // Implement mute logic here
-    } else if (value == 'report') {
+    }else if (value == 'mute') {
+  debugPrint("Mute selected");
+
+  // Show confirmation dialog
+  final confirmed = await showDialog<bool>(
+  context: context,
+  builder: (context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Mute Chat',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Are you sure? You will no longer receive notifications from this chat.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            const Divider(height: 1),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text(
+                      'Mute',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(width: 1, height: 48, color: Colors.grey.shade300),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Color(0xFFFF204E),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+);
+
+
+  // If user confirms
+  if (confirmed == true) {
+    // Show beautiful top snackbar
+    Get.snackbar(
+      'Muted',
+      'Your chats will be muted from now on.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.blue.shade50,
+      colorText: Colors.black,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      borderRadius: 12,
+      icon: const Icon(Icons.volume_off, color: Colors.black54),
+      duration: const Duration(seconds: 2),
+      animationDuration: const Duration(milliseconds: 300),
+      forwardAnimationCurve: Curves.easeOutBack,
+    );
+
+    // 🔇 Implement your mute logic here
+    // e.g. mutedChats.add(widget.currentChatId);
+  }
+}
+
+ else if (value == 'report') {
       debugPrint("Report selected");
-      // Implement report logic here
+      // Show dialog to collect reason and send last 10 messages
+      showDialog(
+        context: context,
+        builder: (context) => _ReportLastMessagesDialog(
+          chatId: widget.currentChatId,
+        ),
+      );
     }
   }
 
@@ -226,6 +324,88 @@ class _ChatAppBarState extends State<ChatAppBar> with SingleTickerProviderStateM
           },
         );
       }),
+    );
+  }
+}
+
+class _ReportLastMessagesDialog extends StatefulWidget {
+  final String chatId;
+  const _ReportLastMessagesDialog({Key? key, required this.chatId}) : super(key: key);
+
+  @override
+  State<_ReportLastMessagesDialog> createState() => _ReportLastMessagesDialogState();
+}
+
+class _ReportLastMessagesDialogState extends State<_ReportLastMessagesDialog> {
+  final TextEditingController _reasonController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _submitReport() async {
+    final reason = _reasonController.text.trim();
+    if (reason.isEmpty) {
+      Get.snackbar('Reason required', 'Please enter a reason for reporting.', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    setState(() => _isLoading = true);
+    final controller = Get.find<ChatController>();
+    final messages = controller.messages.take(10).toList();
+    final reporterId = controller.currentUser.id;
+    final apiService = ApiService();
+    final success = await apiService.reportLastMessages(
+      chatId: widget.chatId,
+      reporterId: reporterId,
+      reason: reason,
+      messages: messages,
+    );
+    setState(() => _isLoading = false);
+    if (success) {
+      Get.back();
+      Get.snackbar('Reported', 'Thank you for your report. Our team will review it.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green.shade50, colorText: Colors.black);
+    } else {
+      Get.snackbar('Failed', 'Could not submit report. Please try again later.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red.shade50, colorText: Colors.black);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Report Chat', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _reasonController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Reason',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitReport,
+                    child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Submit'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextButton(
+                    onPressed: _isLoading ? null : () => Get.back(),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -540,5 +540,84 @@ class ApiService {
   }
 }
 
+  /// Reports a specific bot message for moderation.
+  /// Returns true if reported successfully, false otherwise.
+  Future<bool> reportBotMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+    required String reporterId,
+  }) async {
+    final url = Uri.parse('$_baseUrl/report_bot/report');
+    final headers = await _getAuthHeaders();
+    final body = json.encode({
+      'chat_id': chatId,
+      'message_id': messageId,
+      'reason': reason,
+      'reporter_id': reporterId,
+    });
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['status'] == 'reported';
+      } else {
+        print('Report failed: \\${response.statusCode} - \\${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error reporting bot message: \\${e.toString()}');
+      return false;
+    }
+  }
+
+  /// Reports the last 10 messages in a chat for moderation.
+  /// Returns true if reported successfully, false otherwise.
+  Future<bool> reportLastMessages({
+    required String chatId,
+    required String reporterId,
+    required String reason,
+    required List messages, // List<ChatMessage>
+  }) async {
+    final url = Uri.parse('$_baseUrl/report_bot/report');
+    final headers = await _getAuthHeaders();
+    final body = json.encode({
+      'chat_id': chatId,
+      'reporter_id': reporterId,
+      'reason': reason,
+      'messages': messages.map((msg) => {
+        'id': msg.id,
+        'text': msg.text,
+        'user': {
+          'id': msg.user.id,
+          'firstName': msg.user.firstName,
+          'profileImage': msg.user.profileImage,
+        },
+        'createdAt': msg.createdAt.toIso8601String(),
+        'medias': msg.medias?.map((m) => {
+          'url': m.url,
+          'fileName': m.fileName,
+          'type': m.type.toString(),
+        }).toList(),
+        'status': msg.status.toString(),
+        'deliveredAt': msg.deliveredAt?.toIso8601String(),
+        'readAt': msg.readAt?.toIso8601String(),
+      }).toList(),
+    });
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['status'] == 'reported';
+      } else {
+        print('Report failed: \\${response.statusCode} - \\${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error reporting last messages: \\${e.toString()}');
+      return false;
+    }
+  }
+
 }
 

@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import '../../../models/chat_user.dart' as model;
 import '../../../models/chat_message.dart' as model;
 import 'dart:io';
+import 'package:get/get.dart';
+import '../controllers/chat_controller.dart';
+import 'report_chat.dart';
 
 class MessageBubble extends StatelessWidget {
   final model.ChatMessage message;
@@ -158,6 +161,7 @@ class MessageBubble extends StatelessWidget {
                     ],
                   ],
                 ),
+                // Remove report button for bot messages (no longer needed)
               ],
             ),
           ),
