@@ -3,10 +3,10 @@ class AppConstants {
   // Make sure your mobile device is on the same network
   // static String baseUrl = 'http://192.168.1.19:8000';
 
-   static String baseUrl = 'https://qbsgcvfp-8000.inc1.devtunnels.ms';  // Use the deployed server URL
+  // static String baseUrl = 'https://qbsgcvfp-8000.inc1.devtunnels.ms';  // Use the deployed server URL
   
   // For production, use your deployed server URL
-  //static String baseUrl = 'https://hoocup.onrender.com';
+  static String baseUrl = 'https://hoocup.onrender.com';
 
   static String deviceId = '';  // Initialize as empty string
   static String accessToken = 'accessToken';

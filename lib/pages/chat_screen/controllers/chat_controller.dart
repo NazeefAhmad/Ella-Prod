@@ -35,6 +35,19 @@ class ChatController extends GetxController {
 
   static const int messagesPerPage = 50;
 
+  // Add this list at the top of the ChatController class
+  final List<String> funnyErrorMessages = [
+    "She is sleeping, don't disturb!",
+    "A rat bit the wires, we are fixing it 🐀🔌",
+    "She went to make chai, please wait ☕",
+    "Oops! I am on a coffee break.",
+    "Our servers are dancing, please try again soon!",
+    "She is meditating, try again in a moment 🧘‍♀️",
+    "The internet hamsters are running slow today.",
+    "She is updating her diary, please wait...",
+    "A pigeon is delivering your message, it might take a while 🕊️",
+  ];
+
   // ✅ Get the correct chat ID - use user ID from ChatService if available, otherwise fallback
   String get chatId {
     final serviceUserId = _chatService.userId;
@@ -254,7 +267,7 @@ class ChatController extends GetxController {
     }
 
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
-    
+
     if (lastSentMessageId.value == messageId) {
       return;
     }
@@ -285,41 +298,27 @@ class ChatController extends GetxController {
     await _localChatService.saveMessage(localMsg);
 
     try {
-      String responseText;
-      if (chatMessage.medias != null && chatMessage.medias!.isNotEmpty) {
-        final media = chatMessage.medias!.first;
-        final response = await _chatService.sendMediaMessage(
-          chatMessage.text,
-          media.url,
-          media.type.toString(),
-        );
-        responseText = response.response;
-      } else {
-        final response = await _chatService.sendMessage(chatMessage.text);
-        responseText = response.response;
-      }
+      final response = await _chatService.sendMessage(chatMessage.text);
 
-      final sentMessage = model.ChatMessage(
-        user: chatMessage.user,
-        createdAt: chatMessage.createdAt,
-        text: chatMessage.text,
-        medias: chatMessage.medias,
-        status: model.MessageStatus.sent,
-        deliveredAt: DateTime.now(),
-        id: messageId,
-      );
-
+      // Handle multiple responses from the backend
       final botMessage = model.ChatMessage(
         user: botUser,
         createdAt: DateTime.now(),
-        text: responseText,
+        text: response.response,
         status: model.MessageStatus.sent,
         deliveredAt: DateTime.now(),
         id: '${messageId}_bot',
       );
 
       if (messages.isNotEmpty && messages[0].id == messageId) {
-        messages[0] = sentMessage;
+        messages[0] = model.ChatMessage(
+          user: chatMessage.user,
+          createdAt: chatMessage.createdAt,
+          text: chatMessage.text,
+          medias: chatMessage.medias,
+          status: model.MessageStatus.sent,
+          id: messageId,
+        );
         messages.insert(0, botMessage);
       }
       isBotTyping.value = false;
@@ -327,13 +326,19 @@ class ChatController extends GetxController {
       // Save bot message to Hive local storage
       final localBotMsg = HiveChatMessage(
         sender: botUser.firstName,
-        message: responseText,
+        message: response.response,
         timestamp: DateTime.now(),
         isUser: false,
       );
       await _localChatService.saveMessage(localBotMsg);
-      
+
       print('📱 Message sent and saved to local storage');
+
+      // Debugging: Log all messages in the list
+      print('📱 Current messages in the list:');
+      for (var msg in messages) {
+        print('Message ID: ${msg.id}, Text: ${msg.text}, User: ${msg.user.firstName}');
+      }
     } catch (e) {
       print('📱 Error sending message: $e');
       // Update message status to failed
@@ -346,7 +351,28 @@ class ChatController extends GetxController {
           status: model.MessageStatus.failed,
           id: messageId,
         );
+        // Inject a funny error message as a bot reply
+        final random = DateTime.now().millisecondsSinceEpoch;
+        final funnyMessage = funnyErrorMessages[random % funnyErrorMessages.length];
+        final botErrorMessage = model.ChatMessage(
+          user: botUser,
+          createdAt: DateTime.now(),
+          text: funnyMessage,
+          status: model.MessageStatus.sent,
+          deliveredAt: DateTime.now(),
+          id: '${messageId}_bot_error',
+        );
+        messages.insert(0, botErrorMessage);
+        // Save bot error message to Hive local storage
+        final localBotMsg = HiveChatMessage(
+          sender: botUser.firstName,
+          message: funnyMessage,
+          timestamp: DateTime.now(),
+          isUser: false,
+        );
+        await _localChatService.saveMessage(localBotMsg);
       }
+      isBotTyping.value = false;
     }
   }
 
@@ -391,4 +417,4 @@ class ChatController extends GetxController {
       'displayedMessages': messages.length,
     };
   }
-} 
+}
