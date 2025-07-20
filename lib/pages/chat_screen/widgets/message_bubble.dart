@@ -161,7 +161,7 @@ class MessageBubble extends StatelessWidget {
                     ],
                   ],
                 ),
-                // Remove report button for bot messages (no longer needed)
+                
               ],
             ),
           ),

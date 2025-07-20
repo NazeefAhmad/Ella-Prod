@@ -166,33 +166,34 @@ class _ChatScreenState extends State<ChatScreen> {
           final msg = _controller.messages[messageIndex];
           final isCurrentUser = msg.user.id == _controller.currentUser.id;
           
-          String statusIcon = '';
-          Color statusColor = Colors.grey;
-          
-          if (isCurrentUser) {
-            switch (msg.status) {
-              case model.MessageStatus.sending:
-                statusIcon = '⏳';
-                statusColor = Colors.grey;
-                break;
-              case model.MessageStatus.sent:
-                statusIcon = '✓';
-                statusColor = Colors.grey;
-                break;
-              case model.MessageStatus.delivered:
-                statusIcon = '✓✓';
-                statusColor = Colors.grey;
-                break;
-              case model.MessageStatus.read:
-                statusIcon = '✓✓';
-                statusColor = Colors.blue;
-                break;
-              case model.MessageStatus.failed:
-                statusIcon = '⚠';
-                statusColor = Colors.red;
-                break;
-            }
-          }
+         String statusIcon = '';
+Color statusColor = Colors.grey.shade600;
+
+if (isCurrentUser) {
+  switch (msg.status) {
+    case model.MessageStatus.sending:
+      statusIcon = ''; // optionally use ⏳ or a shimmer dot
+      statusColor = Colors.grey.shade400;
+      break;
+    case model.MessageStatus.sent:
+      statusIcon = '✓';
+      statusColor = Colors.grey.shade600;
+      break;
+    case model.MessageStatus.delivered:
+      statusIcon = '✓';
+      statusColor = Colors.blue.shade500;
+      break;
+    case model.MessageStatus.read:
+      statusIcon = '✓';
+      statusColor = Colors.blue.shade500;
+      break;
+    case model.MessageStatus.failed:
+      statusIcon = '!';
+      statusColor = Colors.red.shade400;
+      break;
+  }
+}
+
           
           bool showDateSeparator = false;
           String? dateText;

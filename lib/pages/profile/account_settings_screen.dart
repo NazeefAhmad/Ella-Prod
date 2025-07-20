@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/loading_dialog.dart';
 import '../../widgets/back_button.dart';
+import 'package:get/get.dart';
+import '../../consts.dart';
+import '../chat_screen/controllers/chat_controller.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
@@ -71,6 +74,10 @@ class AccountSettingsScreen extends StatelessWidget {
                                 Navigator.pop(context); // Close dialog
                                 _showLoadingDialog(context, 'Signing out...');
                                 try {
+                                  // Clear chat storage for guests only
+                                  if (AppConstants.userId.isEmpty) {
+                                    await Get.find<ChatController>().clearLocalChat();
+                                  }
                                   await authService.signOut();
                                 } catch (e) {
                                   _hideLoadingDialog(context);
@@ -152,6 +159,10 @@ class AccountSettingsScreen extends StatelessWidget {
                               Navigator.pop(context);
                                 _showLoadingDialog(context, 'Deactivating account...');
                                 try {
+                                  // Clear chat storage for guests only
+                                  if (AppConstants.userId.isEmpty) {
+                                    await Get.find<ChatController>().clearLocalChat();
+                                  }
                                   await authService.deactivateAccount();
                                 } catch (e) {
                                   _hideLoadingDialog(context);
@@ -236,6 +247,8 @@ class AccountSettingsScreen extends StatelessWidget {
                               Navigator.pop(context); // close the dialog
                               _showLoadingDialog(context, 'Deleting account...');
                               try {
+                                // Always clear chat storage for all users
+                                await Get.find<ChatController>().clearLocalChat();
                                 await authService.deleteAccount();
                               } catch (e) {
                                 _hideLoadingDialog(context);
