@@ -63,6 +63,10 @@ class ChatController extends GetxController {
   DateTime? _lastMessageSent;
   static const int MIN_MESSAGE_INTERVAL_MS = 500; // Minimum 500ms between messages
 
+  // Debounce timer for delayed send
+  Timer? _debounceSendTimer;
+  String? _pendingTextMessage;
+
   late ChatUser currentUser;
   late ChatUser botUser;
 
@@ -328,10 +332,8 @@ class ChatController extends GetxController {
     }
     lastSentMessageId.value = messageId;
 
-    // ✅ Create message with unique ID
-    final messageWithId = chatMessage.copyWith(id: messageId);
-
     // ✅ Add message to UI immediately
+    final messageWithId = chatMessage.copyWith(id: messageId);
     final sendingMessage = messageWithId.copyWith(
       status: MessageStatus.sending
     );
@@ -350,8 +352,8 @@ class ChatController extends GetxController {
     );
     await _localChatService.saveMessage(localMsg);
 
-    // Directly call backend API (no queue)
     try {
+      // Show bot typing indicator only after sending
       isBotTyping.value = true;
       final response = await _chatService.sendMessage(chatMessage.text);
       print('📱 Received response: ${response.response}');
@@ -410,14 +412,24 @@ class ChatController extends GetxController {
   Future<void> sendTextMessage(String text) async {
     if (text.trim().isEmpty) return;
     
-    final message = ChatMessage(
-      user: currentUser,
-      createdAt: DateTime.now(),
-      text: text.trim(),
-      status: MessageStatus.sending,
-    );
-    
-    await sendMessage(message);
+    // Cancel any existing debounce timer
+    _debounceSendTimer?.cancel();
+    _pendingTextMessage = text.trim();
+
+    // Start a new debounce timer (3.5 seconds)
+    _debounceSendTimer = Timer(const Duration(milliseconds: 3500), () async {
+      final messageToSend = _pendingTextMessage;
+      _pendingTextMessage = null;
+      if (messageToSend != null && messageToSend.isNotEmpty) {
+        final message = ChatMessage(
+          user: currentUser,
+          createdAt: DateTime.now(),
+          text: messageToSend,
+          status: MessageStatus.sending,
+        );
+        await sendMessage(message);
+      }
+    });
   }
 
   // Removed: retryAllFailedMessages, clearMessageQueue
@@ -446,7 +458,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    // Removed: _retryTimer?.cancel(); _healthCheckTimer?.cancel(); clearMessageQueue(); _isProcessingQueue.value = false;
+    _debounceSendTimer?.cancel();
     super.onClose();
   }
 }

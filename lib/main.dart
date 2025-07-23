@@ -36,7 +36,7 @@ void main() async {
 
   try {
     // Load environment variables
-    await dotenv.load(fileName: "dev.env");
+    //await dotenv.load(fileName: "dev.env");
 
     // Initialize Firebase
     print("🔥 Initializing Firebase...");
