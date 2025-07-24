@@ -119,7 +119,6 @@ flutter:
     - assets/girls/
     - assets/images/splash/
     - assets/images/splash/Splash.png
-    - dev.env
     - assets/girls/Krity/krity.jpg
 
    # - assets/images/Ella-Bot-rounded-white.png
